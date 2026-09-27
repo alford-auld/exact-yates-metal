@@ -461,9 +461,18 @@ inputs outside the timed region; doing otherwise halves every reported bandwidth
   need a real multiply per butterfly; entries in `{-1, 0, 1}` compile to adds
   and negations.
 
+## Applications
+
+- **[`apps/chromatic/`](apps/chromatic/README.md)** — exact chromatic number by
+  Björklund–Husfeldt–Koivisto inclusion–exclusion. One subset-zeta over the
+  whole cube, then a pointwise power and a reduction per candidate `k`:
+  `O*(2^n)` for every graph, no search. Reuses this kernel unmodified. Reads its
+  own README first — the single-modulus result carries a **one-sided** guarantee,
+  and the default mode upgrades it to unconditional via CRT.
+
 ## Out of scope
 
 Number-theoretic transforms and anything needing modular multiplication;
 additive (Cantor / Gao–Mateer) FFT over `GF(2^k)`; ranked subset convolution;
-non-Metal backends. Applications built on the kernel (Shapley values, chromatic
-number, S-box search) are a separate task.
+non-Metal backends. Applications other than the chromatic-number one above
+(Shapley values, S-box search) are separate tasks.
