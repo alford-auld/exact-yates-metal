@@ -52,17 +52,27 @@ def time_sustained(
     duration_s: float = 3.0,
     warmup_s: float = 0.7,
     min_samples: int = 8,
+    max_samples: Optional[int] = None,
 ) -> Timing:
-    """Run ``fn`` back to back for ``duration_s`` and report steady-state timing."""
+    """Run ``fn`` back to back for ``duration_s`` and report steady-state timing.
+
+    ``max_samples`` caps the iteration count for workloads where one iteration
+    already takes seconds, so ``min_samples`` does not force a multi-minute
+    window.  It never shortens the window below ``min_samples`` iterations.
+    """
+    cap = max(min_samples, max_samples) if max_samples else None
     deadline = time.perf_counter() + warmup_s
     while time.perf_counter() < deadline:
         mx.eval(fn())
+        if cap == min_samples:
+            break                      # one warmup pass is enough for slow work
     mx.synchronize()
 
     times: List[float] = []
     start = time.perf_counter()
     deadline = start + duration_s
-    while time.perf_counter() < deadline or len(times) < min_samples:
+    while (time.perf_counter() < deadline or len(times) < min_samples) \
+            and (cap is None or len(times) < cap):
         t0 = time.perf_counter()
         out = fn()
         mx.eval(out)
