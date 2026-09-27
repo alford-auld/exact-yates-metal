@@ -194,6 +194,25 @@ def plan_passes(
     return passes
 
 
+def naive_passes(n: int, total_elems: int, lim: Optional[device.DeviceLimits] = None) -> List[Pass]:
+    """One device pass per stage, with every optimisation tier switched off.
+
+    ``p=1`` fuses nothing, ``logc=0`` uses no coalescing columns and ``logr=0``
+    puts the single butterfly entirely inside one thread's registers, so
+    ``NB_SIMD == 0`` (no shuffles) and the threadgroup buffer is elided.  This
+    is the textbook strided device-memory butterfly, and it is the reference
+    the tiered path is validated against in tests/test_naive_vs_tiered.py.
+    """
+    lim = lim or device.limits()
+    max_thread_log = _ilog2(lim.max_threads_per_threadgroup)
+    out = []
+    for j in range(n):
+        num_tiles = total_elems >> 1
+        logg = min(max(min(max_thread_log, 8), 0), _v2(num_tiles))
+        out.append(Pass(s=j, p=1, logc=0, logr=0, logg=logg))
+    return out
+
+
 def choose_tile_bytes(
     n: int, total_elems: int, itemsize: int, lim: Optional[device.DeviceLimits] = None
 ) -> int:
@@ -293,6 +312,7 @@ def transform(
     axis: int = -1,
     normalize: bool = False,
     tile_bytes: Optional[int] = None,
+    naive: bool = False,
     stream=None,
 ) -> mx.array:
     """Apply ``M^(x)n`` along ``axis`` with the templated Metal kernel.
@@ -305,6 +325,9 @@ def transform(
       normalize: scale the result by ``2**(-n/2)``, giving the orthonormal
         isometry ``H/sqrt(N)``.  Float only, and folded into the last pass.
       tile_bytes: override the threadgroup tile budget (benchmark knob).
+      naive: use one unfused device pass per stage with every tier disabled.
+        Slow by construction; it exists so the tiered path has an independent
+        on-GPU reference (see :func:`naive_passes`).
     """
     device.require_metal()
     check_dtype(x.dtype)
@@ -332,7 +355,10 @@ def transform(
     lim = device.limits()
     logw = _ilog2(lim.simd_width)
     mcodes = encode_matrix(v)
-    passes = plan_passes(n, flat.size, x.itemsize, lim, tile_bytes)
+    if naive:
+        passes = naive_passes(n, flat.size, lim)
+    else:
+        passes = plan_passes(n, flat.size, x.itemsize, lim, tile_bytes)
 
     for i, ps in enumerate(passes):
         last = i == len(passes) - 1
