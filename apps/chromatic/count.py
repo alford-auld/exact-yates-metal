@@ -53,7 +53,7 @@ import mlx.core as mx
 import numpy as np
 import yates
 
-from .graph import Graph
+from .graph import Graph, bits
 from .independent import indicator_gpu
 
 _METAL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "count.metal")
@@ -245,24 +245,63 @@ def proper_colourings_brute_force(g: Graph, k: int) -> int:
     return total
 
 
-def is_k_colourable_brute_force(g: Graph, k: int) -> bool:
-    """Does a proper k-colouring exist?  O(k^n) with early exit."""
+def is_k_colourable_exhaustive(g: Graph, k: int) -> bool:
+    """Does a proper k-colouring exist?  Enumerates all ``k^n`` assignments.
+
+    Unpruned and therefore unusable past about n=9, but it depends on nothing
+    at all, so it is used to validate :func:`is_k_colourable_brute_force`.
+    """
     import itertools
 
+    if g.n == 0:
+        return True
+    if k == 0:
+        return False
+    edges = g.edges
+    return any(all(a[u] != a[v] for u, v in edges)
+               for a in itertools.product(range(k), repeat=g.n))
+
+
+def is_k_colourable_brute_force(g: Graph, k: int) -> bool:
+    """Does a proper k-colouring exist?  Exhaustive backtracking search.
+
+    Still a search over the ``k^n`` assignments -- it just abandons a prefix as
+    soon as it conflicts, and breaks colour symmetry by letting vertex ``v`` use
+    at most one colour beyond those already used.  Both prunings are exact, so
+    the answer is identical to :func:`is_k_colourable_exhaustive`; that
+    equivalence is pinned by a test.  This is what makes n=12 feasible as an
+    oracle: the naive form needs 12^12 assignments.
+    """
     n = g.n
     if n == 0:
         return True
     if k == 0:
         return False
-    edges = g.edges
-    for assignment in itertools.product(range(k), repeat=n):
-        if all(assignment[u] != assignment[v] for u, v in edges):
+    adj = g.adj
+    colour = [-1] * n
+
+    def rec(v: int, used: int) -> bool:
+        if v == n:
             return True
-    return False
+        limit = min(used + 1, k)          # symmetry breaking
+        for c in range(limit):
+            ok = True
+            for u in bits(adj[v]):
+                if u < v and colour[u] == c:
+                    ok = False
+                    break
+            if ok:
+                colour[v] = c
+                if rec(v + 1, max(used, c + 1)):
+                    return True
+                colour[v] = -1
+        return False
+
+    return rec(0, 0)
 
 
 def chromatic_number_brute_force(g: Graph, max_k: Optional[int] = None) -> int:
-    """chi(G) by trying k = 0, 1, 2, ... exhaustively.  Tiny graphs only."""
+    """chi(G) by trying k = 0, 1, 2, ... with the backtracking colourability test."""
     limit = g.n if max_k is None else max_k
     for k in range(limit + 1):
         if is_k_colourable_brute_force(g, k):

@@ -161,6 +161,11 @@ class ModularResult:
 
     @property
     def any_nonzero(self) -> bool:
+        """Any nonzero residue, modulo anything, proves ``c_k != 0``.
+
+        Sound in one direction only, which is the whole point: ``c_k`` is a
+        count, so a single nonzero residue certifies ``c_k > 0``.
+        """
         return any(r != 0 for r in self.residues) or bool(self.residue_mod_2_64)
 
     @property
@@ -169,17 +174,31 @@ class ModularResult:
 
     @property
     def consistent(self) -> bool:
-        """All residues simultaneously zero, or all simultaneously nonzero.
+        """Do the *prime* residues agree on whether ``c_k`` vanishes?
 
-        At the instance sizes here a disagreement is a bug, not a coincidence:
-        it would mean some prime divides ``c_k`` while another does not, which
-        is possible in principle but overwhelmingly unlikely, so the driver
-        surfaces it rather than silently re-rolling.
+        All of them zero, or all of them nonzero.  Some prime dividing ``c_k``
+        while another does not is possible in principle but has probability
+        ``<= D/M`` per prime, so at these sizes it indicates a bug and is
+        surfaced rather than silently re-rolled.
+
+        The ``mod 2^64`` residue is deliberately excluded: 2 is not a random
+        prime, ``c_k`` routinely carries a large power of it, and a mismatch
+        there is a *false negative being caught*, not an inconsistency.  See
+        :attr:`mod_2_64_is_false_negative`.
         """
-        flags = [r != 0 for r in self.residues]
-        if self.residue_mod_2_64 is not None:
-            flags.append(self.residue_mod_2_64 != 0)
-        return len(set(flags)) <= 1
+        flags = {r != 0 for r in self.residues}
+        return len(flags) <= 1
+
+    @property
+    def mod_2_64_is_false_negative(self) -> bool:
+        """True when ``c_k == 0 mod 2^64`` but a prime modulus proves otherwise.
+
+        Demonstrably reachable: 7 disjoint copies of K_4 at k=30 (28 vertices)
+        has ``v2(c_30) = 70``.
+        """
+        if self.residue_mod_2_64 is None or not self.residues:
+            return False
+        return self.residue_mod_2_64 == 0 and any(r != 0 for r in self.residues)
 
     @property
     def colourable(self) -> bool:
