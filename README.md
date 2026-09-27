@@ -281,16 +281,30 @@ it, the planner simply minimised pass count, which left the high-stride passes
 reading 128-byte runs from rows megabytes apart: a single threadgroup touching
 128 distinct DRAM pages. Measured with `bench/tune_coalescing.py`:
 
+All rows below are from one run of that script, so they are directly
+comparable. The pre-fix policy is rebuilt explicitly by the script (as
+`old greedy 3p/128B`) because `plan_passes()` no longer emits it:
+
 | configuration | n=28, 1 GiB | n=29, 2 GiB |
 |---|--:|--:|
-| 3 passes, 128 B runs (old policy) | 82.2% of copy | 56.9% of copy |
-| 4 passes, 1 KiB runs | **96.9%** | 93.2% |
-| 4 passes, 2 KiB runs | 92.7% | **95.5%** |
+| minimise passes, 128 B runs (pre-fix policy) | 61.0% of copy | 57.5% of copy |
+| 4 passes, 512 B runs | 97.7% | 102.1% |
+| 4 passes, 1 KiB runs | 95.8% | 102.4% |
+| 4 passes, 2 KiB runs | 92.6% | **103.6%** |
+| **shipped policy** (run length scaled to stride) | **102.1%** | 100.5% |
 
 Paying an extra full pass over 2 GiB in exchange for longer contiguous runs is a
-large net win. The shipped policy scales the required run length with the
-stride; in the sweep above `uint32` n=29 reaches 99.3% of copy where the old
-policy reached 59.9%.
+large net win — and the required run length grows with the stride, which is why
+512 B is best at n=28 and 2 KiB at n=29. The shipped policy tracks that
+automatically and lands within a percent of the best hand-tuned plan at both
+sizes.
+
+One caveat on that table: the script's smallest-tile candidate at n=29
+(`tile8k`, 6 passes) recorded 161.8 s, ~600x more than its traffic can account
+for. It keeps a reference copy of the input alive for the correctness check, so
+at 2 GiB with six live pass buffers the machine is paging — a harness artifact,
+not a property of the kernel. It is left in the JSON rather than deleted, and
+excluded from the table.
 
 ### Full results
 
