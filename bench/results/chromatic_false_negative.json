@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "command": "python bench/chromatic/false_negative_search.py",
+  "memory_ceiling_n": 29,
+  "components_searched": 287,
+  "best_v2_within_ceiling": 70,
+  "best_v2_k": 30,
+  "best_v2_components": [
+    "K_4",
+    "K_4",
+    "K_4",
+    "K_4",
+    "K_4",
+    "K_4",
+    "K_4"
+  ],
+  "defeats_mod_2_64": true,
+  "best_v2_chi_rate": 0.875,
+  "best_v2_chi_witness": "K_8",
+  "vertices_needed_to_corrupt_chi": 74,
+  "chi_corruption_possible_within_ceiling": false
+}

@@ -59,12 +59,19 @@ modulus runs in the fast suite.
 What could *not* be constructed here is an instance where a false negative
 corrupts the reported `chi`. That needs the false negative to land at `k = chi`
 itself rather than at some `k` the binary search never visits, i.e.
-`2^64 | c_chi`. Over the families searched (complete, Turán, cycles, and 280
-random graphs on 2–8 vertices) the best ratio `v2(c_chi)/n` is `7/8`, attained
-by K₈ — which would need `n >= 74` vertices to reach valuation 64, far past the
-~29-vertex memory ceiling. That ratio is pinned by a test, but it is a search
-result, not a theorem: it is evidence that the mod-2^64 path is safe in this
-range, not a proof that it always is.
+`2^64 | c_chi`. Over 287 graphs on 2–9 vertices (complete, Turán, cycles, paths,
+empty, and random at varying density) the best ratio `v2(c_chi)/n` is `7/8`,
+attained by K₈ — which would need `n >= 74` vertices to reach valuation 64, far
+past the ~29-vertex memory ceiling.
+
+Both searches are reproducible:
+
+    .venv/bin/python bench/chromatic/false_negative_search.py
+
+That ratio is pinned by a test, but it is a search result, not a theorem: it is
+evidence that the mod-2^64 path is safe in this range, not a proof that it
+always is. Nothing here argues you should rely on it — `mode="exact"` is the
+default precisely because it does not need this argument at all.
 
 ### Closing the gap
 
@@ -264,9 +271,19 @@ removes the division entirely. Measured at n = 26, k = 6
 | *the subset-zeta at the same n, for scale* | 16.15 ms | 99.7 GB/s |
 
 Montgomery is **2.39x** faster than the generic `%` in that controlled
-comparison (same run, same conditions). End to end the effect is smaller but
-still large: the n = 29 sweep went from 2764 ms before the change to 1531 ms
-after, across two runs of `bench/chromatic/bench.py` with identical settings.
+comparison (same run, same conditions). End to end the effect is nearly as
+large, because the k-search dominates: n = 29 went from 2778 ms to 1531 ms
+(1.81x) across two runs of `bench/chromatic/bench.py` with identical settings.
+The "before" run is kept as `bench/results/chromatic_pre_montgomery.json` so
+the comparison is checkable rather than remembered:
+
+| n | before Montgomery | after | speedup |
+|--:|--:|--:|--:|
+| 26 | 169 ms | 115 ms | 1.47x |
+| 27 | 342 ms | 178 ms | 1.92x |
+| 28 | 860 ms | 544 ms | 1.58x |
+| 29 | 2778 ms | 1531 ms | 1.81x |
+
 It is still short of the
 102 GB/s bandwidth floor that the reduction-free `mod 2^64` path reaches,
 so the power kernel remains partly compute-bound; the remaining gap is the
