@@ -16,9 +16,11 @@ from .reference import (
 )
 from .kernel import (
     transform, wht, zeta_sub, mobius_sub, zeta_sup, mobius_sup,
-    device_copy, plan_passes, describe_plan, choose_tile_bytes, Pass,
+    device_copy, plan_passes, naive_passes, describe_plan, choose_tile_bytes, Pass,
 )
 from .device import limits, host_info, memory_ceiling_bytes
+from . import autodiff
+from .autodiff import yates_transform, differentiable, adjoint_of
 
 __all__ = [
     "VARIANTS", "TRANSPOSE", "INVERSE", "POLAR_KERNEL", "Variant",
@@ -27,6 +29,7 @@ __all__ = [
     "reference_transform", "numpy_transform", "dense_transform",
     "kron_power", "naive_convolution", "ring_bits", "SUPPORTED_DTYPES",
     "transform", "wht", "zeta_sub", "mobius_sub", "zeta_sup", "mobius_sup",
-    "device_copy", "plan_passes", "describe_plan", "choose_tile_bytes", "Pass",
+    "device_copy", "plan_passes", "naive_passes", "describe_plan", "choose_tile_bytes", "Pass",
     "limits", "host_info", "memory_ceiling_bytes",
+    "autodiff", "yates_transform", "differentiable", "adjoint_of",
 ]
