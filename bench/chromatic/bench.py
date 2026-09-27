@@ -74,8 +74,10 @@ def main() -> int:
     ap.add_argument("--duration", type=float, default=1.5)
     ap.add_argument("--warmup", type=float, default=0.4)
     ap.add_argument("--cooldown", type=float, default=2.0)
-    ap.add_argument("--max-samples", type=int, default=5,
-                    help="cap iterations; one pass already takes seconds at large n")
+    ap.add_argument("--max-samples", type=int, default=0,
+                    help="0 = let --duration govern. A small cap starves the fast "
+                         "small-n phases of samples and makes the derived shares "
+                         "noisy enough to exceed 100%%.")
     ap.add_argument("--dp-limit", type=int, default=22,
                     help="largest n at which the NumPy DP indicator is also timed")
     ap.add_argument("--quick", action="store_true")
@@ -122,7 +124,7 @@ def main() -> int:
             break
 
         ts = dict(duration_s=args.duration, warmup_s=args.warmup,
-                  min_samples=2, max_samples=args.max_samples)
+                  min_samples=2, max_samples=args.max_samples or None)
 
         # Phases are measured as nested prefixes of the real computation and the
         # inner ones subtracted, so the three shares sum to the measured total by
@@ -178,7 +180,18 @@ def main() -> int:
             "zeta_fraction": zeta_s / total,
             "k_search_fraction": search_s / total,
             "drift": t_total.drift_ratio,
+            # The prefix subtraction is only meaningful if the prefixes really
+            # nest; short phases at small n can invert under noise.
+            "phase_consistent": bool(
+                t_counts.sustained_s >= indicator_s and total >= t_counts.sustained_s),
+            "samples": {"indicator": t_ind.samples, "counts": t_counts.samples,
+                        "total": t_total.samples},
         }
+        if not row["phase_consistent"]:
+            print(f"    warning: n={n} phase prefixes did not nest "
+                  f"(indicator {indicator_s*1e3:.2f}ms, +zeta "
+                  f"{t_counts.sustained_s*1e3:.2f}ms, total {total*1e3:.2f}ms); "
+                  "shares for this row are unreliable", flush=True)
         results["sizes"].append(row)
         print(f"{n:>3} {g.num_edges:>5} {r.chromatic_number:>4} {i_v:>9} "
               f"{(1 << n) * ch.BYTES_PER_SUBSET / 2**20:>6.0f}M | "
@@ -204,7 +217,7 @@ def main() -> int:
             continue
         r = ch.chromatic_number(g, mode="exact")
         ts = dict(duration_s=args.duration, warmup_s=args.warmup,
-                  min_samples=2, max_samples=args.max_samples)
+                  min_samples=2, max_samples=args.max_samples or None)
         t_ind = time_sustained(lambda g=g: ch.indicator_gpu(g), **ts)
         t_counts = time_sustained(lambda g=g: ch.independent_counts(g), **ts)
         t_tot = time_sustained(

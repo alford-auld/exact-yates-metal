@@ -14,11 +14,19 @@ Three implementations:
 * :func:`indicator_numpy_direct` -- the obvious O(2^n * n) NumPy form, used as
   the oracle in tests.
 
-Why the direct form wins on the GPU even though the DP does less work: the DP
+Why the direct form is the default even though the DP does less work: the DP
 recurrence is sequential in ``popcount(S)``, and ``mx.fast.metal_kernel`` is
 out-of-place, so a GPU DP would need one full-array pass per level -- O(2^n * n)
 of *memory traffic* to save O(2^n * n) of *ALU*, on a kernel that is already
-memory-bound.  Measured both ways in ``bench/chromatic/``.
+memory-bound.
+
+Measured, though, the CPU DP is *faster* than the GPU below n ~ 15, where the
+GPU is entirely launch-overhead-bound (a flat 0.18 ms); the GPU wins by 36x by
+n = 22.  Both are timed in ``bench/chromatic/bench.py``.
+
+The early exit in the direct kernel is worth 3.4x at n = 29 over the otherwise
+identical branchless variant, despite the divergence: most subsets are not
+independent and fail on one of their first few vertices.
 """
 
 from __future__ import annotations

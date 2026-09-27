@@ -37,8 +37,9 @@ def scaling_table(d: dict) -> str:
             "|--:|------:|----:|-----:|-------:|----------:|-----:|---------:|"
             "-----------:|:--|--:|"]
     for r in d["sizes"]:
+        flag = "" if r.get("phase_consistent", True) else " ⚠"
         rows.append(
-            f"| {r['n']} | {r['num_edges']} | {r['chi']} | {r['i_of_V']} | "
+            f"| {r['n']}{flag} | {r['num_edges']} | {r['chi']} | {r['i_of_V']} | "
             f"{r['bytes']/2**20:.0f} MiB | {r['indicator_direct_s']*1e3:.2f} ms | "
             f"{r['zeta_s']*1e3:.2f} ms | {r['k_search_s']*1e3:.1f} ms | "
             f"{r['total_s']*1e3:.1f} ms | "
