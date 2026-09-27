@@ -1,0 +1,2469 @@
+{
+  "schema": 3,
+  "command": "python bench/bench.py --out bench/results/bench.json",
+  "started": "2026-09-27T11:48:55-0300",
+  "mlx_version": "0.32.2",
+  "device": {
+    "device_name": "Apple M4",
+    "architecture": "applegpu_g16g",
+    "simd_width": 32,
+    "max_threads_per_threadgroup": 1024,
+    "max_threadgroup_memory": 32768,
+    "memory_size": 17179869184,
+    "max_recommended_working_set_size": 12713115648,
+    "max_buffer_length": 9534832640,
+    "mlx_version": "0.32.2",
+    "source": "MTLDevice"
+  },
+  "host": {
+    "Model Name": "MacBook Air",
+    "Model Identifier": "Mac16,13",
+    "Chip": "Apple M4",
+    "Total Number of Cores": "10 (4 Performance and 6 Efficiency)",
+    "Memory": "16 GB",
+    "macOS": "26.3"
+  },
+  "settings": {
+    "out": "bench/results/bench.json",
+    "duration": 2.0,
+    "warmup": 0.5,
+    "cooldown": 3.0,
+    "min_n": 10,
+    "max_n": null,
+    "headroom": 0.5,
+    "min_elems": 67108864,
+    "dtypes": "uint32,uint64,float32",
+    "variant": "WHT",
+    "quick": false
+  },
+  "thermal_before": {
+    "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+    "thermal_warning_recorded": "False",
+    "uptime": "11:48  up 54 days,  1:06, 4 users, load averages: 5.29 3.58 2.99"
+  },
+  "dtypes": {
+    "uint32": {
+      "itemsize": 4,
+      "max_n": 29,
+      "copy_vec": 1,
+      "copy_vec_table": {
+        "1": 97.03290170447809,
+        "2": 93.73086662966745,
+        "4": 95.47199288762629,
+        "8": 90.41593334510574
+      },
+      "sizes": [
+        {
+          "n": 10,
+          "batch": 65536,
+          "array_bytes": 268435456,
+          "passes": 1,
+          "tile_bytes": 4096,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 0
+          },
+          "traffic_bytes": 536870912,
+          "copy": {
+            "timing": {
+              "samples": 352,
+              "sustained_s": 0.005492228548973799,
+              "first_half_s": 0.005509895971044898,
+              "peak_s": 0.005366707919165492,
+              "p90_s": 0.006547291995957494,
+              "window_s": 2.004835749976337,
+              "throttle_ratio": 1.0233887574466367,
+              "drift_ratio": 0.9967935107733533
+            },
+            "gb_per_s": 97.75101440385474
+          },
+          "timing": {
+            "samples": 338,
+            "sustained_s": 0.005726125091314316,
+            "first_half_s": 0.005708999931812286,
+            "peak_s": 0.005599959054961801,
+            "p90_s": 0.006786291021853685,
+            "window_s": 2.002581541892141,
+            "throttle_ratio": 1.0225298140779666,
+            "drift_ratio": 1.0029996776504766
+          },
+          "gb_per_s": 93.75815292864519,
+          "fraction_of_copy": 0.9591527361679011,
+          "elements_per_s": 11719769116.080648,
+          "butterflies_per_s": 58598845580.403244
+        },
+        {
+          "n": 11,
+          "batch": 32768,
+          "array_bytes": 268435456,
+          "passes": 1,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 1
+          },
+          "traffic_bytes": 536870912,
+          "copy": {
+            "timing": {
+              "samples": 349,
+              "sustained_s": 0.005465416936203837,
+              "first_half_s": 0.0056262079160660505,
+              "peak_s": 0.005326833110302687,
+              "p90_s": 0.006579166045412421,
+              "window_s": 2.0021481250878423,
+              "throttle_ratio": 1.0260161756585005,
+              "drift_ratio": 0.971421073970078
+            },
+            "gb_per_s": 98.2305500690491
+          },
+          "timing": {
+            "samples": 341,
+            "sustained_s": 0.005664458032697439,
+            "first_half_s": 0.005637166905216873,
+            "peak_s": 0.00554291601292789,
+            "p90_s": 0.006746541941538453,
+            "window_s": 2.0028664160054177,
+            "throttle_ratio": 1.0219274510900171,
+            "drift_ratio": 1.0048412842726566
+          },
+          "gb_per_s": 94.77886655721937,
+          "fraction_of_copy": 0.9648614050373999,
+          "elements_per_s": 11847358319.652422,
+          "butterflies_per_s": 65160470758.08832
+        },
+        {
+          "n": 12,
+          "batch": 16384,
+          "array_bytes": 268435456,
+          "passes": 1,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 2
+          },
+          "traffic_bytes": 536870912,
+          "copy": {
+            "timing": {
+              "samples": 350,
+              "sustained_s": 0.005548957968130708,
+              "first_half_s": 0.005461666965857148,
+              "peak_s": 0.005368083016946912,
+              "p90_s": 0.006582665955647826,
+              "window_s": 2.001949541969225,
+              "throttle_ratio": 1.0336945145246037,
+              "drift_ratio": 1.0159824835200035
+            },
+            "gb_per_s": 96.75166312006813
+          },
+          "timing": {
+            "samples": 340,
+            "sustained_s": 0.005705541581846774,
+            "first_half_s": 0.005678354064002633,
+            "peak_s": 0.005569082917645574,
+            "p90_s": 0.0067523750476539135,
+            "window_s": 2.0026183328591287,
+            "throttle_ratio": 1.0245028968358205,
+            "drift_ratio": 1.0047879222636877
+          },
+          "gb_per_s": 94.0963980892109,
+          "fraction_of_copy": 0.9725558719588926,
+          "elements_per_s": 11762049761.151361,
+          "butterflies_per_s": 70572298566.90817
+        },
+        {
+          "n": 13,
+          "batch": 8192,
+          "array_bytes": 268435456,
+          "passes": 1,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 3
+          },
+          "traffic_bytes": 536870912,
+          "copy": {
+            "timing": {
+              "samples": 347,
+              "sustained_s": 0.005488020600751042,
+              "first_half_s": 0.005629958119243383,
+              "peak_s": 0.005388333927839994,
+              "p90_s": 0.006609166972339153,
+              "window_s": 2.002201832830906,
+              "throttle_ratio": 1.0185004630830312,
+              "drift_ratio": 0.9747888855501085
+            },
+            "gb_per_s": 97.82596514425047
+          },
+          "timing": {
+            "samples": 341,
+            "sustained_s": 0.00565179088152945,
+            "first_half_s": 0.005644103861413896,
+            "peak_s": 0.0055481670424342155,
+            "p90_s": 0.006768624996766448,
+            "window_s": 2.0036789590958506,
+            "throttle_ratio": 1.0186771303572306,
+            "drift_ratio": 1.0013619558222708
+          },
+          "gb_per_s": 94.99129094718302,
+          "fraction_of_copy": 0.971023294348412,
+          "elements_per_s": 11873911368.397877,
+          "butterflies_per_s": 77180423894.5862
+        },
+        {
+          "n": 14,
+          "batch": 4096,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 4096,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 9,
+            "register": 0
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 352,
+              "sustained_s": 0.0054683954222127795,
+              "first_half_s": 0.005478437524288893,
+              "peak_s": 0.0053536659106612206,
+              "p90_s": 0.006555833155289292,
+              "window_s": 2.002478417009115,
+              "throttle_ratio": 1.0214300842574222,
+              "drift_ratio": 0.9981669769835667
+            },
+            "gb_per_s": 98.17704656455803
+          },
+          "timing": {
+            "samples": 174,
+            "sustained_s": 0.011299750069156289,
+            "first_half_s": 0.011237124912440777,
+            "peak_s": 0.010960582876577973,
+            "p90_s": 0.012274499982595444,
+            "window_s": 2.004876125138253,
+            "throttle_ratio": 1.0309442660483954,
+            "drift_ratio": 1.0055730586963734
+          },
+          "gb_per_s": 95.02350206230467,
+          "fraction_of_copy": 0.96787900418068,
+          "elements_per_s": 5938968878.894042,
+          "butterflies_per_s": 41572782152.25829
+        },
+        {
+          "n": 15,
+          "batch": 2048,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 4096,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 0
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 353,
+              "sustained_s": 0.005471250042319298,
+              "first_half_s": 0.005489979521371424,
+              "peak_s": 0.0053742919117212296,
+              "p90_s": 0.006542999995872378,
+              "window_s": 2.0029400000348687,
+              "throttle_ratio": 1.0180410986583375,
+              "drift_ratio": 0.9965884246053712
+            },
+            "gb_per_s": 98.1258227731111
+          },
+          "timing": {
+            "samples": 172,
+            "sustained_s": 0.011397458496503532,
+            "first_half_s": 0.011323604616336524,
+            "peak_s": 0.011034541996195912,
+            "p90_s": 0.01240008301101625,
+            "window_s": 2.0001059169881046,
+            "throttle_ratio": 1.032889131278193,
+            "drift_ratio": 1.0065221175296477
+          },
+          "gb_per_s": 94.20888212309774,
+          "fraction_of_copy": 0.9600824682095129,
+          "elements_per_s": 5888055132.693608,
+          "butterflies_per_s": 44160413495.202065
+        },
+        {
+          "n": 16,
+          "batch": 1024,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 9,
+            "register": 2
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 349,
+              "sustained_s": 0.005512417061254382,
+              "first_half_s": 0.00547454203478992,
+              "peak_s": 0.005364875076338649,
+              "p90_s": 0.006618584040552378,
+              "window_s": 2.005392791936174,
+              "throttle_ratio": 1.0275014763282104,
+              "drift_ratio": 1.0069183917529123
+            },
+            "gb_per_s": 97.39301399626537
+          },
+          "timing": {
+            "samples": 168,
+            "sustained_s": 0.011490666423924267,
+            "first_half_s": 0.012188186985440552,
+            "peak_s": 0.010913582984358072,
+            "p90_s": 0.012769541935995221,
+            "window_s": 2.002615167060867,
+            "throttle_ratio": 1.0528775417196443,
+            "drift_ratio": 0.9427707695697882
+          },
+          "gb_per_s": 93.44469540638688,
+          "fraction_of_copy": 0.959459940422114,
+          "elements_per_s": 5840293462.89918,
+          "butterflies_per_s": 46722347703.19344
+        },
+        {
+          "n": 17,
+          "batch": 512,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 2
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 351,
+              "sustained_s": 0.005463666631840169,
+              "first_half_s": 0.005534415831789374,
+              "peak_s": 0.005372874904423952,
+              "p90_s": 0.00655749998986721,
+              "window_s": 2.003242375096306,
+              "throttle_ratio": 1.0168981651408746,
+              "drift_ratio": 0.9872165008738907
+            },
+            "gb_per_s": 98.26201856301421
+          },
+          "timing": {
+            "samples": 175,
+            "sustained_s": 0.011215688078664243,
+            "first_half_s": 0.011208041803911328,
+            "peak_s": 0.010923665948212147,
+            "p90_s": 0.012197042116895318,
+            "window_s": 2.0097708329558372,
+            "throttle_ratio": 1.0267329788219943,
+            "drift_ratio": 1.0006822132613966
+          },
+          "gb_per_s": 95.73570666989158,
+          "fraction_of_copy": 0.9742900468556676,
+          "elements_per_s": 5983481666.868224,
+          "butterflies_per_s": 50859594168.379906
+        },
+        {
+          "n": 18,
+          "batch": 256,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 9,
+            "register": 4
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 352,
+              "sustained_s": 0.0054812709568068385,
+              "first_half_s": 0.0054644165793433785,
+              "peak_s": 0.0053770828526467085,
+              "p90_s": 0.006547166965901852,
+              "window_s": 2.003932208986953,
+              "throttle_ratio": 1.0193763248615086,
+              "drift_ratio": 1.0030843873666537
+            },
+            "gb_per_s": 97.94642816066126
+          },
+          "timing": {
+            "samples": 172,
+            "sustained_s": 0.011634562048129737,
+            "first_half_s": 0.011238166480325162,
+            "peak_s": 0.010915749939158559,
+            "p90_s": 0.012508749961853027,
+            "window_s": 2.0050071249715984,
+            "throttle_ratio": 1.065850913860948,
+            "drift_ratio": 1.0352722633624045
+          },
+          "gb_per_s": 92.28897654747603,
+          "fraction_of_copy": 0.9422393269522261,
+          "elements_per_s": 5768061034.217252,
+          "butterflies_per_s": 51912549307.95527
+        },
+        {
+          "n": 19,
+          "batch": 128,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 4
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 343,
+              "sustained_s": 0.005604104488156736,
+              "first_half_s": 0.005692915990948677,
+              "peak_s": 0.005382125033065677,
+              "p90_s": 0.006697665899991989,
+              "window_s": 2.0010129590518773,
+              "throttle_ratio": 1.0412438309640344,
+              "drift_ratio": 0.9843996463441328
+            },
+            "gb_per_s": 95.7995899495771
+          },
+          "timing": {
+            "samples": 173,
+            "sustained_s": 0.011249084025621414,
+            "first_half_s": 0.011295916512608528,
+            "peak_s": 0.010919250082224607,
+            "p90_s": 0.012366999872028828,
+            "window_s": 2.0022912910208106,
+            "throttle_ratio": 1.0302066479761043,
+            "drift_ratio": 0.9958540338949178
+          },
+          "gb_per_s": 95.45148934387883,
+          "fraction_of_copy": 0.9963663664334943,
+          "elements_per_s": 5965718083.992427,
+          "butterflies_per_s": 56674321797.928055
+        },
+        {
+          "n": 20,
+          "batch": 64,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 9,
+            "register": 6
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 346,
+              "sustained_s": 0.005695292027667165,
+              "first_half_s": 0.00545083312317729,
+              "peak_s": 0.005374833010137081,
+              "p90_s": 0.006579832872375846,
+              "window_s": 2.0010444580111653,
+              "throttle_ratio": 1.0596221346645913,
+              "drift_ratio": 1.0448479890992113
+            },
+            "gb_per_s": 94.26573903356216
+          },
+          "timing": {
+            "samples": 173,
+            "sustained_s": 0.011366249993443489,
+            "first_half_s": 0.01128708350006491,
+            "peak_s": 0.010994999902322888,
+            "p90_s": 0.012423958163708448,
+            "window_s": 2.011007917113602,
+            "throttle_ratio": 1.0337653564728242,
+            "drift_ratio": 1.00701390163173
+          },
+          "gb_per_s": 94.46755302930849,
+          "fraction_of_copy": 1.0021409050394703,
+          "elements_per_s": 5904222064.33178,
+          "butterflies_per_s": 59042220643.3178
+        },
+        {
+          "n": 21,
+          "batch": 32,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 6
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 338,
+              "sustained_s": 0.005692583043128252,
+              "first_half_s": 0.005709207849577069,
+              "peak_s": 0.005449041957035661,
+              "p90_s": 0.006762959063053131,
+              "window_s": 2.0053444169461727,
+              "throttle_ratio": 1.0446942945223863,
+              "drift_ratio": 0.9970880712549205
+            },
+            "gb_per_s": 94.31059818232757
+          },
+          "timing": {
+            "samples": 166,
+            "sustained_s": 0.011875416850671172,
+            "first_half_s": 0.011780959088355303,
+            "peak_s": 0.011299291858449578,
+            "p90_s": 0.012854290893301368,
+            "window_s": 2.0036775409244,
+            "throttle_ratio": 1.050987707852751,
+            "drift_ratio": 1.008017832980104
+          },
+          "gb_per_s": 90.41719019230172,
+          "fraction_of_copy": 0.9587171742618061,
+          "elements_per_s": 5651074387.018857,
+          "butterflies_per_s": 59336281063.698
+        },
+        {
+          "n": 22,
+          "batch": 16,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 14,
+            "register": 3
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 353,
+              "sustained_s": 0.0054530000779777765,
+              "first_half_s": 0.005460312473587692,
+              "peak_s": 0.005392000079154968,
+              "p90_s": 0.0065604159608483315,
+              "window_s": 2.0054318751208484,
+              "throttle_ratio": 1.0113130559954235,
+              "drift_ratio": 0.9986608100460759
+            },
+            "gb_per_s": 98.45422782372239
+          },
+          "timing": {
+            "samples": 117,
+            "sustained_s": 0.017529333010315895,
+            "first_half_s": 0.017535771010443568,
+            "peak_s": 0.01637362502515316,
+            "p90_s": 0.01791433384642005,
+            "window_s": 2.0128332918975502,
+            "throttle_ratio": 1.070583513631669,
+            "drift_ratio": 0.9996328647241208
+          },
+          "gb_per_s": 91.88100511594851,
+          "fraction_of_copy": 0.9332357497176971,
+          "elements_per_s": 3828375213.1645217,
+          "butterflies_per_s": 42112127344.80974
+        },
+        {
+          "n": 23,
+          "batch": 8,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 15,
+            "register": 3
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 350,
+              "sustained_s": 0.005462832981720567,
+              "first_half_s": 0.00555458408780396,
+              "peak_s": 0.005355791887268424,
+              "p90_s": 0.006576124811545014,
+              "window_s": 2.0014855000190437,
+              "throttle_ratio": 1.0199860443992599,
+              "drift_ratio": 0.9834819124829078
+            },
+            "gb_per_s": 98.27701373929024
+          },
+          "timing": {
+            "samples": 114,
+            "sustained_s": 0.017833124846220016,
+            "first_half_s": 0.017794915940612555,
+            "peak_s": 0.01665787515230477,
+            "p90_s": 0.01828858396038413,
+            "window_s": 2.0023901250679046,
+            "throttle_ratio": 1.0705521972742509,
+            "drift_ratio": 1.002147181011418
+          },
+          "gb_per_s": 90.31578872961192,
+          "fraction_of_copy": 0.9189919930738036,
+          "elements_per_s": 3763157863.73383,
+          "butterflies_per_s": 43276315432.93904
+        },
+        {
+          "n": 24,
+          "batch": 4,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 13,
+            "register": 6
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 353,
+              "sustained_s": 0.005464416928589344,
+              "first_half_s": 0.005454520462080836,
+              "peak_s": 0.005365041084587574,
+              "p90_s": 0.006549374898895621,
+              "window_s": 2.0037885000929236,
+              "throttle_ratio": 1.018522848648308,
+              "drift_ratio": 1.0018143605065388
+            },
+            "gb_per_s": 98.248526606954
+          },
+          "timing": {
+            "samples": 117,
+            "sustained_s": 0.017504749819636345,
+            "first_half_s": 0.01752845849841833,
+            "peak_s": 0.016369290882721543,
+            "p90_s": 0.01786254206672311,
+            "window_s": 2.0092637920752168,
+            "throttle_ratio": 1.069365187841663,
+            "drift_ratio": 0.9986474179241646
+          },
+          "gb_per_s": 92.01004028022491,
+          "fraction_of_copy": 0.9365030037377932,
+          "elements_per_s": 3833751678.342705,
+          "butterflies_per_s": 46005020140.11246
+        },
+        {
+          "n": 25,
+          "batch": 2,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 14,
+            "register": 6
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 354,
+              "sustained_s": 0.005449000047519803,
+              "first_half_s": 0.0054491248447448015,
+              "peak_s": 0.0053668750915676355,
+              "p90_s": 0.0065405420027673244,
+              "window_s": 2.0053253329824656,
+              "throttle_ratio": 1.0153021925330816,
+              "drift_ratio": 0.9999770977489865
+            },
+            "gb_per_s": 98.52650161828593
+          },
+          "timing": {
+            "samples": 114,
+            "sustained_s": 0.01791170798242092,
+            "first_half_s": 0.01786412508226931,
+            "peak_s": 0.016743999905884266,
+            "p90_s": 0.018247415777295828,
+            "window_s": 2.0017663340549916,
+            "throttle_ratio": 1.069738896506222,
+            "drift_ratio": 1.002663600928256
+          },
+          "gb_per_s": 89.91955080892916,
+          "fraction_of_copy": 0.9126432922311394,
+          "elements_per_s": 3746647950.3720484,
+          "butterflies_per_s": 46833099379.650604
+        },
+        {
+          "n": 26,
+          "batch": 1,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 12,
+            "register": 9
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 353,
+              "sustained_s": 0.005454583093523979,
+              "first_half_s": 0.005447708535939455,
+              "peak_s": 0.005352124804630876,
+              "p90_s": 0.006552207982167602,
+              "window_s": 2.002303124871105,
+              "throttle_ratio": 1.0191434790168667,
+              "drift_ratio": 1.0012619172885575
+            },
+            "gb_per_s": 98.42565468246448
+          },
+          "timing": {
+            "samples": 116,
+            "sustained_s": 0.01763704151380807,
+            "first_half_s": 0.017443166580051184,
+            "peak_s": 0.016478792065754533,
+            "p90_s": 0.01792908413335681,
+            "window_s": 2.003489625174552,
+            "throttle_ratio": 1.070287278547592,
+            "drift_ratio": 1.011114663892427
+          },
+          "gb_per_s": 91.31989255335417,
+          "fraction_of_copy": 0.9278057925849257,
+          "elements_per_s": 3804995523.0564237,
+          "butterflies_per_s": 49464941799.733505
+        },
+        {
+          "n": 27,
+          "batch": 1,
+          "array_bytes": 536870912,
+          "passes": 4,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 15,
+            "register": 7
+          },
+          "traffic_bytes": 4294967296,
+          "copy": {
+            "timing": {
+              "samples": 182,
+              "sustained_s": 0.01076854090206325,
+              "first_half_s": 0.01081837504170835,
+              "peak_s": 0.010467542102560401,
+              "p90_s": 0.011768334079533815,
+              "window_s": 2.006519665941596,
+              "throttle_ratio": 1.0287554419703957,
+              "drift_ratio": 0.9953935651654733
+            },
+            "gb_per_s": 99.7109853382524
+          },
+          "timing": {
+            "samples": 44,
+            "sustained_s": 0.046016687992960215,
+            "first_half_s": 0.04569177108351141,
+            "peak_s": 0.04500262485817075,
+            "p90_s": 0.04688324988819659,
+            "window_s": 2.021146208047867,
+            "throttle_ratio": 1.022533421950061,
+            "drift_ratio": 1.0071110596447432
+          },
+          "gb_per_s": 93.33499396256111,
+          "fraction_of_copy": 0.9360552766170966,
+          "elements_per_s": 2916718561.3300347,
+          "butterflies_per_s": 39375700577.95547
+        },
+        {
+          "n": 28,
+          "batch": 1,
+          "array_bytes": 1073741824,
+          "passes": 4,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 15,
+            "register": 8
+          },
+          "traffic_bytes": 8589934592,
+          "copy": {
+            "timing": {
+              "samples": 93,
+              "sustained_s": 0.021882582921534777,
+              "first_half_s": 0.02187216654419899,
+              "peak_s": 0.02070266706869006,
+              "p90_s": 0.022344000171869993,
+              "window_s": 2.017782999901101,
+              "throttle_ratio": 1.056993422583179,
+              "drift_ratio": 1.0004762389365836
+            },
+            "gb_per_s": 98.13666218929983
+          },
+          "timing": {
+            "samples": 22,
+            "sustained_s": 0.0922060830052942,
+            "first_half_s": 0.09239929215982556,
+            "peak_s": 0.09086662507615983,
+            "p90_s": 0.09285945794545114,
+            "window_s": 2.027270165970549,
+            "throttle_ratio": 1.014740923061814,
+            "drift_ratio": 0.9979089758155597
+          },
+          "gb_per_s": 93.16017243143048,
+          "fraction_of_copy": 0.9492902076874187,
+          "elements_per_s": 2911255388.4822025,
+          "butterflies_per_s": 40757575438.75084
+        },
+        {
+          "n": 29,
+          "batch": 1,
+          "array_bytes": 2147483648,
+          "passes": 4,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 13,
+            "register": 11
+          },
+          "traffic_bytes": 17179869184,
+          "copy": {
+            "timing": {
+              "samples": 46,
+              "sustained_s": 0.04312133300118148,
+              "first_half_s": 0.04336841590702534,
+              "peak_s": 0.04234762513078749,
+              "p90_s": 0.04474129085429013,
+              "window_s": 2.001812292030081,
+              "throttle_ratio": 1.0182703957542945,
+              "drift_ratio": 0.9943026993106329
+            },
+            "gb_per_s": 99.60191388059181
+          },
+          "timing": {
+            "samples": 12,
+            "sustained_s": 0.17376506188884377,
+            "first_half_s": 0.17891758354380727,
+            "peak_s": 0.17304666712880135,
+            "p90_s": 0.1805390000808984,
+            "window_s": 2.1356145839672536,
+            "throttle_ratio": 1.0041514510042988,
+            "drift_ratio": 0.971201703304349
+          },
+          "gb_per_s": 98.86837432826304,
+          "fraction_of_copy": 0.9926352865748326,
+          "elements_per_s": 3089636697.75822,
+          "butterflies_per_s": 44799732117.494194
+        }
+      ],
+      "thermal_recheck": {
+        "n": 10,
+        "first_s": 0.005726125091314316,
+        "last_s": 0.005700603942386806,
+        "slowdown": 0.995543033286817
+      }
+    },
+    "uint64": {
+      "itemsize": 8,
+      "max_n": 28,
+      "copy_vec": 1,
+      "copy_vec_table": {
+        "1": 98.06495898603345,
+        "2": 94.42531879831195,
+        "4": 91.0730534991854,
+        "8": 85.21225131142653
+      },
+      "sizes": [
+        {
+          "n": 10,
+          "batch": 65536,
+          "array_bytes": 536870912,
+          "passes": 1,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 0
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010912333033047616,
+              "first_half_s": 0.010895770974457264,
+              "peak_s": 0.01059512491337955,
+              "p90_s": 0.011891917092725635,
+              "window_s": 2.004750791937113,
+              "throttle_ratio": 1.0299390636978234,
+              "drift_ratio": 1.0015200446695491
+            },
+            "gb_per_s": 98.39709077318395
+          },
+          "timing": {
+            "samples": 175,
+            "sustained_s": 0.011157562490552664,
+            "first_half_s": 0.011178957996889949,
+            "peak_s": 0.010864790994673967,
+            "p90_s": 0.01211779098957777,
+            "window_s": 2.0004242500290275,
+            "throttle_ratio": 1.0269468134290127,
+            "drift_ratio": 0.9980860911774392
+          },
+          "gb_per_s": 96.23444411887984,
+          "fraction_of_copy": 0.9780212337853642,
+          "elements_per_s": 6014652757.42999,
+          "butterflies_per_s": 30073263787.14995
+        },
+        {
+          "n": 11,
+          "batch": 32768,
+          "array_bytes": 536870912,
+          "passes": 1,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 1
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010916895465925336,
+              "first_half_s": 0.010907103889621794,
+              "peak_s": 0.010611915960907936,
+              "p90_s": 0.011919375043362379,
+              "window_s": 2.0095742500852793,
+              "throttle_ratio": 1.0287393441618724,
+              "drift_ratio": 1.0008977246758288
+            },
+            "gb_per_s": 98.35596826510307
+          },
+          "timing": {
+            "samples": 176,
+            "sustained_s": 0.011117104440927505,
+            "first_half_s": 0.011127354460768402,
+            "peak_s": 0.010820291936397552,
+            "p90_s": 0.01213450008071959,
+            "window_s": 2.006059041013941,
+            "throttle_ratio": 1.0274310994818474,
+            "drift_ratio": 0.999078844852383
+          },
+          "gb_per_s": 96.58466642150366,
+          "fraction_of_copy": 0.9819909063492197,
+          "elements_per_s": 6036541651.343979,
+          "butterflies_per_s": 33200979082.391884
+        },
+        {
+          "n": 12,
+          "batch": 16384,
+          "array_bytes": 536870912,
+          "passes": 1,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 2
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 179,
+              "sustained_s": 0.010876604472287,
+              "first_half_s": 0.010994541924446821,
+              "peak_s": 0.010611792095005512,
+              "p90_s": 0.012021875008940697,
+              "window_s": 2.0044861249625683,
+              "throttle_ratio": 1.0249545387725907,
+              "drift_ratio": 0.9892730908690627
+            },
+            "gb_per_s": 98.72031540135859
+          },
+          "timing": {
+            "samples": 176,
+            "sustained_s": 0.011150478501804173,
+            "first_half_s": 0.011156041407957673,
+            "peak_s": 0.010828458005562425,
+            "p90_s": 0.012158915866166353,
+            "window_s": 2.007758291903883,
+            "throttle_ratio": 1.0297383520420296,
+            "drift_ratio": 0.9995013548309769
+          },
+          "gb_per_s": 96.29558263587218,
+          "fraction_of_copy": 0.975438360831523,
+          "elements_per_s": 6018473914.742011,
+          "butterflies_per_s": 36110843488.452065
+        },
+        {
+          "n": 13,
+          "batch": 8192,
+          "array_bytes": 536870912,
+          "passes": 2,
+          "tile_bytes": 4096,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 8,
+            "register": 0
+          },
+          "traffic_bytes": 2147483648,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010912020457908511,
+              "first_half_s": 0.01087254157755524,
+              "peak_s": 0.010609125019982457,
+              "p90_s": 0.011959667084738612,
+              "window_s": 2.009068291867152,
+              "throttle_ratio": 1.028550463620284,
+              "drift_ratio": 1.0036310627162623
+            },
+            "gb_per_s": 98.39990936067237
+          },
+          "timing": {
+            "samples": 89,
+            "sustained_s": 0.022621584124863148,
+            "first_half_s": 0.022731375531293452,
+            "peak_s": 0.021394458133727312,
+            "p90_s": 0.02309491694904864,
+            "window_s": 2.0006765408907086,
+            "throttle_ratio": 1.057357189579919,
+            "drift_ratio": 0.9951700500359445
+          },
+          "gb_per_s": 94.93073677540218,
+          "fraction_of_copy": 0.9647441485687311,
+          "elements_per_s": 2966585524.231318,
+          "butterflies_per_s": 19282805907.503567
+        },
+        {
+          "n": 14,
+          "batch": 4096,
+          "array_bytes": 536870912,
+          "passes": 2,
+          "tile_bytes": 4096,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 8,
+            "register": 0
+          },
+          "traffic_bytes": 2147483648,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010861896094866097,
+              "first_half_s": 0.010910208453424275,
+              "peak_s": 0.01059966697357595,
+              "p90_s": 0.011903458973392844,
+              "window_s": 2.0069845002144575,
+              "throttle_ratio": 1.0247393735995538,
+              "drift_ratio": 0.9955718207617734
+            },
+            "gb_per_s": 98.85399516089156
+          },
+          "timing": {
+            "samples": 89,
+            "sustained_s": 0.0226708329282701,
+            "first_half_s": 0.022640958079136908,
+            "peak_s": 0.0214887501206249,
+            "p90_s": 0.02306166710332036,
+            "window_s": 2.0014072919730097,
+            "throttle_ratio": 1.0550093793733792,
+            "drift_ratio": 1.001319504635306
+          },
+          "gb_per_s": 94.72451474520498,
+          "fraction_of_copy": 0.9582264691582211,
+          "elements_per_s": 2960141085.787656,
+          "butterflies_per_s": 20720987600.51359
+        },
+        {
+          "n": 15,
+          "batch": 2048,
+          "array_bytes": 536870912,
+          "passes": 2,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 0
+          },
+          "traffic_bytes": 2147483648,
+          "copy": {
+            "timing": {
+              "samples": 179,
+              "sustained_s": 0.010920270578935742,
+              "first_half_s": 0.011102417018264532,
+              "peak_s": 0.010597041808068752,
+              "p90_s": 0.011988250073045492,
+              "window_s": 2.0105866251979023,
+              "throttle_ratio": 1.030501792549396,
+              "drift_ratio": 0.9835939832714677
+            },
+            "gb_per_s": 98.32556952124934
+          },
+          "timing": {
+            "samples": 89,
+            "sustained_s": 0.02282908302731812,
+            "first_half_s": 0.02280435455031693,
+            "peak_s": 0.021658541169017553,
+            "p90_s": 0.0233048340305686,
+            "window_s": 2.0163683749269694,
+            "throttle_ratio": 1.0540452770648756,
+            "drift_ratio": 1.0010843752208214
+          },
+          "gb_per_s": 94.06788899187244,
+          "fraction_of_copy": 0.9566981350821796,
+          "elements_per_s": 2939621530.9960136,
+          "butterflies_per_s": 22047161482.4701
+        },
+        {
+          "n": 16,
+          "batch": 1024,
+          "array_bytes": 536870912,
+          "passes": 2,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 10,
+            "register": 0
+          },
+          "traffic_bytes": 2147483648,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010910062468610704,
+              "first_half_s": 0.010916270432062447,
+              "peak_s": 0.010563750052824616,
+              "p90_s": 0.011867583962157369,
+              "window_s": 2.0070439998526126,
+              "throttle_ratio": 1.0327830944555043,
+              "drift_ratio": 0.9994313109508987
+            },
+            "gb_per_s": 98.4175688351243
+          },
+          "timing": {
+            "samples": 85,
+            "sustained_s": 0.023440124932676554,
+            "first_half_s": 0.0237922704545781,
+            "peak_s": 0.02178129181265831,
+            "p90_s": 0.024580624885857105,
+            "window_s": 2.0175156670156866,
+            "throttle_ratio": 1.0761586197130055,
+            "drift_ratio": 0.9851991627880227
+          },
+          "gb_per_s": 91.61570828516851,
+          "fraction_of_copy": 0.9308877405684475,
+          "elements_per_s": 2862990883.9115157,
+          "butterflies_per_s": 22903927071.292126
+        },
+        {
+          "n": 17,
+          "batch": 512,
+          "array_bytes": 536870912,
+          "passes": 2,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 2
+          },
+          "traffic_bytes": 2147483648,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010861062444746494,
+              "first_half_s": 0.010895438026636839,
+              "peak_s": 0.010608582990244031,
+              "p90_s": 0.011928749969229102,
+              "window_s": 2.005389125086367,
+              "throttle_ratio": 1.023799545588195,
+              "drift_ratio": 0.9968449564114537
+            },
+            "gb_per_s": 98.86158278367785
+          },
+          "timing": {
+            "samples": 89,
+            "sustained_s": 0.022794125135987997,
+            "first_half_s": 0.022738021099939942,
+            "peak_s": 0.021516500040888786,
+            "p90_s": 0.02327966713346541,
+            "window_s": 2.010376833146438,
+            "throttle_ratio": 1.05937885309745,
+            "drift_ratio": 1.002467410677537
+          },
+          "gb_per_s": 94.21215489466158,
+          "fraction_of_copy": 0.9529703272181083,
+          "elements_per_s": 2944129840.458174,
+          "butterflies_per_s": 25025103643.89448
+        },
+        {
+          "n": 18,
+          "batch": 256,
+          "array_bytes": 536870912,
+          "passes": 2,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 10,
+            "register": 2
+          },
+          "traffic_bytes": 2147483648,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010961042018607259,
+              "first_half_s": 0.010914583457633853,
+              "peak_s": 0.010613166028633714,
+              "p90_s": 0.011867249850183725,
+              "window_s": 2.008273374987766,
+              "throttle_ratio": 1.0327777770587019,
+              "drift_ratio": 1.0042565583151881
+            },
+            "gb_per_s": 97.95983102493688
+          },
+          "timing": {
+            "samples": 89,
+            "sustained_s": 0.02284208405762911,
+            "first_half_s": 0.02280960395000875,
+            "peak_s": 0.021647458896040916,
+            "p90_s": 0.023283457849174738,
+            "window_s": 2.0201325421221554,
+            "throttle_ratio": 1.0551854685265936,
+            "drift_ratio": 1.0014239663122404
+          },
+          "gb_per_s": 94.01434836602637,
+          "fraction_of_copy": 0.9597234640195925,
+          "elements_per_s": 2937948386.438324,
+          "butterflies_per_s": 26441535477.944916
+        },
+        {
+          "n": 19,
+          "batch": 128,
+          "array_bytes": 536870912,
+          "passes": 2,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 4
+          },
+          "traffic_bytes": 2147483648,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010832667001523077,
+              "first_half_s": 0.010901270899921656,
+              "peak_s": 0.010610416997224092,
+              "p90_s": 0.011842332780361176,
+              "window_s": 2.004919833969325,
+              "throttle_ratio": 1.020946396768113,
+              "drift_ratio": 0.9937067981313012
+            },
+            "gb_per_s": 99.1207265809086
+          },
+          "timing": {
+            "samples": 88,
+            "sustained_s": 0.022882062359713018,
+            "first_half_s": 0.02284510456956923,
+            "peak_s": 0.021607249975204468,
+            "p90_s": 0.023537166882306337,
+            "window_s": 2.001960209105164,
+            "throttle_ratio": 1.0589992889410484,
+            "drift_ratio": 1.0016177553502215
+          },
+          "gb_per_s": 93.85009158007264,
+          "fraction_of_copy": 0.9468261060764751,
+          "elements_per_s": 2932815361.87727,
+          "butterflies_per_s": 27861745937.83407
+        },
+        {
+          "n": 20,
+          "batch": 64,
+          "array_bytes": 536870912,
+          "passes": 2,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 10,
+            "register": 4
+          },
+          "traffic_bytes": 2147483648,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.01090235379524529,
+              "first_half_s": 0.010876187472604215,
+              "peak_s": 0.010615000035613775,
+              "p90_s": 0.011883707949891686,
+              "window_s": 2.0052024158649147,
+              "throttle_ratio": 1.027070537792504,
+              "drift_ratio": 1.0024058359335002
+            },
+            "gb_per_s": 98.48715645866106
+          },
+          "timing": {
+            "samples": 88,
+            "sustained_s": 0.02292429143562913,
+            "first_half_s": 0.022900833399035037,
+            "peak_s": 0.021710666827857494,
+            "p90_s": 0.023367166984826326,
+            "window_s": 2.0023557911626995,
+            "throttle_ratio": 1.0558999231757544,
+            "drift_ratio": 1.0010243311317693
+          },
+          "gb_per_s": 93.67720934930894,
+          "fraction_of_copy": 0.9511616815602647,
+          "elements_per_s": 2927412792.1659045,
+          "butterflies_per_s": 29274127921.659046
+        },
+        {
+          "n": 21,
+          "batch": 32,
+          "array_bytes": 536870912,
+          "passes": 3,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 15,
+            "register": 0
+          },
+          "traffic_bytes": 3221225472,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010906520998105407,
+              "first_half_s": 0.010867354110814631,
+              "peak_s": 0.010601332876831293,
+              "p90_s": 0.011880833888426423,
+              "window_s": 2.0044412908609957,
+              "throttle_ratio": 1.0287877123395577,
+              "drift_ratio": 1.0036040867805898
+            },
+            "gb_per_s": 98.44952613088279
+          },
+          "timing": {
+            "samples": 59,
+            "sustained_s": 0.03414881264325231,
+            "first_half_s": 0.03410133300349116,
+            "peak_s": 0.03367787506431341,
+            "p90_s": 0.034426124999299645,
+            "window_s": 2.012517916969955,
+            "throttle_ratio": 1.0139835894645837,
+            "drift_ratio": 1.0013923103755589
+          },
+          "gb_per_s": 94.32906220347029,
+          "fraction_of_copy": 0.9581464320921709,
+          "elements_per_s": 1965188795.905631,
+          "butterflies_per_s": 20634482357.009125
+        },
+        {
+          "n": 22,
+          "batch": 16,
+          "array_bytes": 536870912,
+          "passes": 3,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 7,
+            "threadgroup": 15,
+            "register": 0
+          },
+          "traffic_bytes": 3221225472,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.01086812443099916,
+              "first_half_s": 0.010914041544310749,
+              "peak_s": 0.010593249928206205,
+              "p90_s": 0.01199495792388916,
+              "window_s": 2.009192042052746,
+              "throttle_ratio": 1.0259480805848882,
+              "drift_ratio": 0.99579284052336
+            },
+            "gb_per_s": 98.79734362788167
+          },
+          "timing": {
+            "samples": 58,
+            "sustained_s": 0.03457795805297792,
+            "first_half_s": 0.03447929187677801,
+            "peak_s": 0.032930875197052956,
+            "p90_s": 0.03498612507246435,
+            "window_s": 2.0020800419151783,
+            "throttle_ratio": 1.0500163705358296,
+            "drift_ratio": 1.0028616068030785
+          },
+          "gb_per_s": 93.158348652765,
+          "fraction_of_copy": 0.9429236174976947,
+          "elements_per_s": 1940798930.2659373,
+          "butterflies_per_s": 21348788232.925312
+        },
+        {
+          "n": 23,
+          "batch": 8,
+          "array_bytes": 536870912,
+          "passes": 3,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 14,
+            "register": 3
+          },
+          "traffic_bytes": 3221225472,
+          "copy": {
+            "timing": {
+              "samples": 178,
+              "sustained_s": 0.011095708003267646,
+              "first_half_s": 0.010901000117883086,
+              "peak_s": 0.010582166025415063,
+              "p90_s": 0.012097124941647053,
+              "window_s": 2.006293416954577,
+              "throttle_ratio": 1.0485290040450335,
+              "drift_ratio": 1.0178614698907436
+            },
+            "gb_per_s": 96.7709157165804
+          },
+          "timing": {
+            "samples": 59,
+            "sustained_s": 0.033995354431681335,
+            "first_half_s": 0.033812084002420306,
+            "peak_s": 0.033539541997015476,
+            "p90_s": 0.03423604182898998,
+            "window_s": 2.000541416928172,
+            "throttle_ratio": 1.0135902999124562,
+            "drift_ratio": 1.0054202642241132
+          },
+          "gb_per_s": 94.75487241862785,
+          "fraction_of_copy": 0.9791668469495828,
+          "elements_per_s": 1974059842.054747,
+          "butterflies_per_s": 22701688183.629593
+        },
+        {
+          "n": 24,
+          "batch": 4,
+          "array_bytes": 536870912,
+          "passes": 3,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 15,
+            "register": 3
+          },
+          "traffic_bytes": 3221225472,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010835603927262127,
+              "first_half_s": 0.010929896030575037,
+              "peak_s": 0.010592417092993855,
+              "p90_s": 0.011917082825675607,
+              "window_s": 2.0059958749916404,
+              "throttle_ratio": 1.0229585780217363,
+              "drift_ratio": 0.9913730100406135
+            },
+            "gb_per_s": 99.093860499874
+          },
+          "timing": {
+            "samples": 58,
+            "sustained_s": 0.03487770794890821,
+            "first_half_s": 0.03462175000458956,
+            "peak_s": 0.03330816701054573,
+            "p90_s": 0.03534870897419751,
+            "window_s": 2.0183682090137154,
+            "throttle_ratio": 1.047121804627242,
+            "drift_ratio": 1.007392981125585
+          },
+          "gb_per_s": 92.35771676047982,
+          "fraction_of_copy": 0.932022592465224,
+          "elements_per_s": 1924119099.176663,
+          "butterflies_per_s": 23089429190.119957
+        },
+        {
+          "n": 25,
+          "batch": 2,
+          "array_bytes": 536870912,
+          "passes": 3,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 13,
+            "register": 6
+          },
+          "traffic_bytes": 3221225472,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.010862291557714343,
+              "first_half_s": 0.010835124528966844,
+              "peak_s": 0.010596624808385968,
+              "p90_s": 0.011887792032212019,
+              "window_s": 2.003847791114822,
+              "throttle_ratio": 1.025070883808034,
+              "drift_ratio": 1.002507311168863
+            },
+            "gb_per_s": 98.85039618895463
+          },
+          "timing": {
+            "samples": 59,
+            "sustained_s": 0.034148958045989275,
+            "first_half_s": 0.03410558286122978,
+            "peak_s": 0.033770208014175296,
+            "p90_s": 0.03448841697536409,
+            "window_s": 2.0155061669647694,
+            "throttle_ratio": 1.0112155078125369,
+            "drift_ratio": 1.0012717913350428
+          },
+          "gb_per_s": 94.32866056006434,
+          "fraction_of_copy": 0.954256777886384,
+          "elements_per_s": 1965180428.3346736,
+          "butterflies_per_s": 24564755354.183422
+        },
+        {
+          "n": 26,
+          "batch": 1,
+          "array_bytes": 536870912,
+          "passes": 4,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 17,
+            "register": 3
+          },
+          "traffic_bytes": 4294967296,
+          "copy": {
+            "timing": {
+              "samples": 180,
+              "sustained_s": 0.01076639594975859,
+              "first_half_s": 0.01076620805542916,
+              "peak_s": 0.010619540931656957,
+              "p90_s": 0.011909957975149155,
+              "window_s": 2.0012345409486443,
+              "throttle_ratio": 1.013828753902521,
+              "drift_ratio": 1.0000174522290914
+            },
+            "gb_per_s": 99.7308504174116
+          },
+          "timing": {
+            "samples": 44,
+            "sustained_s": 0.046380896121263504,
+            "first_half_s": 0.04601635446306318,
+            "peak_s": 0.045394791988655925,
+            "p90_s": 0.047377708135172725,
+            "window_s": 2.0415788751561195,
+            "throttle_ratio": 1.021722847256443,
+            "drift_ratio": 1.0079220021328055
+          },
+          "gb_per_s": 92.60207661298195,
+          "fraction_of_copy": 0.9285198734935778,
+          "elements_per_s": 1446907447.077843,
+          "butterflies_per_s": 18809796812.01196
+        },
+        {
+          "n": 27,
+          "batch": 1,
+          "array_bytes": 1073741824,
+          "passes": 4,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 17,
+            "register": 4
+          },
+          "traffic_bytes": 8589934592,
+          "copy": {
+            "timing": {
+              "samples": 91,
+              "sustained_s": 0.02231370797380805,
+              "first_half_s": 0.022111666854470968,
+              "peak_s": 0.020958999870344996,
+              "p90_s": 0.022644333075731993,
+              "window_s": 2.0053296668920666,
+              "throttle_ratio": 1.0646361043868242,
+              "drift_ratio": 1.0091373084022488
+            },
+            "gb_per_s": 96.24055538060854
+          },
+          "timing": {
+            "samples": 22,
+            "sustained_s": 0.09160854201763868,
+            "first_half_s": 0.09132554195821285,
+            "peak_s": 0.09024199983105063,
+            "p90_s": 0.09202224994078279,
+            "window_s": 2.0108421670738608,
+            "throttle_ratio": 1.0151430840312323,
+            "drift_ratio": 1.003098805146487
+          },
+          "gb_per_s": 93.76783433957566,
+          "fraction_of_copy": 0.9743068706196275,
+          "elements_per_s": 1465122411.5558696,
+          "butterflies_per_s": 19779152556.00424
+        },
+        {
+          "n": 28,
+          "batch": 1,
+          "array_bytes": 2147483648,
+          "passes": 4,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 6,
+            "threadgroup": 15,
+            "register": 7
+          },
+          "traffic_bytes": 17179869184,
+          "copy": {
+            "timing": {
+              "samples": 46,
+              "sustained_s": 0.04352129204198718,
+              "first_half_s": 0.04357500001788139,
+              "peak_s": 0.04301754105836153,
+              "p90_s": 0.044621125096455216,
+              "window_s": 2.013055874966085,
+              "throttle_ratio": 1.011710362127445,
+              "drift_ratio": 0.9987674589587567
+            },
+            "gb_per_s": 98.68657602941633
+          },
+          "timing": {
+            "samples": 12,
+            "sustained_s": 0.1730098541593179,
+            "first_half_s": 0.17309806251432747,
+            "peak_s": 0.17218145914375782,
+            "p90_s": 0.17363970912992954,
+            "window_s": 2.0771406670100987,
+            "throttle_ratio": 1.004811174325503,
+            "drift_ratio": 0.9994904139669255
+          },
+          "gb_per_s": 99.29994604919868,
+          "fraction_of_copy": 1.0062153338828932,
+          "elements_per_s": 1551561657.0187294,
+          "butterflies_per_s": 21721863198.26221
+        }
+      ],
+      "thermal_recheck": {
+        "n": 10,
+        "first_s": 0.011157562490552664,
+        "last_s": 0.011131291394121945,
+        "slowdown": 0.9976454448314349
+      }
+    },
+    "float32": {
+      "itemsize": 4,
+      "max_n": 29,
+      "copy_vec": 1,
+      "copy_vec_table": {
+        "1": 98.67212803215227,
+        "2": 97.0943202993241,
+        "4": 93.96052693251349,
+        "8": 89.78556606990091
+      },
+      "sizes": [
+        {
+          "n": 10,
+          "batch": 65536,
+          "array_bytes": 268435456,
+          "passes": 1,
+          "tile_bytes": 4096,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 0
+          },
+          "traffic_bytes": 536870912,
+          "copy": {
+            "timing": {
+              "samples": 353,
+              "sustained_s": 0.005433333106338978,
+              "first_half_s": 0.005454791476950049,
+              "peak_s": 0.005359875038266182,
+              "p90_s": 0.006550332996994257,
+              "window_s": 2.001961417030543,
+              "throttle_ratio": 1.0137051829657129,
+              "drift_ratio": 0.9960661428210873
+            },
+            "gb_per_s": 98.81060142873291
+          },
+          "timing": {
+            "samples": 340,
+            "sustained_s": 0.005667750141583383,
+            "first_half_s": 0.005668916506692767,
+            "peak_s": 0.0055814580991864204,
+            "p90_s": 0.0067870840430259705,
+            "window_s": 2.0005240000318736,
+            "throttle_ratio": 1.0154604837774455,
+            "drift_ratio": 0.9997942525510815
+          },
+          "gb_per_s": 94.72381431585407,
+          "fraction_of_copy": 0.9586401959527953,
+          "elements_per_s": 11840476789.481758,
+          "butterflies_per_s": 59202383947.40879
+        },
+        {
+          "n": 11,
+          "batch": 32768,
+          "array_bytes": 268435456,
+          "passes": 1,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 1
+          },
+          "traffic_bytes": 536870912,
+          "copy": {
+            "timing": {
+              "samples": 349,
+              "sustained_s": 0.0054632078390568495,
+              "first_half_s": 0.005599208525381982,
+              "peak_s": 0.005374625092372298,
+              "p90_s": 0.006605291971936822,
+              "window_s": 2.0023970829788595,
+              "throttle_ratio": 1.0164816606111315,
+              "drift_ratio": 0.9757107302382787
+            },
+            "gb_per_s": 98.27027047403777
+          },
+          "timing": {
+            "samples": 342,
+            "sustained_s": 0.00564366695471108,
+            "first_half_s": 0.00563295790925622,
+            "peak_s": 0.005546957952901721,
+            "p90_s": 0.006744292099028826,
+            "window_s": 2.0034804998431355,
+            "throttle_ratio": 1.0174346015654885,
+            "drift_ratio": 1.0019011406844107
+          },
+          "gb_per_s": 95.12802869273571,
+          "fraction_of_copy": 0.9680244923907865,
+          "elements_per_s": 11891003586.591965,
+          "butterflies_per_s": 65400519726.255806
+        },
+        {
+          "n": 12,
+          "batch": 16384,
+          "array_bytes": 268435456,
+          "passes": 1,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 2
+          },
+          "traffic_bytes": 536870912,
+          "copy": {
+            "timing": {
+              "samples": 355,
+              "sustained_s": 0.0054322499781847,
+              "first_half_s": 0.005427041091024876,
+              "peak_s": 0.00535254180431366,
+              "p90_s": 0.006543332943692803,
+              "window_s": 2.00253316690214,
+              "throttle_ratio": 1.01489164901184,
+              "drift_ratio": 1.000959802417645
+            },
+            "gb_per_s": 98.83030312596304
+          },
+          "timing": {
+            "samples": 342,
+            "sustained_s": 0.00563812511973083,
+            "first_half_s": 0.005654665874317288,
+            "peak_s": 0.005536166951060295,
+            "p90_s": 0.006759708048775792,
+            "window_s": 2.004802457988262,
+            "throttle_ratio": 1.018416743853978,
+            "drift_ratio": 0.9970748484607049
+          },
+          "gb_per_s": 95.2215320871827,
+          "fraction_of_copy": 0.963485176867455,
+          "elements_per_s": 11902691510.897837,
+          "butterflies_per_s": 71416149065.38702
+        },
+        {
+          "n": 13,
+          "batch": 8192,
+          "array_bytes": 268435456,
+          "passes": 1,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 3
+          },
+          "traffic_bytes": 536870912,
+          "copy": {
+            "timing": {
+              "samples": 353,
+              "sustained_s": 0.005458083003759384,
+              "first_half_s": 0.005444666603580117,
+              "peak_s": 0.005343458149582148,
+              "p90_s": 0.006551999831572175,
+              "window_s": 2.0002572080120444,
+              "throttle_ratio": 1.021451436685473,
+              "drift_ratio": 1.0024641362191846
+            },
+            "gb_per_s": 98.36254077305483
+          },
+          "timing": {
+            "samples": 342,
+            "sustained_s": 0.0056515829637646675,
+            "first_half_s": 0.005632792133837938,
+            "peak_s": 0.005548125132918358,
+            "p90_s": 0.006763457786291838,
+            "window_s": 2.002029625000432,
+            "throttle_ratio": 1.0186473499367326,
+            "drift_ratio": 1.0033359707726204
+          },
+          "gb_per_s": 94.99478561000832,
+          "fraction_of_copy": 0.9657618120010065,
+          "elements_per_s": 11874348201.25104,
+          "butterflies_per_s": 77183263308.13176
+        },
+        {
+          "n": 14,
+          "batch": 4096,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 4096,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 9,
+            "register": 0
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 355,
+              "sustained_s": 0.005437479121610522,
+              "first_half_s": 0.005435334052890539,
+              "peak_s": 0.0053385000210255384,
+              "p90_s": 0.006544332951307297,
+              "window_s": 2.004873708123341,
+              "throttle_ratio": 1.018540620060908,
+              "drift_ratio": 1.0003946526007619
+            },
+            "gb_per_s": 98.73525948196831
+          },
+          "timing": {
+            "samples": 174,
+            "sustained_s": 0.011242792010307312,
+            "first_half_s": 0.011284542037174106,
+            "peak_s": 0.010953832883387804,
+            "p90_s": 0.012234458001330495,
+            "window_s": 2.00177558301948,
+            "throttle_ratio": 1.0263797275342528,
+            "drift_ratio": 0.9963002462369089
+          },
+          "gb_per_s": 95.5049086575293,
+          "fraction_of_copy": 0.9672827028420484,
+          "elements_per_s": 5969056791.095581,
+          "butterflies_per_s": 41783397537.66907
+        },
+        {
+          "n": 15,
+          "batch": 2048,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 4096,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 0
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 353,
+              "sustained_s": 0.005447583040222526,
+              "first_half_s": 0.00552577106282115,
+              "peak_s": 0.005367124918848276,
+              "p90_s": 0.006552124861627817,
+              "window_s": 2.002545041963458,
+              "throttle_ratio": 1.0149909164759137,
+              "drift_ratio": 0.985850296418414
+            },
+            "gb_per_s": 98.552130006277
+          },
+          "timing": {
+            "samples": 174,
+            "sustained_s": 0.011218040948733687,
+            "first_half_s": 0.011198250111192465,
+            "peak_s": 0.010963457869365811,
+            "p90_s": 0.012246707919985056,
+            "window_s": 2.001135957892984,
+            "throttle_ratio": 1.0232210569330717,
+            "drift_ratio": 1.0017673151916335
+          },
+          "gb_per_s": 95.71562707847005,
+          "fraction_of_copy": 0.971218248376506,
+          "elements_per_s": 5982226692.404378,
+          "butterflies_per_s": 44866700193.03284
+        },
+        {
+          "n": 16,
+          "batch": 1024,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 9,
+            "register": 2
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 355,
+              "sustained_s": 0.0054415210615843534,
+              "first_half_s": 0.005432165926322341,
+              "peak_s": 0.0053478749468922615,
+              "p90_s": 0.006540416972711682,
+              "window_s": 2.0032351668924093,
+              "throttle_ratio": 1.017510902110101,
+              "drift_ratio": 1.0017221740625928
+            },
+            "gb_per_s": 98.66191932806463
+          },
+          "timing": {
+            "samples": 176,
+            "sustained_s": 0.01116237509995699,
+            "first_half_s": 0.011133084073662758,
+            "peak_s": 0.010895500192418694,
+            "p90_s": 0.01216949988156557,
+            "window_s": 2.009551333030686,
+            "throttle_ratio": 1.0244940482607665,
+            "drift_ratio": 1.0026309894096215
+          },
+          "gb_per_s": 96.1929530574669,
+          "fraction_of_copy": 0.9749754891511073,
+          "elements_per_s": 6012059566.091681,
+          "butterflies_per_s": 48096476528.733444
+        },
+        {
+          "n": 17,
+          "batch": 512,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 2
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 349,
+              "sustained_s": 0.005528207868337631,
+              "first_half_s": 0.005427520489320159,
+              "peak_s": 0.00535437511280179,
+              "p90_s": 0.006558000110089779,
+              "window_s": 2.0036667499225587,
+              "throttle_ratio": 1.0324655542194314,
+              "drift_ratio": 1.018551266497399
+            },
+            "gb_per_s": 97.11481998983527
+          },
+          "timing": {
+            "samples": 170,
+            "sustained_s": 0.011094332905486226,
+            "first_half_s": 0.012199332937598228,
+            "peak_s": 0.010931457858532667,
+            "p90_s": 0.012596083106473088,
+            "window_s": 2.0043997089378536,
+            "throttle_ratio": 1.014899663801606,
+            "drift_ratio": 0.9094212742807927
+          },
+          "gb_per_s": 96.78291008096818,
+          "fraction_of_copy": 0.9965822939392583,
+          "elements_per_s": 6048931880.060512,
+          "butterflies_per_s": 51415920980.51435
+        },
+        {
+          "n": 18,
+          "batch": 256,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 9,
+            "register": 4
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 348,
+              "sustained_s": 0.005514854448847473,
+              "first_half_s": 0.00558081257622689,
+              "peak_s": 0.005374500062316656,
+              "p90_s": 0.006662208121269941,
+              "window_s": 2.001510542118922,
+              "throttle_ratio": 1.0261148729934737,
+              "drift_ratio": 0.9881812681435701
+            },
+            "gb_per_s": 97.3499694288756
+          },
+          "timing": {
+            "samples": 176,
+            "sustained_s": 0.01111589593347162,
+            "first_half_s": 0.01112262497190386,
+            "peak_s": 0.01085458300076425,
+            "p90_s": 0.012120916042476892,
+            "window_s": 2.0061126248911023,
+            "throttle_ratio": 1.0240739725044223,
+            "drift_ratio": 0.9993950134568739
+          },
+          "gb_per_s": 96.5951669956538,
+          "fraction_of_copy": 0.9922465056984608,
+          "elements_per_s": 6037197937.228362,
+          "butterflies_per_s": 54334781435.05526
+        },
+        {
+          "n": 19,
+          "batch": 128,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 4
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 355,
+              "sustained_s": 0.00542683363892138,
+              "first_half_s": 0.005431500030681491,
+              "peak_s": 0.005331957945600152,
+              "p90_s": 0.006536582950502634,
+              "window_s": 2.0035384171642363,
+              "throttle_ratio": 1.0177937812505664,
+              "drift_ratio": 0.9991408650034519
+            },
+            "gb_per_s": 98.92894231169149
+          },
+          "timing": {
+            "samples": 175,
+            "sustained_s": 0.011177979526109993,
+            "first_half_s": 0.011196000035852194,
+            "peak_s": 0.01092083309777081,
+            "p90_s": 0.01221295795403421,
+            "window_s": 2.0046867919154465,
+            "throttle_ratio": 1.023546411343991,
+            "drift_ratio": 0.998390451082128
+          },
+          "gb_per_s": 96.05866798126699,
+          "fraction_of_copy": 0.9709865054315325,
+          "elements_per_s": 6003666748.829187,
+          "butterflies_per_s": 57034834113.87728
+        },
+        {
+          "n": 20,
+          "batch": 64,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 9,
+            "register": 6
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 355,
+              "sustained_s": 0.0054281874326989055,
+              "first_half_s": 0.005440250039100647,
+              "peak_s": 0.005346500081941485,
+              "p90_s": 0.00653345906175673,
+              "window_s": 2.001022124895826,
+              "throttle_ratio": 1.0152786588432552,
+              "drift_ratio": 0.997782711030735
+            },
+            "gb_per_s": 98.90426936364405
+          },
+          "timing": {
+            "samples": 175,
+            "sustained_s": 0.011157458066008985,
+            "first_half_s": 0.011239208979532123,
+            "peak_s": 0.01093479199334979,
+            "p90_s": 0.012245417106896639,
+            "window_s": 2.0095480838790536,
+            "throttle_ratio": 1.0203630826077545,
+            "drift_ratio": 0.9927262751611777
+          },
+          "gb_per_s": 96.23534479337522,
+          "fraction_of_copy": 0.973015072175945,
+          "elements_per_s": 6014709049.585951,
+          "butterflies_per_s": 60147090495.85951
+        },
+        {
+          "n": 21,
+          "batch": 32,
+          "array_bytes": 268435456,
+          "passes": 2,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 10,
+            "register": 6
+          },
+          "traffic_bytes": 1073741824,
+          "copy": {
+            "timing": {
+              "samples": 355,
+              "sustained_s": 0.005440167034976184,
+              "first_half_s": 0.005429291864857078,
+              "peak_s": 0.005353083834052086,
+              "p90_s": 0.006527458084747195,
+              "window_s": 2.00280295801349,
+              "throttle_ratio": 1.016267856738978,
+              "drift_ratio": 1.002003054982087
+            },
+            "gb_per_s": 98.68647571817623
+          },
+          "timing": {
+            "samples": 174,
+            "sustained_s": 0.011212707962840796,
+            "first_half_s": 0.01119258301332593,
+            "peak_s": 0.010950500145554543,
+            "p90_s": 0.012260291026905179,
+            "window_s": 2.004274040926248,
+            "throttle_ratio": 1.0239448256975459,
+            "drift_ratio": 1.0017980612241968
+          },
+          "gb_per_s": 95.76115132565731,
+          "fraction_of_copy": 0.9703573932372161,
+          "elements_per_s": 5985071957.853581,
+          "butterflies_per_s": 62843255557.46261
+        },
+        {
+          "n": 22,
+          "batch": 16,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 14,
+            "register": 3
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 355,
+              "sustained_s": 0.005431749508716166,
+              "first_half_s": 0.0054322499781847,
+              "peak_s": 0.005339875118806958,
+              "p90_s": 0.006528083002194762,
+              "window_s": 2.0009659160859883,
+              "throttle_ratio": 1.0172053442945936,
+              "drift_ratio": 0.9999078706851592
+            },
+            "gb_per_s": 98.83940913300572
+          },
+          "timing": {
+            "samples": 117,
+            "sustained_s": 0.01750320801511407,
+            "first_half_s": 0.01695639593526721,
+            "peak_s": 0.016352250007912517,
+            "p90_s": 0.0177670419216156,
+            "window_s": 2.001106958137825,
+            "throttle_ratio": 1.0703852990655491,
+            "drift_ratio": 1.0322481311438096
+          },
+          "gb_per_s": 92.01814516568798,
+          "fraction_of_copy": 0.9309863947270413,
+          "elements_per_s": 3834089381.9036665,
+          "butterflies_per_s": 42174983200.94033
+        },
+        {
+          "n": 23,
+          "batch": 8,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 15,
+            "register": 3
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 354,
+              "sustained_s": 0.005443500122055411,
+              "first_half_s": 0.00545045780017972,
+              "peak_s": 0.005343666998669505,
+              "p90_s": 0.006546916905790567,
+              "window_s": 2.001196708995849,
+              "throttle_ratio": 1.0186825121046583,
+              "drift_ratio": 0.9987234690406962
+            },
+            "gb_per_s": 98.62604940978359
+          },
+          "timing": {
+            "samples": 116,
+            "sustained_s": 0.01776781294029206,
+            "first_half_s": 0.017744708457030356,
+            "peak_s": 0.016604915959760547,
+            "p90_s": 0.017967374995350838,
+            "window_s": 2.0178502921480685,
+            "throttle_ratio": 1.0700332951608797,
+            "drift_ratio": 1.0013020491893487
+          },
+          "gb_per_s": 90.64777648281148,
+          "fraction_of_copy": 0.9191058247317297,
+          "elements_per_s": 3776990686.7838116,
+          "butterflies_per_s": 43435392898.01383
+        },
+        {
+          "n": 24,
+          "batch": 4,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 13,
+            "register": 6
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 353,
+              "sustained_s": 0.005430917022749782,
+              "first_half_s": 0.005516457953490317,
+              "peak_s": 0.005363084143027663,
+              "p90_s": 0.0065518750343471766,
+              "window_s": 2.002680583857,
+              "throttle_ratio": 1.012648110287493,
+              "drift_ratio": 0.9844935044440223
+            },
+            "gb_per_s": 98.85455987470999
+          },
+          "timing": {
+            "samples": 117,
+            "sustained_s": 0.017130541149526834,
+            "first_half_s": 0.017462750081904233,
+            "peak_s": 0.016339333960786462,
+            "p90_s": 0.01774349994957447,
+            "window_s": 2.002998000010848,
+            "throttle_ratio": 1.0484234663811407,
+            "drift_ratio": 0.9809761388773668
+          },
+          "gb_per_s": 94.01995663426472,
+          "fraction_of_copy": 0.9510937760830381,
+          "elements_per_s": 3917498193.0943627,
+          "butterflies_per_s": 47009978317.132355
+        },
+        {
+          "n": 25,
+          "batch": 2,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 14,
+            "register": 6
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 354,
+              "sustained_s": 0.005429583135992289,
+              "first_half_s": 0.005472916178405285,
+              "peak_s": 0.00536974985152483,
+              "p90_s": 0.0065334998071193695,
+              "window_s": 2.0008480839896947,
+              "throttle_ratio": 1.011142657688322,
+              "drift_ratio": 0.9920822755181273
+            },
+            "gb_per_s": 98.87884549388774
+          },
+          "timing": {
+            "samples": 116,
+            "sustained_s": 0.01778056297916919,
+            "first_half_s": 0.01760810404084623,
+            "peak_s": 0.016588332829996943,
+            "p90_s": 0.017945708939805627,
+            "window_s": 2.013909790897742,
+            "throttle_ratio": 1.071871607676952,
+            "drift_ratio": 1.0097942934641289
+          },
+          "gb_per_s": 90.58277501600554,
+          "fraction_of_copy": 0.916098631244688,
+          "elements_per_s": 3774282292.3335643,
+          "butterflies_per_s": 47178528654.169556
+        },
+        {
+          "n": 26,
+          "batch": 1,
+          "array_bytes": 268435456,
+          "passes": 3,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 12,
+            "register": 9
+          },
+          "traffic_bytes": 1610612736,
+          "copy": {
+            "timing": {
+              "samples": 355,
+              "sustained_s": 0.005440874374471605,
+              "first_half_s": 0.005437333835288882,
+              "peak_s": 0.005346874939277768,
+              "p90_s": 0.006531416904181242,
+              "window_s": 2.0024011658970267,
+              "throttle_ratio": 1.0175802569278969,
+              "drift_ratio": 1.0006511535414184
+            },
+            "gb_per_s": 98.67364600788797
+          },
+          "timing": {
+            "samples": 117,
+            "sustained_s": 0.017134624999016523,
+            "first_half_s": 0.01754404150415212,
+            "peak_s": 0.01637316611595452,
+            "p90_s": 0.017904208973050117,
+            "window_s": 2.0100399169605225,
+            "throttle_ratio": 1.0465065142361205,
+            "drift_ratio": 0.9766635011072734
+          },
+          "gb_per_s": 93.99754801126049,
+          "fraction_of_copy": 0.95261046707189,
+          "elements_per_s": 3916564500.4691873,
+          "butterflies_per_s": 50915338506.099434
+        },
+        {
+          "n": 27,
+          "batch": 1,
+          "array_bytes": 536870912,
+          "passes": 4,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 15,
+            "register": 7
+          },
+          "traffic_bytes": 4294967296,
+          "copy": {
+            "timing": {
+              "samples": 183,
+              "sustained_s": 0.010693645454011858,
+              "first_half_s": 0.01068499987013638,
+              "peak_s": 0.010447166860103607,
+              "p90_s": 0.011736083077266812,
+              "window_s": 2.0071445000357926,
+              "throttle_ratio": 1.023592864669322,
+              "drift_ratio": 1.000809132801175
+            },
+            "gb_per_s": 100.4093345545856
+          },
+          "timing": {
+            "samples": 44,
+            "sustained_s": 0.04538764548487961,
+            "first_half_s": 0.04545683355536312,
+            "peak_s": 0.044925250113010406,
+            "p90_s": 0.046486624982208014,
+            "window_s": 2.0106359999626875,
+            "throttle_ratio": 1.0102925497511097,
+            "drift_ratio": 0.998477939067198
+          },
+          "gb_per_s": 94.62855475573899,
+          "fraction_of_copy": 0.9424278646553125,
+          "elements_per_s": 2957142336.116843,
+          "butterflies_per_s": 39921421537.577385
+        },
+        {
+          "n": 28,
+          "batch": 1,
+          "array_bytes": 1073741824,
+          "passes": 4,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 15,
+            "register": 8
+          },
+          "traffic_bytes": 8589934592,
+          "copy": {
+            "timing": {
+              "samples": 93,
+              "sustained_s": 0.02180833392776549,
+              "first_half_s": 0.021808332996442914,
+              "peak_s": 0.020634375046938658,
+              "p90_s": 0.022200332954525948,
+              "window_s": 2.0123686669394374,
+              "throttle_ratio": 1.0568933577177082,
+              "drift_ratio": 1.0000000427048952
+            },
+            "gb_per_s": 98.47077979973109
+          },
+          "timing": {
+            "samples": 22,
+            "sustained_s": 0.09125408390536904,
+            "first_half_s": 0.09106100001372397,
+            "peak_s": 0.08970666700042784,
+            "p90_s": 0.0916476659476757,
+            "window_s": 2.003307292005047,
+            "throttle_ratio": 1.0172497424849574,
+            "drift_ratio": 1.0021203796533749
+          },
+          "gb_per_s": 94.13205660919029,
+          "fraction_of_copy": 0.9559389780464331,
+          "elements_per_s": 2941626769.0371966,
+          "butterflies_per_s": 41182774766.52075
+        },
+        {
+          "n": 29,
+          "batch": 1,
+          "array_bytes": 2147483648,
+          "passes": 4,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 13,
+            "register": 11
+          },
+          "traffic_bytes": 17179869184,
+          "copy": {
+            "timing": {
+              "samples": 47,
+              "sustained_s": 0.04317214584443718,
+              "first_half_s": 0.043078208807855844,
+              "peak_s": 0.04258224996738136,
+              "p90_s": 0.04413404199294746,
+              "window_s": 2.038109458051622,
+              "throttle_ratio": 1.0138530931904184,
+              "drift_ratio": 1.002180616120794
+            },
+            "gb_per_s": 99.48468420995607
+          },
+          "timing": {
+            "samples": 12,
+            "sustained_s": 0.17272279143799096,
+            "first_half_s": 0.1725434169638902,
+            "peak_s": 0.1714292501565069,
+            "p90_s": 0.17577975010499358,
+            "window_s": 2.0775806671008468,
+            "throttle_ratio": 1.0075456276003256,
+            "drift_ratio": 1.0010395903666283
+          },
+          "gb_per_s": 99.46498108888963,
+          "fraction_of_copy": 0.9998019481971229,
+          "elements_per_s": 3108280659.027801,
+          "butterflies_per_s": 45070069555.903114
+        }
+      ],
+      "thermal_recheck": {
+        "n": 10,
+        "first_s": 0.005667750141583383,
+        "last_s": 0.005974729428999126,
+        "slowdown": 1.0541624594851993
+      }
+    }
+  },
+  "thermal_after": {
+    "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+    "thermal_warning_recorded": "False",
+    "uptime": "11:57  up 54 days,  1:14, 4 users, load averages: 1.87 2.12 2.43"
+  },
+  "finished": "2026-09-27T11:57:46-0300"
+}

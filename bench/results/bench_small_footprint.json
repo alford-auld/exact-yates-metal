@@ -1,0 +1,231 @@
+{
+  "schema": 3,
+  "command": "python bench/bench.py --min-elems 4194304 --min-n 10 --max-n 13 --dtypes uint32 --duration 1.5 --cooldown 2 --out bench/results/bench_small_footprint.json",
+  "started": "2026-09-27T12:06:47-0300",
+  "mlx_version": "0.32.2",
+  "device": {
+    "device_name": "Apple M4",
+    "architecture": "applegpu_g16g",
+    "simd_width": 32,
+    "max_threads_per_threadgroup": 1024,
+    "max_threadgroup_memory": 32768,
+    "memory_size": 17179869184,
+    "max_recommended_working_set_size": 12713115648,
+    "max_buffer_length": 9534832640,
+    "mlx_version": "0.32.2",
+    "source": "MTLDevice"
+  },
+  "host": {
+    "Model Name": "MacBook Air",
+    "Model Identifier": "Mac16,13",
+    "Chip": "Apple M4",
+    "Total Number of Cores": "10 (4 Performance and 6 Efficiency)",
+    "Memory": "16 GB",
+    "macOS": "26.3"
+  },
+  "settings": {
+    "out": "bench/results/bench_small_footprint.json",
+    "duration": 1.5,
+    "warmup": 0.5,
+    "cooldown": 2.0,
+    "min_n": 10,
+    "max_n": 13,
+    "headroom": 0.5,
+    "min_elems": 4194304,
+    "dtypes": "uint32",
+    "variant": "WHT",
+    "quick": false
+  },
+  "thermal_before": {
+    "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+    "thermal_warning_recorded": "False",
+    "uptime": "12:06  up 54 days,  1:23, 4 users, load averages: 2.09 1.82 2.12"
+  },
+  "dtypes": {
+    "uint32": {
+      "itemsize": 4,
+      "max_n": 13,
+      "copy_vec": 8,
+      "copy_vec_table": {
+        "1": 49.24222059210037,
+        "2": 49.16551546737486,
+        "4": 49.0532422021243,
+        "8": 55.82906256025625
+      },
+      "sizes": [
+        {
+          "n": 10,
+          "batch": 4096,
+          "array_bytes": 16777216,
+          "passes": 1,
+          "tile_bytes": 4096,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 0
+          },
+          "traffic_bytes": 33554432,
+          "copy": {
+            "timing": {
+              "samples": 2226,
+              "sustained_s": 0.000697040930390358,
+              "first_half_s": 0.0006959580350667238,
+              "peak_s": 0.0005723331123590469,
+              "p90_s": 0.0007259170524775982,
+              "window_s": 1.500600916100666,
+              "throttle_ratio": 1.2178937673504324,
+              "drift_ratio": 1.0015559779025043
+            },
+            "gb_per_s": 48.1383955189099
+          },
+          "timing": {
+            "samples": 2190,
+            "sustained_s": 0.0006891670636832714,
+            "first_half_s": 0.0007149169687181711,
+            "peak_s": 0.0005627500358968973,
+            "p90_s": 0.0007428750395774841,
+            "window_s": 1.5000810001511127,
+            "throttle_ratio": 1.2246415277164642,
+            "drift_ratio": 0.9639819641138625
+          },
+          "gb_per_s": 48.688385978092825,
+          "fraction_of_copy": 1.0114251929931248,
+          "elements_per_s": 6086048247.261603,
+          "butterflies_per_s": 30430241236.308018
+        },
+        {
+          "n": 11,
+          "batch": 2048,
+          "array_bytes": 16777216,
+          "passes": 1,
+          "tile_bytes": 8192,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 1
+          },
+          "traffic_bytes": 33554432,
+          "copy": {
+            "timing": {
+              "samples": 2339,
+              "sustained_s": 0.0006464578909799457,
+              "first_half_s": 0.0006616250611841679,
+              "peak_s": 0.0005593749228864908,
+              "p90_s": 0.0006982909981161356,
+              "window_s": 1.5003224161919206,
+              "throttle_ratio": 1.1556790705669975,
+              "drift_ratio": 0.9770758831639839
+            },
+            "gb_per_s": 51.90505440212953
+          },
+          "timing": {
+            "samples": 2309,
+            "sustained_s": 0.0006535421125590801,
+            "first_half_s": 0.0006662079831585288,
+            "peak_s": 0.0005602920427918434,
+            "p90_s": 0.0007079171482473612,
+            "window_s": 1.5005761662032455,
+            "throttle_ratio": 1.1664311870334387,
+            "drift_ratio": 0.9809881134425933
+          },
+          "gb_per_s": 51.342417504834756,
+          "fraction_of_copy": 0.9891602676507032,
+          "elements_per_s": 6417802188.104344,
+          "butterflies_per_s": 35297912034.57389
+        },
+        {
+          "n": 12,
+          "batch": 1024,
+          "array_bytes": 16777216,
+          "passes": 1,
+          "tile_bytes": 16384,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 2
+          },
+          "traffic_bytes": 33554432,
+          "copy": {
+            "timing": {
+              "samples": 2324,
+              "sustained_s": 0.0006543961353600025,
+              "first_half_s": 0.0006783334538340569,
+              "peak_s": 0.0005612079985439777,
+              "p90_s": 0.0007002090569585562,
+              "window_s": 1.5004223329015076,
+              "throttle_ratio": 1.166049195766625,
+              "drift_ratio": 0.9647115760858372
+            },
+            "gb_per_s": 51.27541283773126
+          },
+          "timing": {
+            "samples": 2252,
+            "sustained_s": 0.0006963955238461494,
+            "first_half_s": 0.0006610414711758494,
+            "peak_s": 0.0005727498792111874,
+            "p90_s": 0.0007351660169661045,
+            "window_s": 1.50049729202874,
+            "throttle_ratio": 1.2158806996262514,
+            "drift_ratio": 1.0534823520336973
+          },
+          "gb_per_s": 48.18300929718926,
+          "fraction_of_copy": 0.9396903238921084,
+          "elements_per_s": 6022876162.148657,
+          "butterflies_per_s": 36137256972.89194
+        },
+        {
+          "n": 13,
+          "batch": 512,
+          "array_bytes": 16777216,
+          "passes": 1,
+          "tile_bytes": 32768,
+          "stages_by_tier": {
+            "simd_shuffle": 5,
+            "threadgroup": 5,
+            "register": 3
+          },
+          "traffic_bytes": 33554432,
+          "copy": {
+            "timing": {
+              "samples": 2221,
+              "sustained_s": 0.0006985829677432775,
+              "first_half_s": 0.0007029580883681774,
+              "peak_s": 0.0005773750599473715,
+              "p90_s": 0.000727958045899868,
+              "window_s": 1.5002021670807153,
+              "throttle_ratio": 1.209929240461052,
+              "drift_ratio": 0.9937761287660035
+            },
+            "gb_per_s": 48.03213583691454
+          },
+          "timing": {
+            "samples": 2158,
+            "sustained_s": 0.0007217081729322672,
+            "first_half_s": 0.0007219580002129078,
+            "peak_s": 0.0005902089178562164,
+            "p90_s": 0.0007438340689986944,
+            "window_s": 1.5007079169154167,
+            "throttle_ratio": 1.2228011998762884,
+            "drift_ratio": 0.9996539587059539
+          },
+          "gb_per_s": 46.49307470590208,
+          "fraction_of_copy": 0.9679576786625085,
+          "elements_per_s": 5811634338.237761,
+          "butterflies_per_s": 37775623198.54544
+        }
+      ],
+      "thermal_recheck": {
+        "n": 10,
+        "first_s": 0.0006891670636832714,
+        "last_s": 0.0007205619476735592,
+        "slowdown": 1.0455548235612089
+      }
+    }
+  },
+  "thermal_after": {
+    "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+    "thermal_warning_recorded": "False",
+    "uptime": "12:07  up 54 days,  1:24, 4 users, load averages: 2.18 1.88 2.13"
+  },
+  "finished": "2026-09-27T12:07:24-0300"
+}

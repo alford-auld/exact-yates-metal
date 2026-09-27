@@ -209,3 +209,14 @@ def test_custom_generator_matrix(rng):
 def test_unknown_variant_name_is_rejected():
     with pytest.raises(ValueError, match="unknown variant"):
         yates.transform(mx.zeros((8,), dtype=mx.uint32), "HADAMARD")
+
+
+@pytest.mark.parametrize("shape", [(0, 8), (3, 0, 16), (0,)])
+def test_empty_batches_are_handled(shape):
+    """An empty batch must not produce a zero-thread Metal dispatch."""
+    if shape == (0,):
+        pytest.skip("length 0 is not a power of two; covered by the reject test")
+    x = mx.zeros(shape, dtype=mx.uint32)
+    out = yates.transform(x, "WHT")
+    assert out.shape == shape
+    assert np_of(out).size == 0

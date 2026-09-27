@@ -373,6 +373,11 @@ def transform(
         return mx.swapaxes(out, axis, -1) if moved else out
 
     flat = mx.reshape(mx.contiguous(a), (-1,))
+    if flat.size == 0:
+        # an empty batch has nothing to transform, and a zero-thread grid is
+        # not a legal Metal dispatch
+        return mx.swapaxes(a, axis, -1) if moved else a
+
     lim = device.limits()
     logw = _ilog2(lim.simd_width)
     mcodes = encode_matrix(v)
