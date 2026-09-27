@@ -123,3 +123,69 @@ def test_k_zero_and_the_empty_graph_edge_case():
     assert ch.c_k_exact_reference(ch.empty_graph(0), 0) == 1
     for g in (ch.complete_graph(2), ch.cycle(5)):
         assert ch.c_k_exact_reference(g, 0) == 0
+
+
+# --------------------------------------------------------------------------
+# the pointwise modular power: three arithmetic paths, one answer
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("k", [0, 1, 2, 3, 5, 6, 11, 30])
+@pytest.mark.parametrize("g", [ch.random_graph(12, 0.5, 3), ch.petersen(),
+                               ch.chvatal(), ch.complete_graph(6)],
+                         ids=lambda g: g.name)
+def test_montgomery_matches_generic_modulo_and_python(k, g):
+    """MODMODE 2 (Montgomery) must equal MODMODE 1 (`%`) must equal pow()."""
+    from apps.chromatic.count import power_terms
+
+    counts = ch.independent_counts(g)
+    host = np.array(counts)
+    for p in ch.random_primes(2, seed=7):
+        mont = np.array(power_terms(counts, k, g.n, p))
+        generic = np.array(power_terms(counts, k, g.n, p, force_generic_mod=True))
+        want = np.array([pow(int(v), k, p) for v in host], dtype=np.uint64)
+        assert np.array_equal(mont, generic), f"{g.name} k={k} p={p}"
+        assert np.array_equal(mont, want), f"{g.name} k={k} p={p}"
+
+
+def test_even_modulus_falls_back_to_the_generic_path():
+    """Montgomery needs an odd modulus; 2^16 is used by the false-negative test."""
+    from apps.chromatic.count import _mod_mode, power_terms
+
+    assert _mod_mode(None) == 0
+    assert _mod_mode(1 << 16) == 1
+    assert _mod_mode(ch.random_primes(1, seed=0)[0]) == 2
+
+    g = ch.random_graph(10, 0.5, 4)
+    counts = ch.independent_counts(g)
+    got = np.array(power_terms(counts, 5, g.n, 1 << 16))
+    want = np.array([pow(int(v), 5, 1 << 16) for v in np.array(counts)],
+                    dtype=np.uint64)
+    assert np.array_equal(got, want)
+
+
+def test_montgomery_constants():
+    from apps.chromatic.count import montgomery_constants
+
+    for p in ch.random_primes(5, seed=2):
+        pinv, r2 = montgomery_constants(p)
+        assert (p * pinv) % (1 << 32) == ((1 << 32) - 1) % (1 << 32) or \
+            (-p * pinv) % (1 << 32) == 1
+        assert r2 == (1 << 64) % p
+    with pytest.raises(ValueError, match="odd modulus"):
+        montgomery_constants(1 << 16)
+
+
+@pytest.mark.parametrize("g", GRAPHS[:8], ids=lambda g: f"{g.name}_n{g.n}")
+def test_signed_and_unsigned_terms_are_consistent(g):
+    """Folding the sign in must equal negating afterwards."""
+    from apps.chromatic.count import power_terms
+
+    p = ch.random_primes(1, seed=11)[0]
+    k = 3
+    plain = np.array(power_terms(counts := ch.independent_counts(g), k, g.n, p))
+    signed = np.array(power_terms(counts, k, g.n, p, signed=True))
+    expect = np.array([(v if (g.n - bin(s).count("1")) % 2 == 0
+                        else (-int(v)) % (1 << 64))
+                       for s, v in enumerate(plain.astype(object))], dtype=np.uint64)
+    assert np.array_equal(signed, expect)
