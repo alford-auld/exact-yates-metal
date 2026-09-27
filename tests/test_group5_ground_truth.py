@@ -12,7 +12,7 @@ import pytest
 
 import yates
 from aes import sbox
-from conftest import as_signed, np_of, pm1_ring
+from kernel_helpers import as_signed, np_of, pm1_ring
 
 
 def _pm1(bits: np.ndarray) -> np.ndarray:

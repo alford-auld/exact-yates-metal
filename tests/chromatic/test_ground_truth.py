@@ -3,7 +3,7 @@
 import pytest
 
 import apps.chromatic as ch
-from conftest import GROUND_TRUTH
+from ground_truth import GROUND_TRUTH
 
 IDS = [f"{g.name}_n{g.n}" for g, _, _ in GROUND_TRUTH]
 

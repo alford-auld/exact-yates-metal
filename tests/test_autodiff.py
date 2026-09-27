@@ -15,7 +15,7 @@ import pytest
 
 import yates
 from yates import autodiff
-from conftest import ALL_VARIANTS, np_of
+from kernel_helpers import ALL_VARIANTS, np_of
 
 
 def test_there_is_no_backward_kernel():

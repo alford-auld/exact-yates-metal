@@ -14,7 +14,7 @@ import pytest
 
 import yates
 from yates import kernel as K
-from conftest import np_of
+from kernel_helpers import np_of
 
 
 # --------------------------------------------------------------------------

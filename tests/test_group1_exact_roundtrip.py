@@ -10,7 +10,7 @@ import numpy as np
 import pytest
 
 import yates
-from conftest import UINT_DTYPES, np_of, rand_uint
+from kernel_helpers import UINT_DTYPES, np_of, rand_uint
 
 PAIRS = [("ZETA_SUB", "MOB_SUB"), ("ZETA_SUP", "MOB_SUP")]
 N_RANGE = list(range(0, 21))
@@ -61,7 +61,7 @@ def test_guaranteed_bits_api_reports_full_width_for_unipotent(mx_dt, np_dt, bits
 @pytest.mark.parametrize("n", [1, 5, 9])
 def test_wraparound_matches_arbitrary_precision_arithmetic(mx_dt, np_dt, bits, n, rng):
     """The kernel really computes mod 2^k, not "mod 2^k when nothing overflows"."""
-    from conftest import exact_transform_python
+    from kernel_helpers import exact_transform_python
 
     x = rand_uint(rng, (1 << n,), np_dt)
     for name in yates.VARIANTS:

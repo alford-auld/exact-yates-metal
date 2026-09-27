@@ -6,7 +6,7 @@ import pytest
 
 import yates
 from yates import kernel as K
-from conftest import ALL_VARIANTS, UINT_DTYPES, np_of, rand_uint
+from kernel_helpers import ALL_VARIANTS, UINT_DTYPES, np_of, rand_uint
 
 LOGW = (yates.limits().simd_width).bit_length() - 1
 
