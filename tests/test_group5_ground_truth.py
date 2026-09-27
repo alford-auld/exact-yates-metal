@@ -12,7 +12,7 @@ import pytest
 
 import yates
 from aes import sbox
-from conftest import np_of
+from conftest import as_signed, np_of, pm1_ring
 
 
 def _pm1(bits: np.ndarray) -> np.ndarray:
@@ -103,3 +103,31 @@ def test_aes_sbox_differential_uniformity_via_and_convolution():
         counts = np.bincount(s ^ s[np.arange(256) ^ a], minlength=256)
         ddt_max = max(ddt_max, int(counts.max()))
     assert ddt_max == 4, f"differential uniformity {ddt_max}, expected 4"
+
+
+# --------------------------------------------------------------------------
+# the same published constants, computed in the exact rings
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("np_dt,bits", [(np.uint32, 32), (np.uint64, 64)])
+@pytest.mark.parametrize("m", [1, 2, 3, 4, 6])
+def test_bent_function_flat_spectrum_in_the_exact_rings(np_dt, bits, m):
+    """Walsh coefficients are tiny compared with the ring, so two's-complement
+    arithmetic mod 2^k reproduces the integer spectrum exactly."""
+    n = 2 * m
+    idx = np.arange(1 << n, dtype=np.uint32)
+    f = _parity((idx >> np.uint32(m)) & (idx & np.uint32((1 << m) - 1)))
+    v = pm1_ring(f, np_dt)
+    spectrum = as_signed(np_of(yates.transform(mx.array(v), "WHT")), bits)
+    assert np.array_equal(np.abs(spectrum), np.full(1 << n, 1 << m))
+
+
+@pytest.mark.parametrize("np_dt,bits", [(np.uint32, 32), (np.uint64, 64)])
+def test_aes_sbox_walsh_and_nonlinearity_in_the_exact_rings(np_dt, bits):
+    s = sbox().astype(np.uint32)
+    masks = np.arange(1, 256, dtype=np.uint32)
+    comps = _parity(masks[:, None] & s[None, :])
+    spectra = as_signed(np_of(yates.transform(mx.array(pm1_ring(comps, np_dt)), "WHT")), bits)
+    assert int(np.abs(spectra).max()) == 32
+    assert (1 << 7) - int(np.abs(spectra).max()) // 2 == 112

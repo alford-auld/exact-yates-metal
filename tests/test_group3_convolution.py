@@ -82,3 +82,45 @@ def test_xor_convolution_in_float32(n, rng):
     h = np_of(yates.transform(F * G, "WHT")) / (1 << n)
     want = yates.naive_convolution(f.astype(np.float64), g.astype(np.float64), "xor")
     assert np.allclose(h, want, rtol=1e-4, atol=1e-4 * max(1.0, float(np.abs(want).max())))
+
+
+@pytest.mark.parametrize("op,fwd,inv", [
+    ("or", "ZETA_SUB", "MOB_SUB"),
+    ("and", "ZETA_SUP", "MOB_SUP"),
+])
+@pytest.mark.parametrize("n", [0, 1, 4, 8, 10])
+def test_set_convolutions_exact_in_z_mod_2_64(op, fwd, inv, n, rng):
+    f = rand_uint(rng, (1 << n,), np.uint64)
+    g = rand_uint(rng, (1 << n,), np.uint64)
+    F = yates.transform(mx.array(f), fwd)
+    G = yates.transform(mx.array(g), fwd)
+    h = np_of(yates.transform(F * G, inv))
+    assert np.array_equal(h, yates.naive_convolution(f, g, op))
+
+
+@pytest.mark.parametrize("n", [0, 1, 4, 8, 10])
+def test_xor_convolution_exact_in_z_mod_2_64(n, rng):
+    f = rand_uint(rng, (1 << n,), np.uint64)
+    g = rand_uint(rng, (1 << n,), np.uint64)
+    F = yates.transform(mx.array(f), "WHT")
+    G = yates.transform(mx.array(g), "WHT")
+    n_times_h = np_of(yates.transform(F * G, "WHT"))
+    with np.errstate(over="ignore"):
+        want = np.uint64(1 << n) * yates.naive_convolution(f, g, "xor")
+    assert np.array_equal(n_times_h, want)
+
+
+@pytest.mark.parametrize("op,fwd,inv", [
+    ("or", "ZETA_SUB", "MOB_SUB"),
+    ("and", "ZETA_SUP", "MOB_SUP"),
+])
+@pytest.mark.parametrize("n", [3, 7, 10])
+def test_set_convolutions_float32(op, fwd, inv, n, rng):
+    f = rng.standard_normal(1 << n).astype(np.float32)
+    g = rng.standard_normal(1 << n).astype(np.float32)
+    F = yates.transform(mx.array(f), fwd)
+    G = yates.transform(mx.array(g), fwd)
+    h = np_of(yates.transform(F * G, inv)).astype(np.float64)
+    want = yates.naive_convolution(f.astype(np.float64), g.astype(np.float64), op)
+    assert np.allclose(h, want, rtol=1e-3,
+                       atol=1e-3 * max(1.0, float(np.abs(want).max())))

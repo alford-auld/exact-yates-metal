@@ -45,3 +45,12 @@ def test_parseval_batched(n, rng):
     assert np.allclose(
         (y ** 2).sum(-1), (1 << n) * (x.astype(np.float64) ** 2).sum(-1), rtol=1e-5
     )
+
+
+@pytest.mark.parametrize("n", list(range(0, 13)))
+def test_parseval_exact_mod_2_32(n, rng):
+    x = rand_uint(rng, (1 << n,), np.uint32)
+    y = np_of(yates.transform(mx.array(x), "WHT"))
+    lhs = int((y.astype(object) ** 2).sum()) % (1 << 32)
+    rhs = int((1 << n) * (x.astype(object) ** 2).sum()) % (1 << 32)
+    assert lhs == rhs, f"n={n}: {lhs} vs {rhs}"

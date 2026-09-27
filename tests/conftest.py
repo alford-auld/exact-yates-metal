@@ -67,3 +67,21 @@ def exact_transform_python(x: np.ndarray, variant, modulus: int) -> np.ndarray:
                 vals[i0] = m[0][0] * a + m[0][1] * b
                 vals[i1] = m[1][0] * a + m[1][1] * b
     return np.array([v % modulus for v in vals], dtype=object).reshape(x.shape)
+
+
+def as_signed(a: np.ndarray, bits: int) -> np.ndarray:
+    """Reinterpret an unsigned ring element as a two's-complement integer.
+
+    Walsh coefficients of a +/-1 vector are small, so the ring representation is
+    an exact stand-in for signed arithmetic as long as |value| < 2^(bits-1).
+    """
+    v = a.astype(object)
+    half = 1 << (bits - 1)
+    return np.array([int(x) - (1 << bits) if int(x) >= half else int(x) for x in v.ravel()],
+                    dtype=np.int64).reshape(a.shape)
+
+
+def pm1_ring(bits_array: np.ndarray, np_dtype) -> np.ndarray:
+    """(-1)^b encoded in an unsigned ring: 1 stays 1, -1 becomes 2^k - 1."""
+    bits = 32 if np_dtype is np.uint32 else 64
+    return np.where(bits_array == 0, np_dtype(1), np_dtype((1 << bits) - 1)).astype(np_dtype)
