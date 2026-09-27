@@ -1,0 +1,7 @@
+# Pinned for reproducibility. Every number in README.md was measured with these.
+mlx==0.32.2
+numpy==2.5.3
+pytest==9.1.1
+# Optional: exposes MTLDevice threadgroup limits. Without it yates/device.py
+# probes the limits instead (see DeviceLimits.source).
+pyobjc-framework-Metal==12.2.2
