@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "command": "python bench/chromatic/modmul.py --out bench/results/chromatic_modmul.json",
+  "n": 26,
+  "k": 6,
+  "prime": 1618596797,
+  "bytes_moved": 805306368,
+  "device": {
+    "device_name": "Apple M4",
+    "architecture": "applegpu_g16g",
+    "simd_width": 32,
+    "max_threads_per_threadgroup": 1024,
+    "max_threadgroup_memory": 32768,
+    "memory_size": 17179869184,
+    "max_recommended_working_set_size": 12713115648,
+    "max_buffer_length": 9534832640,
+    "mlx_version": "0.32.2",
+    "source": "MTLDevice"
+  },
+  "host": {
+    "Model Name": "MacBook Air",
+    "Model Identifier": "Mac16,13",
+    "Chip": "Apple M4",
+    "Total Number of Cores": "10 (4 Performance and 6 Efficiency)",
+    "Memory": "16 GB",
+    "macOS": "26.3"
+  },
+  "cases": [
+    {
+      "label": "mod 2^64 (wrapping, no reduction)",
+      "ms": 7.881208090111613,
+      "gb_per_s": 102.18057419526849
+    },
+    {
+      "label": "mod p, generic 64-bit %",
+      "ms": 30.672082910314202,
+      "gb_per_s": 26.255353128600113
+    },
+    {
+      "label": "mod p, Montgomery",
+      "ms": 12.828667182475328,
+      "gb_per_s": 62.77396993353239
+    }
+  ],
+  "zeta_ms": 16.151790972799063,
+  "zeta_gb_per_s": 99.7172845235803,
+  "montgomery_speedup": 2.390901757293538
+}

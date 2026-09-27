@@ -70,22 +70,48 @@ def max_prime_bits(n: int) -> int:
 
 
 @functools.lru_cache(maxsize=1)
-def _source() -> str:
+def _sections() -> dict:
     with open(_METAL_PATH) as fh:
         text = fh.read()
-    marker = "// ===== @section powmod ====="
-    return text.split(marker, 1)[1]
+    out, name, buf = {}, None, []
+    for line in text.splitlines(keepends=True):
+        stripped = line.strip()
+        if stripped.startswith("// ===== @section ") and stripped.endswith("====="):
+            if name is not None:
+                out[name] = "".join(buf)
+            name, buf = stripped.split()[3], []
+        elif name is not None:
+            buf.append(line)
+    if name is not None:
+        out[name] = "".join(buf)
+    return out
 
 
 @functools.lru_cache(maxsize=1)
 def _powmod_kernel():
+    sec = _sections()
     return mx.fast.metal_kernel(
         name="chromatic_powmod",
         input_names=["inp", "par"],
         output_names=["out"],
-        source=_source(),
+        source=sec["powmod"],
+        header=sec["header"],
         ensure_row_contiguous=True,
     )
+
+
+def montgomery_constants(p: int) -> tuple:
+    """``(-p^-1 mod 2^32, 2^64 mod p)`` for an odd modulus."""
+    if p % 2 == 0:
+        raise ValueError(f"Montgomery reduction needs an odd modulus, got {p}")
+    return (-pow(p, -1, 1 << 32)) % (1 << 32), (1 << 64) % p
+
+
+def _mod_mode(modulus: Optional[int]) -> int:
+    """0 = mod 2^64, 1 = generic `%`, 2 = Montgomery (odd modulus only)."""
+    if modulus is None:
+        return 0
+    return 2 if modulus % 2 == 1 else 1
 
 
 # --------------------------------------------------------------------------
@@ -110,15 +136,20 @@ def independent_counts(g: Graph) -> mx.array:
 
 def _params(modulus: Optional[int], k: int, n: int) -> mx.array:
     p = 0 if modulus is None else int(modulus)
-    return mx.array(np.array([p, k, n], dtype=np.uint64))
+    pinv, r2 = montgomery_constants(p) if p and p % 2 else (0, 0)
+    return mx.array(np.array([p, k, n, pinv, r2], dtype=np.uint64))
 
 
 def power_terms(counts: mx.array, k: int, n: int, modulus: Optional[int] = None,
-                signed: bool = False) -> mx.array:
+                signed: bool = False, force_generic_mod: bool = False) -> mx.array:
     """``i(S)^k`` mod ``modulus`` (mod 2^64 when ``modulus`` is None).
 
     With ``signed=True`` the inclusion-exclusion sign ``(-1)^(n-|S|)`` is folded
     in, so the alternating sum becomes a plain sum.
+
+    An odd modulus uses Montgomery reduction, which removes the 64-bit integer
+    division from the inner loop; ``force_generic_mod`` selects the ``%`` path
+    instead, which is what the two are cross-checked against.
     """
     if modulus is not None and modulus.bit_length() > max_prime_bits(n):
         raise ValueError(
@@ -127,12 +158,14 @@ def power_terms(counts: mx.array, k: int, n: int, modulus: Optional[int] = None,
             "terms must stay below 2^63 for the unmodified uint64 kernel to "
             "return the exact integer"
         )
+    mode = _mod_mode(modulus)
+    if force_generic_mod and mode == 2:
+        mode = 1
     size = counts.size
     threads = min(256, size)
     (out,) = _powmod_kernel()(
         inputs=[counts, _params(modulus, k, n)],
-        template=[("MODULAR", 0 if modulus is None else 1),
-                  ("SIGNED", 1 if signed else 0)],
+        template=[("MODMODE", mode), ("SIGNED", 1 if signed else 0)],
         grid=(size, 1, 1),
         threadgroup=(threads, 1, 1),
         output_shapes=[(size,)],
