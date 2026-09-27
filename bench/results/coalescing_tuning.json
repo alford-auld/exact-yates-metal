@@ -1,0 +1,604 @@
+{
+  "schema": 1,
+  "command": "python bench/tune_coalescing.py --out bench/results/coalescing_tuning.json",
+  "device": {
+    "device_name": "Apple M4",
+    "architecture": "applegpu_g16g",
+    "simd_width": 32,
+    "max_threads_per_threadgroup": 1024,
+    "max_threadgroup_memory": 32768,
+    "memory_size": 17179869184,
+    "max_recommended_working_set_size": 12713115648,
+    "max_buffer_length": 9534832640,
+    "mlx_version": "0.32.2",
+    "source": "MTLDevice"
+  },
+  "host": {
+    "Model Name": "MacBook Air",
+    "Model Identifier": "Mac16,13",
+    "Chip": "Apple M4",
+    "Total Number of Cores": "10 (4 Performance and 6 Efficiency)",
+    "Memory": "16 GB",
+    "macOS": "26.3"
+  },
+  "started": "2026-09-27T15:58:23-0300",
+  "sizes": [
+    {
+      "n": 28,
+      "bytes": 1073741824,
+      "copy_gb_per_s": 90.26848871154819,
+      "candidates": [
+        {
+          "label": "old greedy 3p/128B",
+          "passes": 3,
+          "ms": 116.96887505240738,
+          "gb_per_s": 55.07833550689009,
+          "fraction_of_copy": 0.6101612677142764,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 7,
+              "logc": 5,
+              "logr": 5
+            }
+          ]
+        },
+        {
+          "label": "shipped policy",
+          "passes": 4,
+          "ms": 93.2336034020409,
+          "gb_per_s": 92.13346131178241,
+          "fraction_of_copy": 1.0206602838582324,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 5,
+              "logc": 8,
+              "logr": 2
+            },
+            {
+              "s": 26,
+              "p": 2,
+              "logc": 9,
+              "logr": 1
+            }
+          ]
+        },
+        {
+          "label": "tile16k",
+          "passes": 4,
+          "ms": 92.89025003090501,
+          "gb_per_s": 92.47401733919426,
+          "fraction_of_copy": 1.0244329849665903,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 12,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 12,
+              "p": 7,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 19,
+              "p": 6,
+              "logc": 6,
+              "logr": 4
+            },
+            {
+              "s": 25,
+              "p": 3,
+              "logc": 9,
+              "logr": 1
+            }
+          ]
+        },
+        {
+          "label": "tile8k",
+          "passes": 6,
+          "ms": 151.12377051264048,
+          "gb_per_s": 85.26059033791951,
+          "fraction_of_copy": 0.9445221865890393,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 11,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 11,
+              "p": 6,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 17,
+              "p": 6,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 23,
+              "p": 2,
+              "logc": 9,
+              "logr": 1
+            },
+            {
+              "s": 25,
+              "p": 2,
+              "logc": 9,
+              "logr": 1
+            },
+            {
+              "s": 27,
+              "p": 1,
+              "logc": 9,
+              "logr": 1
+            }
+          ]
+        },
+        {
+          "label": "13/8/ c9 4+3",
+          "passes": 4,
+          "ms": 102.77070850133896,
+          "gb_per_s": 83.58349102836131,
+          "fraction_of_copy": 0.9259431748708156,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 4,
+              "logc": 9,
+              "logr": 1
+            },
+            {
+              "s": 25,
+              "p": 3,
+              "logc": 9,
+              "logr": 1
+            }
+          ]
+        },
+        {
+          "label": "13/8/ c8 4+3",
+          "passes": 4,
+          "ms": 99.37435400206596,
+          "gb_per_s": 86.4401552921936,
+          "fraction_of_copy": 0.9575894814015555,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 4,
+              "logc": 8,
+              "logr": 2
+            },
+            {
+              "s": 25,
+              "p": 3,
+              "logc": 8,
+              "logr": 2
+            }
+          ]
+        },
+        {
+          "label": "13/8/ c7 6+1",
+          "passes": 4,
+          "ms": 97.42725000251085,
+          "gb_per_s": 88.16767990247723,
+          "fraction_of_copy": 0.9767271077752939,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 6,
+              "logc": 7,
+              "logr": 3
+            },
+            {
+              "s": 27,
+              "p": 1,
+              "logc": 7,
+              "logr": 1
+            }
+          ]
+        },
+        {
+          "label": "13/ c7 8+7",
+          "passes": 4,
+          "ms": 94.8365000076592,
+          "gb_per_s": 90.57625061349016,
+          "fraction_of_copy": 1.0034094057221388,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 6,
+              "logc": 7,
+              "logr": 3
+            },
+            {
+              "s": 19,
+              "p": 6,
+              "logc": 7,
+              "logr": 3
+            },
+            {
+              "s": 25,
+              "p": 3,
+              "logc": 7,
+              "logr": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "n": 29,
+      "bytes": 2147483648,
+      "copy_gb_per_s": 95.01851003309896,
+      "candidates": [
+        {
+          "label": "old greedy 3p/128B",
+          "passes": 3,
+          "ms": 235.7062710216269,
+          "gb_per_s": 54.66507883796509,
+          "fraction_of_copy": 0.5753097877342312,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            }
+          ]
+        },
+        {
+          "label": "shipped policy",
+          "passes": 4,
+          "ms": 179.8760211095214,
+          "gb_per_s": 95.50950192265854,
+          "fraction_of_copy": 1.0051673288645395,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 5,
+              "logc": 8,
+              "logr": 2
+            },
+            {
+              "s": 26,
+              "p": 3,
+              "logc": 9,
+              "logr": 1
+            }
+          ]
+        },
+        {
+          "label": "tile16k",
+          "passes": 5,
+          "ms": 374.7582498472184,
+          "gb_per_s": 57.30317208161494,
+          "fraction_of_copy": 0.6030737806944544,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 12,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 12,
+              "p": 7,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 19,
+              "p": 6,
+              "logc": 6,
+              "logr": 4
+            },
+            {
+              "s": 25,
+              "p": 3,
+              "logc": 9,
+              "logr": 1
+            },
+            {
+              "s": 28,
+              "p": 1,
+              "logc": 9,
+              "logr": 1
+            }
+          ]
+        },
+        {
+          "label": "tile8k",
+          "passes": 6,
+          "ms": 161847.52264549024,
+          "gb_per_s": 0.15922272614852442,
+          "fraction_of_copy": 0.0016757021983723004,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 11,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 11,
+              "p": 6,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 17,
+              "p": 6,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 23,
+              "p": 2,
+              "logc": 9,
+              "logr": 1
+            },
+            {
+              "s": 25,
+              "p": 2,
+              "logc": 9,
+              "logr": 1
+            },
+            {
+              "s": 27,
+              "p": 2,
+              "logc": 9,
+              "logr": 1
+            }
+          ]
+        },
+        {
+          "label": "13/8/ c9 4+4",
+          "passes": 4,
+          "ms": 174.58435450680554,
+          "gb_per_s": 98.40440303217609,
+          "fraction_of_copy": 1.035634035914662,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 4,
+              "logc": 9,
+              "logr": 1
+            },
+            {
+              "s": 25,
+              "p": 4,
+              "logc": 9,
+              "logr": 1
+            }
+          ]
+        },
+        {
+          "label": "13/8/ c8 4+4",
+          "passes": 4,
+          "ms": 176.53060413431376,
+          "gb_per_s": 97.31949464654102,
+          "fraction_of_copy": 1.024216172329376,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 4,
+              "logc": 8,
+              "logr": 2
+            },
+            {
+              "s": 25,
+              "p": 4,
+              "logc": 8,
+              "logr": 2
+            }
+          ]
+        },
+        {
+          "label": "13/8/ c7 6+2",
+          "passes": 4,
+          "ms": 177.14602104388177,
+          "gb_per_s": 96.98140033156197,
+          "fraction_of_copy": 1.0206579780905767,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 8,
+              "logc": 5,
+              "logr": 5
+            },
+            {
+              "s": 21,
+              "p": 6,
+              "logc": 7,
+              "logr": 3
+            },
+            {
+              "s": 27,
+              "p": 2,
+              "logc": 7,
+              "logr": 2
+            }
+          ]
+        },
+        {
+          "label": "13/ c7 6+6+4",
+          "passes": 4,
+          "ms": 178.56910440605134,
+          "gb_per_s": 96.2085196156576,
+          "fraction_of_copy": 1.0125239764562095,
+          "correct": true,
+          "plan": [
+            {
+              "s": 0,
+              "p": 13,
+              "logc": 0,
+              "logr": 10
+            },
+            {
+              "s": 13,
+              "p": 6,
+              "logc": 7,
+              "logr": 3
+            },
+            {
+              "s": 19,
+              "p": 6,
+              "logc": 7,
+              "logr": 3
+            },
+            {
+              "s": 25,
+              "p": 4,
+              "logc": 7,
+              "logr": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "finished": "2026-09-27T16:31:31-0300"
+}
