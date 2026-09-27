@@ -1,0 +1,301 @@
+{
+  "schema": 1,
+  "command": "python bench/thermal.py --minutes 7 --out bench/results/thermal.json",
+  "settings": {
+    "minutes": 7.0,
+    "bucket": 15.0,
+    "n": 24,
+    "dtype": "uint32",
+    "elems": 67108864,
+    "variant": "WHT",
+    "out": "bench/results/thermal.json"
+  },
+  "device": {
+    "device_name": "Apple M4",
+    "architecture": "applegpu_g16g",
+    "simd_width": 32,
+    "max_threads_per_threadgroup": 1024,
+    "max_threadgroup_memory": 32768,
+    "memory_size": 17179869184,
+    "max_recommended_working_set_size": 12713115648,
+    "max_buffer_length": 9534832640,
+    "mlx_version": "0.32.2",
+    "source": "MTLDevice"
+  },
+  "host": {
+    "Model Name": "MacBook Air",
+    "Model Identifier": "Mac16,13",
+    "Chip": "Apple M4",
+    "Total Number of Cores": "10 (4 Performance and 6 Efficiency)",
+    "Memory": "16 GB",
+    "macOS": "26.3"
+  },
+  "plan": {
+    "n": 24,
+    "tile_bytes": 16384,
+    "passes": [
+      {
+        "stages": "[0,12)",
+        "s": 0,
+        "p": 12,
+        "logc": 0,
+        "logr": 10,
+        "logg": 0,
+        "threads_per_group": 1024,
+        "elems_per_thread": 4,
+        "threadgroup_bytes": 16384,
+        "tiers": {
+          "simd_shuffle": 5,
+          "threadgroup": 5,
+          "register": 2
+        }
+      },
+      {
+        "stages": "[12,19)",
+        "s": 12,
+        "p": 7,
+        "logc": 5,
+        "logr": 5,
+        "logg": 0,
+        "threads_per_group": 1024,
+        "elems_per_thread": 4,
+        "threadgroup_bytes": 16384,
+        "tiers": {
+          "simd_shuffle": 0,
+          "threadgroup": 5,
+          "register": 2
+        }
+      },
+      {
+        "stages": "[19,24)",
+        "s": 19,
+        "p": 5,
+        "logc": 7,
+        "logr": 3,
+        "logg": 0,
+        "threads_per_group": 1024,
+        "elems_per_thread": 4,
+        "threadgroup_bytes": 16384,
+        "tiers": {
+          "simd_shuffle": 0,
+          "threadgroup": 3,
+          "register": 2
+        }
+      }
+    ],
+    "num_passes": 3,
+    "stages_by_tier": {
+      "simd_shuffle": 5,
+      "threadgroup": 13,
+      "register": 6
+    },
+    "device_traffic_bytes": 1610612736
+  },
+  "traffic_bytes": 1610612736,
+  "buckets": [
+    {
+      "t_s": 15.0,
+      "iters": 872,
+      "median_s": 0.017438082955777645,
+      "gb_per_s": 92.36180032429345,
+      "vs_first": 1.0
+    },
+    {
+      "t_s": 30.0,
+      "iters": 872,
+      "median_s": 0.017513270489871502,
+      "gb_per_s": 91.96527495715151,
+      "vs_first": 1.0043116857675543
+    },
+    {
+      "t_s": 45.0,
+      "iters": 872,
+      "median_s": 0.017540832981467247,
+      "gb_per_s": 91.82076687587707,
+      "vs_first": 1.0058922776058683
+    },
+    {
+      "t_s": 60.0,
+      "iters": 872,
+      "median_s": 0.017549833049997687,
+      "gb_per_s": 91.7736784966289,
+      "vs_first": 1.0064083933138428
+    },
+    {
+      "t_s": 75.0,
+      "iters": 860,
+      "median_s": 0.017587395501323044,
+      "gb_per_s": 91.5776719684753,
+      "vs_first": 1.0085624403739821
+    },
+    {
+      "t_s": 90.0,
+      "iters": 871,
+      "median_s": 0.017539999913424253,
+      "gb_per_s": 91.82512793328559,
+      "vs_first": 1.0058445046915458
+    },
+    {
+      "t_s": 105.0,
+      "iters": 870,
+      "median_s": 0.01756977045442909,
+      "gb_per_s": 91.66953775392024,
+      "vs_first": 1.0075517187861418
+    },
+    {
+      "t_s": 120.0,
+      "iters": 869,
+      "median_s": 0.017567833187058568,
+      "gb_per_s": 91.67964647947966,
+      "vs_first": 1.007440624729792
+    },
+    {
+      "t_s": 135.0,
+      "iters": 864,
+      "median_s": 0.017593042110092938,
+      "gb_per_s": 91.54827948010248,
+      "vs_first": 1.0088862494064437
+    },
+    {
+      "t_s": 150.0,
+      "iters": 869,
+      "median_s": 0.01758495788089931,
+      "gb_per_s": 91.59036643183771,
+      "vs_first": 1.0084226531949718
+    },
+    {
+      "t_s": 165.0,
+      "iters": 868,
+      "median_s": 0.017586062429472804,
+      "gb_per_s": 91.58461380762215,
+      "vs_first": 1.0084859943647722
+    },
+    {
+      "t_s": 180.0,
+      "iters": 865,
+      "median_s": 0.017656292067840695,
+      "gb_per_s": 91.22032699796478,
+      "vs_first": 1.0125133658680499
+    },
+    {
+      "t_s": 195.0,
+      "iters": 855,
+      "median_s": 0.01780266617424786,
+      "gb_per_s": 90.4703104712374,
+      "vs_first": 1.0209072992366641
+    },
+    {
+      "t_s": 210.0,
+      "iters": 857,
+      "median_s": 0.017942707985639572,
+      "gb_per_s": 89.76419486339812,
+      "vs_first": 1.028938102378664
+    },
+    {
+      "t_s": 225.0,
+      "iters": 853,
+      "median_s": 0.017990333028137684,
+      "gb_per_s": 89.5265659329891,
+      "vs_first": 1.031669196307904
+    },
+    {
+      "t_s": 240.0,
+      "iters": 850,
+      "median_s": 0.018037853529676795,
+      "gb_per_s": 89.29070930474836,
+      "vs_first": 1.034394295257119
+    },
+    {
+      "t_s": 255.0,
+      "iters": 839,
+      "median_s": 0.018105125054717064,
+      "gb_per_s": 88.9589401416686,
+      "vs_first": 1.0382520315238213
+    },
+    {
+      "t_s": 270.0,
+      "iters": 841,
+      "median_s": 0.018240791046991944,
+      "gb_per_s": 88.29730749344904,
+      "vs_first": 1.0460319000230667
+    },
+    {
+      "t_s": 285.0,
+      "iters": 839,
+      "median_s": 0.018286125035956502,
+      "gb_per_s": 88.07840550324404,
+      "vs_first": 1.0486316117619958
+    },
+    {
+      "t_s": 300.0,
+      "iters": 839,
+      "median_s": 0.018363999901339412,
+      "gb_per_s": 87.70489787916667,
+      "vs_first": 1.0530974045661934
+    },
+    {
+      "t_s": 315.0,
+      "iters": 828,
+      "median_s": 0.018388395896181464,
+      "gb_per_s": 87.58853926646532,
+      "vs_first": 1.0544964112634272
+    },
+    {
+      "t_s": 330.0,
+      "iters": 838,
+      "median_s": 0.01837893738411367,
+      "gb_per_s": 87.63361571666144,
+      "vs_first": 1.0539540057655419
+    },
+    {
+      "t_s": 345.0,
+      "iters": 828,
+      "median_s": 0.01843845855910331,
+      "gb_per_s": 87.35072570395637,
+      "vs_first": 1.0573672923716777
+    },
+    {
+      "t_s": 360.0,
+      "iters": 831,
+      "median_s": 0.018363957991823554,
+      "gb_per_s": 87.70509803589815,
+      "vs_first": 1.0530950012334437
+    },
+    {
+      "t_s": 375.0,
+      "iters": 825,
+      "median_s": 0.018493459094315767,
+      "gb_per_s": 87.09093997969505,
+      "vs_first": 1.0605213394852242
+    },
+    {
+      "t_s": 390.0,
+      "iters": 831,
+      "median_s": 0.018516834126785398,
+      "gb_per_s": 86.98099928811153,
+      "vs_first": 1.0618617983263083
+    },
+    {
+      "t_s": 405.0,
+      "iters": 828,
+      "median_s": 0.01857964543160051,
+      "gb_per_s": 86.6869468488698,
+      "vs_first": 1.0654637599051358
+    },
+    {
+      "t_s": 420.0,
+      "iters": 828,
+      "median_s": 0.01862622902262956,
+      "gb_per_s": 86.4701456233153,
+      "vs_first": 1.0681351310155485
+    }
+  ],
+  "worst_slowdown": 1.0681351310155485,
+  "final_slowdown": 1.0681351310155485,
+  "thermal_after": {
+    "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
+    "thermal_warning_recorded": "False",
+    "uptime": "12:05  up 54 days,  1:22, 4 users, load averages: 1.37 1.64 2.08"
+  },
+  "finished": "2026-09-27T12:05:50-0300"
+}
