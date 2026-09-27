@@ -9,7 +9,7 @@ import numpy as np
 import pytest
 
 import yates
-from conftest import ALL_VARIANTS, UINT_DTYPES, np_of, rand_uint
+from kernel_helpers import ALL_VARIANTS, UINT_DTYPES, np_of, rand_uint
 
 
 @pytest.mark.parametrize("name", ALL_VARIANTS)

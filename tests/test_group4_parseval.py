@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import yates
-from conftest import np_of, rand_uint
+from kernel_helpers import np_of, rand_uint
 
 
 @pytest.mark.parametrize("n", list(range(0, 15)))

@@ -17,7 +17,7 @@ import numpy as np
 import pytest
 
 import yates
-from conftest import np_of
+from kernel_helpers import np_of
 
 pytestmark = pytest.mark.slow
 

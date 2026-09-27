@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 import yates
-from conftest import UINT_DTYPES, np_of, rand_uint
+from kernel_helpers import UINT_DTYPES, np_of, rand_uint
 
 
 def test_snf_and_elementary_divisors_match_the_stated_contract():

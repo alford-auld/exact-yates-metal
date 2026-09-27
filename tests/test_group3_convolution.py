@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 import yates
-from conftest import np_of, rand_uint
+from kernel_helpers import np_of, rand_uint
 
 N_RANGE = list(range(0, 11))
 
