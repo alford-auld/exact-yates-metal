@@ -56,22 +56,47 @@ the memory ceiling — have `v2(c_30) = 70`**. `c_30` is a 149-digit number and
 graph that is obviously 30-colourable. An eight-vertex analogue against a `2^16`
 modulus runs in the fast suite.
 
-What could *not* be constructed here is an instance where a false negative
-corrupts the reported `chi`. That needs the false negative to land at `k = chi`
-itself rather than at some `k` the binary search never visits, i.e.
-`2^64 | c_chi`. Over 287 graphs on 2–9 vertices (complete, Turán, cycles, paths,
-empty, and random at varying density) the best ratio `v2(c_chi)/n` is `7/8`,
-attained by K₈ — which would need `n >= 74` vertices to reach valuation 64, far
-past the ~29-vertex memory ceiling.
+### Can a false negative corrupt the reported chi?
 
-Both searches are reproducible:
+A false negative only matters if it lands at `k = chi` itself, rather than at
+some `k` the binary search never visits — i.e. if `2^64 | c_chi`. That question
+has an exact answer, not a heuristic one.
 
-    .venv/bin/python bench/chromatic/false_negative_search.py
+**Lemma.** `chi! | c_chi(G)` for every graph `G`.
 
-That ratio is pinned by a test, but it is a search result, not a theorem: it is
-evidence that the mod-2^64 path is safe in this range, not a proof that it
-always is. Nothing here argues you should rely on it — `mode="exact"` is the
-default precisely because it does not need this argument at all.
+*Proof.* Suppose a covering `(S_1, …, S_chi)` of `V` by independent sets has
+`S_i = S_j` for some `i != j`. Dropping `S_j` still covers `V`, so `V` is
+covered by `chi − 1` independent sets — and a covering by `m` independent sets
+implies `m`-colourability (give each vertex the least index covering it; every
+colour class is a subset of an independent set). That contradicts minimality of
+`chi`. So at `k = chi` the components are pairwise distinct, the
+coordinate-permutation action of `S_chi` on the coverings is **free**, every
+orbit has size `chi!`, and `chi!` divides their number. ∎
+
+The lemma is **tight on cliques**: at `k = n` every slot of `K_n` must hold a
+distinct singleton, so `c_n(K_n) = n!`. By Legendre `v2(n!) = n − popcount(n)`,
+so the first clique with `2^64 | c_chi` is exactly
+
+    n = 66  =  1000010₂,   popcount 2,   v2(66!) = 64
+    (n = 65 and n = 64 both give 63)
+
+**`K_66` is therefore an exact counterexample at `k = chi`**: `c_66 = 66!`,
+`v2 = 64`, so a single-modulus solver declares `K_66` not 66-colourable. That is
+arithmetic, not a search.
+
+And this makes the practical conclusion *stronger*, not weaker. The lemma
+forces `v2(c_chi) >= chi − popcount(chi)`, which for any `chi` reachable at
+`n <= 29` is at most **25** (attained at `chi = 29`). The remaining **39 bits
+would have to come from the unordered cofactor** `c_chi / chi!`, the number of
+minimal coverings up to permutation — and there is no structural reason for that
+to be even at all. Measured over the 210-graph survey in
+`tests/chromatic/test_modular.py`, the cofactor's valuation is 0 in 191 cases and
+never exceeds 3.
+
+So the honest statement is not "not found across a search" but: *the forced part
+is bounded by 25 of the 64 bits, and the unforced part has no mechanism to
+supply the other 39.* That is still not a proof for arbitrary `n <= 29`, and the
+default mode does not rely on it.
 
 ### Closing the gap
 
@@ -92,9 +117,15 @@ knows the seed.
 
     0 <= c_k <= i(V)^k
 
-and `i(V)` is already computed — it is the top entry of the zeta. Once the
-product of the moduli exceeds `i(V)^k`, CRT reconstructs `c_k` as an exact
-integer and no probability remains. This is much cheaper than "small n" suggests,
+and `i(V)` is already computed — it is the top entry of the zeta. A second
+bound is free: a covering is determined by which *nonempty* subset of the `k`
+slots holds each vertex, so `c_k <= (2^k − 1)^n` as well, which is the tighter
+of the two exactly when `i(V)` is close to `2^n`. (It is an equality on the
+edgeless graph, where `c_k = (2^k − 1)^n`.) The implementation uses the minimum
+of both; across the feasible grid it saves one prime in 42 `(n, k)`
+combinations and never two, so it is worth taking but is not the lever it looks
+like. Once the product of the moduli exceeds that bound, CRT reconstructs `c_k`
+as an exact integer and no probability remains. This is much cheaper than "small n" suggests,
 because `i(V)` is usually far below `2^n`: the Chvátal graph has 127 independent
 sets on 12 vertices, so `c_4 <= 127^4 < 2^28` and **a single 31-bit prime already
 makes the answer unconditional**. `mode="exact"` is therefore the default, and
@@ -207,9 +238,14 @@ structural and one measured:
 
 Every number here was measured on this machine and is reproducible with a command
 in `bench/chromatic/`. The headline: **an arbitrary 29-vertex graph
-(6 GiB of subset state, the detected memory ceiling) takes
-1531 ms end to end**, and a 28-vertex one takes 544 ms — regardless of how hard
-the instance is.
+(6 GiB of subset state, the detected memory ceiling) takes 1531 ms end to end**,
+and a 28-vertex one takes 544 ms — regardless of how hard the instance is.
+
+Both figures are `mode="exact"` — unconditional, CRT-reconstructed — on a
+`G(n, 0.5)` instance, which at n = 29 needs **3 CRT primes** per candidate `k`.
+Naming the density matters, because the cost of exact mode depends on
+`k · log2 i(V)`, and the n-sweep fixes `p = 0.5`; see the density sweep below
+for what happens elsewhere in that space.
 
 - Machine: MacBook Air (Mac16,13), Apple M4, 16 GB unified memory, macOS 26.3
 - GPU: Apple M4 (applegpu_g16g), MLX 0.32.2
@@ -291,6 +327,37 @@ Montgomery multiply chain itself, not division.
 
 Montgomery needs an odd modulus, so even moduli fall back to the generic path
 automatically — which is why the 2^16 false-negative regression still works.
+
+### Cost against density, at fixed n
+
+The n-sweep above holds density at 0.5. That is the wrong axis for the cost of
+`mode="exact"`, which scales with the CRT prime count and hence with
+`k · log2 i(V)`. Those two factors pull against each other: sparse graphs have
+many independent sets but small chi, dense graphs the reverse. Whether the worst
+case is sparse, dense or in between is empirical, so here it is, at n = 26
+(`bench/chromatic/density.py`):
+
+| density `p` | edges | i(V) | log₂ i(V) | chi | k tested | CRT primes at chi | `mode="exact"` | `mode="mod2_64"` |
+|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| 0.05 | 18 | 2,017,280 | 20 | 2 | 1 | 2 | 64 ms | 34 ms |
+| 0.10 | 31 | 283,518 | 18 | 3 | 2 | 2 | 107 ms | 46 ms |
+| 0.15 | 47 | 81,717 | 16 | 3 | 1 | 2 | 63 ms | 33 ms |
+| 0.20 | 67 | 21,447 | 14 | 4 | 2 | 2 | 112 ms | 47 ms |
+| 0.30 | 91 | 6,692 | 12 | 5 | 1 | 3 | 87 ms | 33 ms |
+| 0.50 | 150 | 969 | 9 | 6 | 2 | 2 | 117 ms | 46 ms |
+| 0.70 | 222 | 236 | 7 | 9 | 2 | 3 | 170 ms | 47 ms |
+| 0.90 | 295 | 61 | 5 | 15 | 1 | 3 | 96 ms | 34 ms |
+
+**The prime count never leaves 2–3, and the whole density range spans only
+2.7x in wall clock.** The product `chi · log2 i(V)` stays between 40 and 75
+bits: it is self-limiting, because reaching a large chi requires the density
+that destroys i(V). The pessimistic reading — a sparse graph with chi = 10
+giving 290 bits and ~10 primes — does not occur, because no such graph exists.
+Exact mode costs 1.9-3.7x the one-sided `mod2_64` path, which is the real price
+of the unconditional guarantee.
+
+Single run per configuration, median of a steady-state window, idle cooldown
+between configurations.
 
 ### Instances where the clique bound does not reach chi
 

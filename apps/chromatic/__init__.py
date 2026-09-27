@@ -33,6 +33,7 @@ from .count import (
 from .modular import (
     ModularResult, c_k_multi_modular, crt, is_prime, random_primes,
     bound_on_c_k, primes_needed_for_exact, failure_probability_bound,
+    forced_two_adic_valuation, first_clique_defeating_modulus,
     PRIME_POOL_LOWER_BOUND,
 )
 from .chromatic import (
@@ -57,6 +58,7 @@ __all__ = [
     "chromatic_number_brute_force", "PRIME_BITS", "max_prime_bits",
     "ModularResult", "c_k_multi_modular", "crt", "is_prime", "random_primes",
     "bound_on_c_k", "primes_needed_for_exact", "failure_probability_bound",
+    "forced_two_adic_valuation", "first_clique_defeating_modulus",
     "PRIME_POOL_LOWER_BOUND",
     "ChromaticResult", "chromatic_number", "bounds", "greedy_clique", "dsatur",
     "verify_colouring", "max_feasible_n", "check_feasible",

@@ -115,15 +115,32 @@ def crt(residues: Sequence[int], moduli: Sequence[int]) -> tuple:
     return value % modulus, modulus
 
 
-def bound_on_c_k(num_independent_sets: int, k: int) -> int:
-    """``c_k <= i(V)^k``: every coordinate of the tuple is an independent set."""
-    return max(1, int(num_independent_sets) ** int(k))
+def bound_on_c_k(num_independent_sets: int, k: int, n: Optional[int] = None) -> int:
+    """An upper bound on ``c_k``, from whichever of two arguments is tighter.
+
+    * ``c_k <= i(V)^k`` -- every coordinate of the tuple is an independent set.
+    * ``c_k <= (2^k - 1)^n`` -- a covering is determined by which *nonempty*
+      subset of the k slots contains each of the n vertices.  (Not every such
+      assignment yields independent slots, hence an inequality; for the edgeless
+      graph it is an equality, which is why ``c_k = (2^k-1)^n`` there.)
+
+    The second is the tighter one exactly when ``i(V)`` is large, i.e. on sparse
+    graphs -- which are also the instances where the first bound is worst and
+    the CRT prime count is highest.  Passing ``n`` is therefore worth one or two
+    primes on the expensive cases and never costs anything.
+    """
+    by_sets = max(1, int(num_independent_sets) ** int(k))
+    if n is None:
+        return by_sets
+    by_slots = max(1, (2 ** int(k) - 1) ** int(n))
+    return min(by_sets, by_slots)
 
 
 def primes_needed_for_exact(num_independent_sets: int, k: int,
-                            bits: int = PRIME_BITS) -> int:
+                            bits: int = PRIME_BITS,
+                            n: Optional[int] = None) -> int:
     """How many primes make the CRT reconstruction of ``c_k`` unconditional."""
-    bound = bound_on_c_k(num_independent_sets, k)
+    bound = bound_on_c_k(num_independent_sets, k, n)
     prod, count = 1, 0
     smallest = 1 << (bits - 1)
     while prod <= bound:
@@ -133,12 +150,56 @@ def primes_needed_for_exact(num_independent_sets: int, k: int,
 
 
 def failure_probability_bound(num_independent_sets: int, k: int, num_primes: int,
-                              bits: int = PRIME_BITS) -> float:
+                              bits: int = PRIME_BITS,
+                              n: Optional[int] = None) -> float:
     """Upper bound on Pr[all ``num_primes`` residues vanish while ``c_k != 0``]."""
-    bound = bound_on_c_k(num_independent_sets, k)
+    bound = bound_on_c_k(num_independent_sets, k, n)
     max_divisors = max(1, int(math.log(bound) / math.log(1 << (bits - 1))))
     per_prime = min(1.0, max_divisors / PRIME_POOL_LOWER_BOUND)
     return per_prime ** num_primes
+
+
+def forced_two_adic_valuation(chi: int) -> int:
+    """``v2(chi!) = chi - popcount(chi)``: the part of ``v2(c_chi)`` forced by
+    symmetry, and hence a lower bound on it.
+
+    **Lemma.** ``chi! | c_chi(G)`` for every graph G.
+
+    *Proof.* Let ``(S_1, ..., S_chi)`` be a covering of V by independent sets
+    with ``S_i = S_j`` for some ``i != j``.  Dropping ``S_j`` still covers V, so
+    V is covered by ``chi - 1`` independent sets; and a covering by m
+    independent sets implies m-colourability (give each vertex the least index
+    covering it -- every colour class is a subset of an independent set).  That
+    contradicts the minimality of chi.  So at ``k = chi`` the components of a
+    covering tuple are pairwise distinct, the coordinate-permutation action of
+    ``S_chi`` on the coverings is free, and the orbit-counting gives
+    ``chi! | c_chi``.  (Equality for ``K_n``: at ``k = n`` every slot must hold
+    a distinct singleton, so ``c_n(K_n) = n!``.)  QED
+
+    Why this matters for the one-sided guarantee: a false negative that corrupts
+    the *reported* chromatic number needs ``2^64 | c_chi``.  By Legendre this
+    lemma forces only ``chi - popcount(chi)`` of those 64 bits, which is at most
+    25 for any chi a 29-vertex machine can reach.  The rest would have to come
+    from the unordered cofactor ``c_chi / chi!``.  See
+    :func:`first_clique_defeating_modulus` for where the forced part alone
+    suffices.
+    """
+    if chi < 0:
+        raise ValueError(f"chi must be non-negative, got {chi}")
+    return chi - bin(chi).count("1")
+
+
+def first_clique_defeating_modulus(bits: int = 64) -> int:
+    """Smallest ``n`` with ``2^bits | c_chi(K_n)``, i.e. ``2^bits | n!``.
+
+    For the clique family the lemma is tight (``c_n(K_n) = n!``), so this is
+    exact rather than a search: ``n = 66`` for a 64-bit modulus, since
+    ``v2(66!) = 66 - 2 = 64`` while ``v2(65!) = v2(64!) = 63``.
+    """
+    n = 1
+    while forced_two_adic_valuation(n) < bits:
+        n += 1
+    return n
 
 
 # --------------------------------------------------------------------------
@@ -233,9 +294,9 @@ def c_k_multi_modular(counts: mx.array, k: int, n: int,
     bits = max_prime_bits(n)
     if bits < 2:
         raise ValueError(f"n={n} leaves no headroom for a modulus")
-    bound = bound_on_c_k(num_independent_sets, k)
+    bound = bound_on_c_k(num_independent_sets, k, n)
     if exact:
-        num_primes = primes_needed_for_exact(num_independent_sets, k, bits)
+        num_primes = primes_needed_for_exact(num_independent_sets, k, bits, n)
     primes = random_primes(num_primes, seed=seed, bits=bits)
     residues = [c_k_reduction(counts, k, n, modulus=p) for p in primes]
 
@@ -245,7 +306,7 @@ def c_k_multi_modular(counts: mx.array, k: int, n: int,
                           if include_2_64 else None),
         bound_on_value=bound,
         failure_bound=failure_probability_bound(num_independent_sets, k,
-                                                len(primes), bits),
+                                                len(primes), bits, n),
     )
     value, modulus = crt(residues, primes)
     res.combined_modulus = modulus
