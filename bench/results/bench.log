@@ -1,0 +1,161 @@
+================================================================================================
+Yates kernel benchmark | mlx 0.32.2 | variant WHT
+  Mac16,13 Apple M4 | 10 (4 Performance and 6 Efficiency) CPU cores | 16 GB RAM | macOS 26.3
+  GPU Apple M4 (applegpu_g16g) simd_width=32 max_threads/tg=1024 tg_mem=32768B
+  working set limit 11.84 GiB, max buffer 8.88 GiB
+  2.0s window / 0.5s warmup / 3.0s cooldown, min working set 67108864 elems
+================================================================================================
+
+### uint32 (4 B/elem), n = 10..29
+  allocating 2.00 GiB of random input
+  choosing copy-kernel width @ 256 MiB
+    copy vec=1:    96.6 GB/s sustained
+    copy vec=2:    94.5 GB/s sustained
+    copy vec=4:    91.6 GB/s sustained
+    copy vec=8:    83.9 GB/s sustained
+  using vec=1
+    cooling 3s after copy width probe
+  n=10 b= 65536     256 MiB p=1 tile= 4096 | copy   91.6 | xform     5.97 ms   90.0 GB/s |  98.3% of copy | drift 1.003
+    cooling 3s after n=10
+  n=11 b= 32768     256 MiB p=1 tile= 8192 | copy   93.1 | xform     6.11 ms   87.9 GB/s |  94.4% of copy | drift 1.007
+    cooling 3s after n=11
+  n=12 b= 16384     256 MiB p=1 tile=16384 | copy   92.7 | xform     6.60 ms   81.4 GB/s |  87.8% of copy | drift 1.080
+    cooling 3s after n=12
+  n=13 b=  8192     256 MiB p=1 tile=32768 | copy   96.2 | xform     5.83 ms   92.1 GB/s |  95.7% of copy | drift 1.003
+    cooling 3s after n=13
+  n=14 b=  4096     256 MiB p=2 tile= 4096 | copy   90.2 | xform    12.10 ms   88.8 GB/s |  98.4% of copy | drift 1.024
+    cooling 3s after n=14
+  n=15 b=  2048     256 MiB p=2 tile= 4096 | copy   89.9 | xform    12.42 ms   86.5 GB/s |  96.2% of copy | drift 1.022
+    cooling 3s after n=15
+  n=16 b=  1024     256 MiB p=2 tile= 8192 | copy   90.4 | xform    12.00 ms   89.5 GB/s |  99.0% of copy | drift 1.002
+    cooling 3s after n=16
+  n=17 b=   512     256 MiB p=2 tile= 8192 | copy   90.4 | xform    12.27 ms   87.5 GB/s |  96.8% of copy | drift 1.030
+    cooling 3s after n=17
+  n=18 b=   256     256 MiB p=2 tile=16384 | copy   86.9 | xform    12.32 ms   87.1 GB/s | 100.2% of copy | drift 1.023
+    cooling 3s after n=18
+  n=19 b=   128     256 MiB p=2 tile=16384 | copy   85.9 | xform    12.55 ms   85.6 GB/s |  99.6% of copy | drift 1.013
+    cooling 3s after n=19
+  n=20 b=    64     256 MiB p=2 tile=32768 | copy   89.9 | xform    12.24 ms   87.7 GB/s |  97.6% of copy | drift 0.987
+    cooling 3s after n=20
+  n=21 b=    32     256 MiB p=2 tile=32768 | copy   87.5 | xform    12.13 ms   88.6 GB/s | 101.2% of copy | drift 0.997
+    cooling 3s after n=21
+  n=22 b=    16     256 MiB p=3 tile= 8192 | copy   94.5 | xform    16.51 ms   97.6 GB/s | 103.3% of copy | drift 0.979
+    cooling 3s after n=22
+  n=23 b=     8     256 MiB p=3 tile= 8192 | copy   96.1 | xform    16.81 ms   95.8 GB/s |  99.7% of copy | drift 1.005
+    cooling 3s after n=23
+  n=24 b=     4     256 MiB p=3 tile=16384 | copy   95.9 | xform    16.52 ms   97.5 GB/s | 101.7% of copy | drift 0.976
+    cooling 3s after n=24
+  n=25 b=     2     256 MiB p=3 tile=16384 | copy   95.6 | xform    16.51 ms   97.6 GB/s | 102.1% of copy | drift 0.999
+    cooling 3s after n=25
+  n=26 b=     1     256 MiB p=3 tile=16384 | copy   98.4 | xform    17.63 ms   91.3 GB/s |  92.9% of copy | drift 1.000
+    cooling 3s after n=26
+  n=27 b=     1     512 MiB p=3 tile=32768 | copy  101.3 | xform    35.01 ms   92.0 GB/s |  90.9% of copy | drift 0.931
+    cooling 3s after n=27
+  n=28 b=     1    1024 MiB p=3 tile=32768 | copy  102.8 | xform    93.01 ms   69.3 GB/s |  67.4% of copy | drift 0.996
+    cooling 3s after n=28
+  n=29 b=     1    2048 MiB p=3 tile=32768 | copy  104.0 | xform   206.70 ms   62.3 GB/s |  59.9% of copy | drift 0.997
+    cooling 3s after n=29
+  thermal re-check n=10: 5.97 ms at start -> 5.71 ms at end (0.957x)
+
+### uint64 (8 B/elem), n = 10..28
+  allocating 2.00 GiB of random input
+  choosing copy-kernel width @ 512 MiB
+    copy vec=1:   100.6 GB/s sustained
+    copy vec=2:    98.7 GB/s sustained
+    copy vec=4:    93.3 GB/s sustained
+    copy vec=8:    78.8 GB/s sustained
+  using vec=1
+    cooling 3s after copy width probe
+  n=10 b= 65536     512 MiB p=1 tile= 8192 | copy   93.3 | xform    11.94 ms   89.9 GB/s |  96.4% of copy | drift 1.004
+    cooling 3s after n=10
+  n=11 b= 32768     512 MiB p=1 tile=16384 | copy   92.0 | xform    12.09 ms   88.8 GB/s |  96.6% of copy | drift 1.012
+    cooling 3s after n=11
+  n=12 b= 16384     512 MiB p=1 tile=32768 | copy   93.1 | xform    11.84 ms   90.7 GB/s |  97.4% of copy | drift 1.000
+    cooling 3s after n=12
+  n=13 b=  8192     512 MiB p=2 tile= 4096 | copy   93.2 | xform    23.53 ms   91.3 GB/s |  97.9% of copy | drift 1.009
+    cooling 3s after n=13
+  n=14 b=  4096     512 MiB p=2 tile= 8192 | copy   91.6 | xform    23.77 ms   90.3 GB/s |  98.7% of copy | drift 1.001
+    cooling 3s after n=14
+  n=15 b=  2048     512 MiB p=2 tile= 8192 | copy   92.3 | xform    23.79 ms   90.3 GB/s |  97.8% of copy | drift 0.998
+    cooling 3s after n=15
+  n=16 b=  1024     512 MiB p=2 tile=16384 | copy   93.4 | xform    23.51 ms   91.3 GB/s |  97.8% of copy | drift 1.001
+    cooling 3s after n=16
+  n=17 b=   512     512 MiB p=2 tile=16384 | copy   93.0 | xform    23.50 ms   91.4 GB/s |  98.3% of copy | drift 0.996
+    cooling 3s after n=17
+  n=18 b=   256     512 MiB p=2 tile=32768 | copy   93.0 | xform    23.58 ms   91.1 GB/s |  97.9% of copy | drift 1.003
+    cooling 3s after n=18
+  n=19 b=   128     512 MiB p=2 tile=32768 | copy   86.2 | xform    24.42 ms   87.9 GB/s | 102.0% of copy | drift 1.013
+    cooling 3s after n=19
+  n=20 b=    64     512 MiB p=3 tile= 8192 | copy   92.4 | xform    35.70 ms   90.2 GB/s |  97.7% of copy | drift 0.989
+    cooling 3s after n=20
+  n=21 b=    32     512 MiB p=3 tile=16384 | copy   87.4 | xform    36.31 ms   88.7 GB/s | 101.5% of copy | drift 0.985
+    cooling 3s after n=21
+  n=22 b=    16     512 MiB p=3 tile=16384 | copy   91.4 | xform    36.60 ms   88.0 GB/s |  96.3% of copy | drift 1.001
+    cooling 3s after n=22
+  n=23 b=     8     512 MiB p=3 tile=16384 | copy   90.5 | xform    36.72 ms   87.7 GB/s |  96.9% of copy | drift 1.005
+    cooling 3s after n=23
+  n=24 b=     4     512 MiB p=3 tile=32768 | copy   91.4 | xform    36.30 ms   88.7 GB/s |  97.1% of copy | drift 1.006
+    cooling 3s after n=24
+  n=25 b=     2     512 MiB p=3 tile=32768 | copy   91.1 | xform    41.49 ms   77.6 GB/s |  85.3% of copy | drift 0.990
+    cooling 3s after n=25
+  n=26 b=     1     512 MiB p=3 tile=32768 | copy   90.9 | xform    58.74 ms   54.8 GB/s |  60.3% of copy | drift 0.951
+    cooling 3s after n=26
+  n=27 b=     1    1024 MiB p=4 tile=16384 | copy   91.5 | xform    98.81 ms   86.9 GB/s |  95.0% of copy | drift 1.008
+    cooling 3s after n=27
+  n=28 b=     1    2048 MiB p=4 tile=16384 | copy   92.2 | xform   204.55 ms   84.0 GB/s |  91.1% of copy | drift 0.603
+    cooling 3s after n=28
+  thermal re-check n=10: 11.94 ms at start -> 12.26 ms at end (1.027x)
+
+### float32 (4 B/elem), n = 10..29
+  allocating 2.00 GiB of random input
+  choosing copy-kernel width @ 256 MiB
+    copy vec=1:    85.6 GB/s sustained
+    copy vec=2:    87.6 GB/s sustained
+    copy vec=4:    85.8 GB/s sustained
+    copy vec=8:    81.3 GB/s sustained
+  using vec=2
+    cooling 3s after copy width probe
+  n=10 b= 65536     256 MiB p=1 tile= 4096 | copy   88.4 | xform     6.32 ms   84.9 GB/s |  96.1% of copy | drift 1.013
+    cooling 3s after n=10
+  n=11 b= 32768     256 MiB p=1 tile= 8192 | copy   89.4 | xform     6.20 ms   86.6 GB/s |  96.8% of copy | drift 1.003
+    cooling 3s after n=11
+  n=12 b= 16384     256 MiB p=1 tile=16384 | copy   86.0 | xform     6.32 ms   85.0 GB/s |  98.8% of copy | drift 0.976
+    cooling 3s after n=12
+  n=13 b=  8192     256 MiB p=1 tile=32768 | copy   90.2 | xform     6.52 ms   82.3 GB/s |  91.3% of copy | drift 1.024
+    cooling 3s after n=13
+  n=14 b=  4096     256 MiB p=2 tile= 4096 | copy   89.5 | xform    12.09 ms   88.8 GB/s |  99.3% of copy | drift 0.996
+    cooling 3s after n=14
+  n=15 b=  2048     256 MiB p=2 tile= 4096 | copy   86.5 | xform    12.15 ms   88.4 GB/s | 102.1% of copy | drift 1.001
+    cooling 3s after n=15
+  n=16 b=  1024     256 MiB p=2 tile= 8192 | copy   86.4 | xform    11.93 ms   90.0 GB/s | 104.2% of copy | drift 0.998
+    cooling 3s after n=16
+  n=17 b=   512     256 MiB p=2 tile= 8192 | copy   86.3 | xform    12.07 ms   88.9 GB/s | 103.0% of copy | drift 1.006
+    cooling 3s after n=17
+  n=18 b=   256     256 MiB p=2 tile=16384 | copy   86.1 | xform    12.23 ms   87.8 GB/s | 102.0% of copy | drift 1.012
+    cooling 3s after n=18
+  n=19 b=   128     256 MiB p=2 tile=16384 | copy   86.6 | xform    13.37 ms   80.3 GB/s |  92.8% of copy | drift 1.091
+    cooling 3s after n=19
+  n=20 b=    64     256 MiB p=2 tile=32768 | copy   84.3 | xform    11.44 ms   93.8 GB/s | 111.4% of copy | drift 0.968
+    cooling 3s after n=20
+  n=21 b=    32     256 MiB p=2 tile=32768 | copy   95.1 | xform    11.39 ms   94.3 GB/s |  99.1% of copy | drift 1.013
+    cooling 3s after n=21
+  n=22 b=    16     256 MiB p=3 tile= 8192 | copy   93.4 | xform    17.10 ms   94.2 GB/s | 100.9% of copy | drift 1.016
+    cooling 3s after n=22
+  n=23 b=     8     256 MiB p=3 tile= 8192 | copy   91.0 | xform    17.61 ms   91.4 GB/s | 100.5% of copy | drift 0.988
+    cooling 3s after n=23
+  n=24 b=     4     256 MiB p=3 tile=16384 | copy   91.5 | xform    17.44 ms   92.3 GB/s | 100.9% of copy | drift 1.033
+    cooling 3s after n=24
+  n=25 b=     2     256 MiB p=3 tile=16384 | copy   94.1 | xform    17.96 ms   89.7 GB/s |  95.3% of copy | drift 0.979
+    cooling 3s after n=25
+  n=26 b=     1     256 MiB p=3 tile=16384 | copy   91.3 | xform    22.37 ms   72.0 GB/s |  78.9% of copy | drift 1.003
+    cooling 3s after n=26
+  n=27 b=     1     512 MiB p=3 tile=32768 | copy   97.8 | xform    39.13 ms   82.3 GB/s |  84.2% of copy | drift 0.900
+    cooling 3s after n=27
+  n=28 b=     1    1024 MiB p=3 tile=32768 | copy  100.7 | xform   103.85 ms   62.0 GB/s |  61.6% of copy | drift 0.999
+    cooling 3s after n=28
+  n=29 b=     1    2048 MiB p=3 tile=32768 | copy  100.7 | xform   240.40 ms   53.6 GB/s |  53.2% of copy | drift 1.000
+    cooling 3s after n=29
+  thermal re-check n=10: 6.32 ms at start -> 5.73 ms at end (0.907x)
+
+wrote bench/results/bench.json
+EXIT=0

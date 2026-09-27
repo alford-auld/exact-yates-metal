@@ -123,10 +123,30 @@ class Pass:
         return itemsize << (self.p + self.logc + self.logg)
 
 
-#: log2 of the minimum contiguous run a tile should touch, in elements.
-#: Widened opportunistically when a pass has memory to spare.
-_LOG_COAL_MIN = 5
-_LOG_COAL_MAX = 7
+# Coalescing policy for strided passes.
+#
+# A pass at bit offset s reads rows 2^s elements apart, C contiguous elements
+# each.  When that stride is large, every row of a tile lands on a different
+# DRAM page and TLB entry, and short runs stop amortising the page activation:
+# measured on this machine, the n=29 uint32 transform runs at 57% of copy
+# bandwidth with 128-byte runs and 95% with 2 KiB runs, even though the longer
+# runs force an extra device pass.  So the required run length scales with the
+# stride, clamped to a measured-useful range.  See bench/tune_coalescing.py.
+_COAL_STRIDE_DIVISOR = 8192   # run bytes ~= stride bytes / this
+_COAL_MIN_RUN_BYTES = 128     # one cache line; enough at small strides
+_COAL_MAX_RUN_BYTES = 2048    # beyond this the extra passes cost more than they save
+
+
+def _coalescing_logc(s: int, itemsize: int, tile_elems_log: int,
+                     max_thread_log: int) -> int:
+    """log2 of the contiguous columns a pass at offset ``s`` should use."""
+    if s == 0:
+        return 0                      # tiles are already contiguous
+    stride_bytes = itemsize << s
+    run = min(max(stride_bytes // _COAL_STRIDE_DIVISOR, _COAL_MIN_RUN_BYTES),
+              _COAL_MAX_RUN_BYTES)
+    logc = max((run // itemsize).bit_length() - 1, 0)
+    return min(logc, s, max_thread_log, tile_elems_log - 1)
 
 
 def _ilog2(v: int) -> int:
@@ -163,12 +183,13 @@ def plan_passes(
     s = 0
     while s < n:
         remaining = n - s
-        logc = 0 if s == 0 else min(s, _LOG_COAL_MIN)
+        logc = _coalescing_logc(s, itemsize, tile_elems_log, max_thread_log)
         p = min(remaining, tile_elems_log - logc)
         # A short final pass has tile memory to spare: spend it on a wider
         # contiguous run so the strided traffic still coalesces.
         if s > 0 and p < tile_elems_log - logc:
-            logc = min(s, tile_elems_log - p, _LOG_COAL_MAX)
+            logc = min(s, tile_elems_log - p, max_thread_log,
+                       max((_COAL_MAX_RUN_BYTES // itemsize).bit_length() - 1, 0))
             p = min(remaining, tile_elems_log - logc)
         if p <= 0:
             raise RuntimeError(

@@ -90,3 +90,22 @@ def test_bound_is_tight_exhibit_input_losing_exactly_n_bits(mx_dt, np_dt, bits, 
         f"n={n}: bit {bits - n - 1} must survive the round trip; "
         "the loss is exactly n bits, not more"
     )
+
+
+@pytest.mark.parametrize("n", [0, 1, 5, 10, 14])
+def test_wht_of_wht_is_N_times_input_in_float32(n, rng):
+    """float32 loses precision rather than low bits; with exact inputs it is exact."""
+    x = rng.integers(0, 64, size=1 << n).astype(np.float32)
+    y = np_of(yates.transform(yates.transform(mx.array(x), "WHT"), "WHT"))
+    assert np.array_equal(y, np.float32(1 << n) * x)
+
+    z = rng.standard_normal(1 << n).astype(np.float32)
+    w = np_of(yates.transform(yates.transform(mx.array(z), "WHT"), "WHT"))
+    assert np.allclose(w, (1 << n) * z, rtol=1e-4, atol=1e-3 * (1 << n) * 2.0 ** (n / 2) / 64)
+
+
+def test_float32_has_no_exactness_contract():
+    """bit_loss / guaranteed_bits describe the ring only; ring_bits(float32) is 0."""
+    assert yates.ring_bits(mx.float32) == 0
+    assert yates.ring_bits(mx.uint32) == 32
+    assert yates.ring_bits(mx.uint64) == 64

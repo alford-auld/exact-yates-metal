@@ -75,3 +75,21 @@ def test_batched_roundtrip_is_exact(n, rng):
     x = rand_uint(rng, (5, 3, 1 << n), np.uint32)
     back = yates.transform(yates.transform(mx.array(x), "ZETA_SUB"), "MOB_SUB")
     assert np.array_equal(np_of(back), x)
+
+
+@pytest.mark.parametrize("fwd,inv", PAIRS)
+@pytest.mark.parametrize("n", [0, 1, 4, 10, 14])
+def test_roundtrip_float32(fwd, inv, n, rng):
+    """float32 round trip: exact for small integers, within tolerance otherwise.
+
+    Unlike the ring case this is *not* a bit-for-bit guarantee -- float32 has no
+    exactness contract -- so integer-valued inputs whose partial sums stay below
+    2^24 are checked exactly, and random inputs only to tolerance.
+    """
+    exact_in = rng.integers(0, 16, size=(3, 1 << n)).astype(np.float32)
+    back = yates.transform(yates.transform(mx.array(exact_in), fwd), inv)
+    assert np.array_equal(np_of(back), exact_in), "integer-valued float32 must be exact"
+
+    x = rng.standard_normal((3, 1 << n)).astype(np.float32)
+    back = np_of(yates.transform(yates.transform(mx.array(x), fwd), inv))
+    assert np.allclose(back, x, rtol=1e-4, atol=1e-4 * max(1.0, 2.0 ** (n / 2)))

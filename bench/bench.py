@@ -65,9 +65,22 @@ class InputPool:
         del host
 
     def view(self, n: int, min_elems: int) -> mx.array:
+        """A standalone, materialised, row-contiguous (batch, 2^n) array.
+
+        The materialisation must happen here rather than inside the timed
+        region: mx.contiguous() on a prefix slice is a real device copy in MLX
+        0.32.2 (measured), which would otherwise be charged to the kernel under
+        test and halve every reported bandwidth.
+        """
         total = min(max(1 << n, min_elems), self.base.size)
         total = (total >> n) << n              # whole rows only
-        return mx.reshape(self.base[:total], (total >> n, 1 << n))
+        shape = (total >> n, 1 << n)
+        if total == self.base.size:
+            v = mx.reshape(self.base, shape)   # already contiguous, free
+        else:
+            v = mx.contiguous(mx.reshape(self.base[:total], shape))
+        mx.eval(v)
+        return v
 
     def close(self):
         self.base = None
