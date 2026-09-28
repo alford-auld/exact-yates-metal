@@ -348,6 +348,58 @@ def turan(n: int, r: int) -> Graph:
     return from_edges(n, edges, f"Turan({n},{r})")
 
 
+def clique_plus_independent(a: int, b: int) -> Graph:
+    """``K_a`` disjoint from ``b`` isolated vertices.
+
+    The extremal family for the CRT prime count: ``chi = a`` while
+    ``i(V) = (a+1) 2^b``, so ``chi * log2 i(V) ~ a(log2(a+1) + b)`` is
+    ``Theta(n^2)`` near ``a = n/2``, against ``Theta(n log n)`` for ``G(n,p)``.
+    Also exact ground truth -- ``c_k`` has a closed form for every ``k`` (see
+    tests/chromatic/test_modular.py).
+    """
+    g = disjoint_union(complete_graph(a), empty_graph(b)) if b else complete_graph(a)
+    return Graph(g.n, g.adj, f"K_{a}+E_{b}")
+
+
+def disjoint_copies(g: Graph, m: int) -> Graph:
+    """``m`` disjoint copies of ``g``."""
+    out = g
+    for _ in range(m - 1):
+        out = disjoint_union(out, g)
+    return Graph(out.n, out.adj, f"{m}x{g.name}")
+
+
+def connected_components(g: Graph) -> List[Graph]:
+    """The connected components, each relabelled onto ``0..n_i-1``.
+
+    Needed because ``c_k`` is multiplicative over components, so the 2-adic
+    valuation is additive and the free-action lemma applies per component.
+    """
+    seen = 0
+    out: List[Graph] = []
+    for start in range(g.n):
+        if (seen >> start) & 1:
+            continue
+        comp, stack = 1 << start, [start]
+        seen |= 1 << start
+        while stack:
+            v = stack.pop()
+            for u in bits(g.adj[v] & ~seen):
+                seen |= 1 << u
+                comp |= 1 << u
+                stack.append(u)
+        verts = list(bits(comp))
+        index = {v: i for i, v in enumerate(verts)}
+        adj = []
+        for v in verts:
+            m = 0
+            for u in bits(g.adj[v]):
+                m |= 1 << index[u]
+            adj.append(m)
+        out.append(Graph(len(verts), tuple(adj), f"{g.name}:comp{len(out)}"))
+    return out
+
+
 def disjoint_union(a: Graph, b: Graph) -> Graph:
     """chi(A + B) = max(chi(A), chi(B)); useful for disconnected test cases."""
     adj = list(a.adj) + [m << a.n for m in b.adj]

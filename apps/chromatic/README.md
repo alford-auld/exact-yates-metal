@@ -84,19 +84,63 @@ so the first clique with `2^64 | c_chi` is exactly
 `v2 = 64`, so a single-modulus solver declares `K_66` not 66-colourable. That is
 arithmetic, not a search.
 
-And this makes the practical conclusion *stronger*, not weaker. The lemma
-forces `v2(c_chi) >= chi − popcount(chi)`, which for any `chi` reachable at
-`n <= 29` is at most **25** (attained at `chi = 29`). The remaining **39 bits
-would have to come from the unordered cofactor** `c_chi / chi!`, the number of
-minimal coverings up to permutation — and there is no structural reason for that
-to be even at all. Measured over the 210-graph survey in
-`tests/chromatic/test_modular.py`, the cofactor's valuation is 0 in 191 cases and
-never exceeds 3.
+And this makes the practical conclusion *stronger*, not weaker — but the
+statement has to be made **additively**, because `c_k` is multiplicative over
+connected components and so `v2` is additive. The lemma applies to a component
+only at `k = chi(component)`, giving
 
-So the honest statement is not "not found across a search" but: *the forced part
-is bounded by 25 of the 64 bits, and the unforced part has no mechanism to
-supply the other 39.* That is still not a proof for arbitrary `n <= 29`, and the
-default mode does not rely on it.
+    forced(G) = #{components with chi_i = chi(G)} · v2(chi!)
+
+Components with `chi_i < chi` are evaluated at `k > chi_i`, where the action is
+not free and the divisibility genuinely fails, so they force nothing. Applying
+the connected formula to a disconnected graph badly understates it: **seven
+disjoint `K_4`** has `c_4 = (4!)^7`, hence `v2 = 21` — all of it forced, since
+each component's unordered cofactor is 1 — while `v2(chi!) = 3` alone would
+account for three.
+
+A component attaining `chi` needs at least `chi` vertices, so `m·chi <= n`, and
+
+    max forced over all graphs on <= n vertices = max_{m·chi <= n} m·v2(chi!)
+
+At `n = 29` that is **25**, attained by a single connected component with
+`chi = 28` or `29`. Allowing disconnected graphs does *not* raise it: the extra
+multiplicity never buys back what the smaller `chi` gives up. (So the value 25
+was right; the *formula* behind it was not, and would have been wrong on a
+disconnected input.)
+
+At least **39 of the 64 bits** would therefore have to come from the *unforced*
+part — the per-component unordered cofactors `c_chi(G_i)/chi!`, plus the
+components below `chi`. Measured over a 156-graph survey, 57 of them
+disconnected, including `K_a` repeated and `K_a + E_b`:
+
+| `v2` of the unforced part | 0 | 1 | 2 | 3 | 4 |
+|---|--:|--:|--:|--:|--:|
+| observed | 92.3% | 4.5% | 1.9% | 0.6% | 0.6% |
+| a "random" integer, `2^-(j+1)` | 50% | 25% | 12.5% | 6.25% | 3.13% |
+
+The bias toward oddness — not merely the absence of large values — is the
+evidence. The test pins a ceiling of 8 on the unforced part, so a family that
+breaks the pattern fails loudly rather than quietly weakening the argument.
+
+**Why the cofactor tends to be odd (partial).** `c_chi/chi!` counts unordered
+minimal covers, a set `X` on which `Aut(G)` acts. For any group acting on a
+finite set, `|X| ≡ |X^P| (mod 2)` with `P` a Sylow 2-subgroup, since every
+non-fixed `P`-orbit has even size. That congruence is a standard theorem, and is
+verified here on 15 small graphs by brute-force automorphism enumeration
+(`|X|` is also checked to equal the cofactor). What is **conjectural** is that
+it explains the observed bias: that would need `|X^P|` to be odd unusually
+often, for which there is no argument here. Consistent with `K_n` (`X` is the
+single partition into singletons, fixed by everything, cofactor 1) and with
+Chvátal (`|Aut| = 8`, cofactor `v2 = 3`).
+
+**A separate conjecture: `v2(c_chi) <= n`.** Verified over the survey above and
+never violated; the tightest witnesses are `K_66` (64 of 66) and seven disjoint
+`K_4` (21 of 28). Not proved, and nothing relies on it.
+
+The honest summary is therefore not "not found across a search" but: *the forced
+part is bounded by 25 of the 64 bits, and the unforced part has no known
+mechanism to supply the other 39.* Still not a proof for arbitrary `n <= 29`,
+and the default mode does not rely on it.
 
 ### Closing the gap
 
@@ -117,15 +161,23 @@ knows the seed.
 
     0 <= c_k <= i(V)^k
 
-and `i(V)` is already computed — it is the top entry of the zeta. A second
-bound is free: a covering is determined by which *nonempty* subset of the `k`
-slots holds each vertex, so `c_k <= (2^k − 1)^n` as well, which is the tighter
-of the two exactly when `i(V)` is close to `2^n`. (It is an equality on the
-edgeless graph, where `c_k = (2^k − 1)^n`.) The implementation uses the minimum
-of both; across the feasible grid it saves one prime in 42 `(n, k)`
-combinations and never two, so it is worth taking but is not the lever it looks
-like. Once the product of the moduli exceeds that bound, CRT reconstructs `c_k`
-as an exact integer and no probability remains. This is much cheaper than "small n" suggests,
+and `i(V)` is already computed — it is the top entry of the zeta. A second bound
+is free: a covering is determined by which *nonempty* subset of the `k` slots
+holds each vertex, so `c_k <= (2^k − 1)^n`, and the implementation uses
+`min(i(V)^k, (2^k − 1)^n)`. (The slot bound is an equality on the edgeless
+graph.)
+
+How much that buys is a closed form, not a measurement. Since `log2 i(V) <= n`
+always, the ratio of bit-counts is bounded below by its value at `i(V) = 2^n`:
+
+    log2 B₂ / log2 B₁ = n·log2(2^k − 1) / (k·log2 i(V))
+                      ≥ log2(2^k − 1)/k = 1 + log2(1 − 2^-k)/k
+
+which is 0.9358 at k=3, 0.99621 at k=6 and 0.999859 at k=10 — the saving decays
+as `Θ(2^-k/k)`. Across the feasible grid it therefore changes the prime count in
+exactly 42 `(n,k)` combinations and never by two: a consequence of the formula,
+not an observation about it. Worth taking because it is free; not a lever.
+Once the product of the moduli exceeds that bound, CRT reconstructs `c_k` as an exact integer and no probability remains. This is much cheaper than "small n" suggests,
 because `i(V)` is usually far below `2^n`: the Chvátal graph has 127 independent
 sets on 12 vertices, so `c_4 <= 127^4 < 2^28` and **a single 31-bit prime already
 makes the answer unconditional**. `mode="exact"` is therefore the default, and
@@ -243,9 +295,11 @@ and a 28-vertex one takes 544 ms — regardless of how hard the instance is.
 
 Both figures are `mode="exact"` — unconditional, CRT-reconstructed — on a
 `G(n, 0.5)` instance, which at n = 29 needs **3 CRT primes** per candidate `k`.
-Naming the density matters, because the cost of exact mode depends on
-`k · log2 i(V)`, and the n-sweep fixes `p = 0.5`; see the density sweep below
-for what happens elsewhere in that space.
+Naming the family matters, not just the density: the cost of exact mode scales
+with `k · log2 i(V)`, and the hardest instances are heterogeneous rather than
+dense. At n = 26 a `G(26, 0.5)` takes 117 ms with 2 primes, while
+`K_13 + E_13` — a clique beside an independent set — takes 205 ms with 8, and
+`K_16 + E_10` takes 227 ms. See the two sweeps below.
 
 - Machine: MacBook Air (Mac16,13), Apple M4, 16 GB unified memory, macOS 26.3
 - GPU: Apple M4 (applegpu_g16g), MLX 0.32.2
@@ -348,13 +402,44 @@ case is sparse, dense or in between is empirical, so here it is, at n = 26
 | 0.70 | 222 | 236 | 7 | 9 | 2 | 3 | 170 ms | 47 ms |
 | 0.90 | 295 | 61 | 5 | 15 | 1 | 3 | 96 ms | 34 ms |
 
-**The prime count never leaves 2–3, and the whole density range spans only
-2.7x in wall clock.** The product `chi · log2 i(V)` stays between 40 and 75
-bits: it is self-limiting, because reaching a large chi requires the density
-that destroys i(V). The pessimistic reading — a sparse graph with chi = 10
-giving 290 bits and ~10 primes — does not occur, because no such graph exists.
-Exact mode costs 1.9-3.7x the one-sided `mod2_64` path, which is the real price
-of the unconditional guarantee.
+**Within `G(n, p)` the prime count never leaves 2–3, and the whole density range
+spans only 2.7x in wall clock.** The product `chi · log2 i(V)` stays between 40
+and 75 bits, and it is self-limiting *for random graphs*: `alpha ~ 2 log_b n`
+gives `chi ~ n / (2 log_b n)` and `log2 i(V) = Theta(log^2 n)`, so the product is
+`Theta(n log n)` rather than the naive `Theta(n^2)`.
+
+**That reasoning does not extend to all graphs, and the extremum is outside
+`G(n,p)`.** What drives the product up is *heterogeneity*, not density. For a
+clique beside an independent set, `G = K_a + E_b` with `n = a + b`, we have
+`chi = a` and `i(V) = (a+1)·2^b`, so `chi · log2 i(V) ≈ a(log2(a+1) + b)` is
+`Theta(n^2)` near `a ≈ n/2`. `G(26, 0.5)` produces such a graph with probability
+zero for practical purposes, so the sweep above cannot reach it:
+
+| `a` (so `b = 26 − a`) | i(V) | log₂ i(V) | chi | bound bits | CRT primes | `mode="exact"` |
+|--:|--:|--:|--:|--:|--:|--:|
+| 2 | 50,331,648 | 25 | 2 | 41 | 2 | 72 ms |
+| 4 | 20,971,520 | 24 | 4 | 97 | 4 | 109 ms |
+| 8 | 2,359,296 | 21 | 8 | 169 | 6 | 158 ms |
+| 12 | 212,992 | 17 | 12 | 212 | 8 | 203 ms |
+| 13 | 114,688 | 16 | 13 | 218 | 8 | 205 ms |
+| 16 | 17,408 | 14 | 16 | 225 | 8 | 227 ms |
+| 20 | 1,344 | 10 | 20 | 207 | 7 | 202 ms |
+| 24 | 100 | 6 | 24 | 159 | 6 | 179 ms |
+
+**Eight primes, against two or three for every `G(n,p)`** — and the slot bound
+does not rescue it (338 bits at `a = 13`, worse than the 218 it replaces). The
+cost is still only 227 ms, so there is no practical harm, but the headline has
+to name the family and not just the density.
+
+Two details worth separating, since they are easy to conflate. The planner sizes
+from a *bound*, not from `c_chi` itself: at `a = 13` the true `c_13 = 13!·(2^13−1)^13`
+is 201.5 bits while the bound `i(V)^13` is 218.5, and it is the bound that buys
+the eighth prime. And the worst *bound* (`a = 12`) and the worst *true value*
+(`a = 16`) do not coincide.
+
+This family is also exact ground truth: `c_k(K_a + E_b)` has a closed form for
+every `k`, derived and checked against the solver in
+`tests/chromatic/test_modular.py`.
 
 Single run per configuration, median of a steady-state window, idle cooldown
 between configurations.
@@ -442,6 +527,28 @@ false-negative regression).
   nonzero on every instance; CRT reconstruction equals the exact integer; the
   false-negative regressions above.
 - **The modulus design claims**, each demonstrated rather than asserted.
+
+## Claims in earlier revisions that were wrong
+
+Recorded rather than silently rewritten, since some are quoted elsewhere:
+
+- **"Not found across 287 graphs, so n >= 74"** — a search where a theorem was
+  available, and an extrapolation of a ratio that is not constant. Superseded by
+  the free-action lemma and the bound on the forced part.
+- **"The forced part is `chi − popcount(chi)`"** — true only for connected
+  graphs. The correct statement is per component and additive; the connected
+  formula understates seven disjoint `K_4` by 18 bits. The *value* 25 at
+  `n <= 29` happens to be unchanged, because extra components never buy back
+  what the smaller `chi` costs.
+- **"The `(2^k − 1)^n` bound saves 10–20%"** — off by an order of magnitude. The
+  saving is `1 − log2(2^k−1)/k = Θ(2^-k/k)`: 6.4% at k=3, 0.4% at k=6, 0.014% at
+  k=10.
+- **"There is no sparse worst case"** — right about `G(n,p)` and wrong in
+  general. The mechanism is heterogeneity, not density, and `K_a + E_b` needs 8
+  primes where `G(n,p)` needs 2–3.
+- **The cofactor ceiling of 8** was originally asserted against a quantity
+  defined by the connected formula, which seven disjoint `K_4` breaches by 18.
+  It now applies to the per-component unforced part, where it holds with margin.
 
 ## Limitations
 

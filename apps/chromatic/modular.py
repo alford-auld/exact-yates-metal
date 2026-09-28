@@ -159,11 +159,17 @@ def failure_probability_bound(num_independent_sets: int, k: int, num_primes: int
     return per_prime ** num_primes
 
 
-def forced_two_adic_valuation(chi: int) -> int:
-    """``v2(chi!) = chi - popcount(chi)``: the part of ``v2(c_chi)`` forced by
-    symmetry, and hence a lower bound on it.
+def two_adic_valuation_factorial(chi: int) -> int:
+    """``v2(chi!) = chi - popcount(chi)`` (Legendre)."""
+    if chi < 0:
+        raise ValueError(f"chi must be non-negative, got {chi}")
+    return chi - bin(chi).count("1")
 
-    **Lemma.** ``chi! | c_chi(G)`` for every graph G.
+
+def forced_two_adic_valuation(g) -> int:
+    """The part of ``v2(c_chi(G))`` forced by symmetry.
+
+    **Lemma.** ``chi! | c_chi(H)`` for every graph H.
 
     *Proof.* Let ``(S_1, ..., S_chi)`` be a covering of V by independent sets
     with ``S_i = S_j`` for some ``i != j``.  Dropping ``S_j`` still covers V, so
@@ -172,21 +178,44 @@ def forced_two_adic_valuation(chi: int) -> int:
     covering it -- every colour class is a subset of an independent set).  That
     contradicts the minimality of chi.  So at ``k = chi`` the components of a
     covering tuple are pairwise distinct, the coordinate-permutation action of
-    ``S_chi`` on the coverings is free, and the orbit-counting gives
-    ``chi! | c_chi``.  (Equality for ``K_n``: at ``k = n`` every slot must hold
-    a distinct singleton, so ``c_n(K_n) = n!``.)  QED
+    ``S_chi`` on the coverings is free, every orbit has size ``chi!``, and
+    ``chi! | c_chi``.  (Tight on cliques: ``c_n(K_n) = n!``.)  QED
 
-    Why this matters for the one-sided guarantee: a false negative that corrupts
-    the *reported* chromatic number needs ``2^64 | c_chi``.  By Legendre this
-    lemma forces only ``chi - popcount(chi)`` of those 64 bits, which is at most
-    25 for any chi a 29-vertex machine can reach.  The rest would have to come
-    from the unordered cofactor ``c_chi / chi!``.  See
-    :func:`first_clique_defeating_modulus` for where the forced part alone
-    suffices.
+    **This is a per-component statement.**  ``c_k`` is multiplicative over
+    connected components, so ``v2`` is additive, and the lemma applies to a
+    component only at ``k = chi(component)``.  Hence
+
+        forced(G) = #{components with chi_i = chi(G)} * v2(chi!)
+
+    Components with ``chi_i < chi`` are evaluated at ``k > chi_i``, where the
+    action is not free and the divisibility genuinely fails -- so they
+    contribute nothing forced.  Applying the connected formula to a
+    disconnected graph badly understates it: ``K_4`` seven times over has
+    ``c_4 = (4!)^7`` and ``v2 = 21``, of which the connected formula would
+    attribute only 3.
     """
-    if chi < 0:
-        raise ValueError(f"chi must be non-negative, got {chi}")
-    return chi - bin(chi).count("1")
+    from .chromatic import chromatic_number
+    from .graph import connected_components
+
+    comps = connected_components(g)
+    if not comps:
+        return 0
+    chis = [chromatic_number(c, mode="exact").chromatic_number for c in comps]
+    chi = max(chis)
+    return sum(two_adic_valuation_factorial(chi) for x in chis if x == chi)
+
+
+def max_forced_valuation_within(n: int) -> int:
+    """Largest ``forced(G)`` over every graph on at most ``n`` vertices.
+
+    A component attaining chi needs at least chi vertices, so ``m*chi <= n``
+    and the maximum is ``max_{m*chi <= n} m * v2(chi!)``.  Allowing disconnected
+    graphs does *not* raise it: at ``n = 29`` it is 25 either way, attained by a
+    single connected component with ``chi = 28`` or ``29``.
+    """
+    return max((m * two_adic_valuation_factorial(chi)
+                for chi in range(1, n + 1)
+                for m in range(1, n // chi + 1)), default=0)
 
 
 def first_clique_defeating_modulus(bits: int = 64) -> int:
@@ -197,7 +226,7 @@ def first_clique_defeating_modulus(bits: int = 64) -> int:
     ``v2(66!) = 66 - 2 = 64`` while ``v2(65!) = v2(64!) = 63``.
     """
     n = 1
-    while forced_two_adic_valuation(n) < bits:
+    while two_adic_valuation_factorial(n) < bits:
         n += 1
     return n
 
