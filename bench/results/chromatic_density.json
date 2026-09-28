@@ -28,12 +28,22 @@
     "duration": 1.5,
     "warmup": 0.4,
     "cooldown": 2.0,
+    "clique_sizes": [
+      2,
+      4,
+      8,
+      12,
+      13,
+      16,
+      20,
+      24
+    ],
     "out": "bench/results/chromatic_density.json"
   },
   "thermal": {
     "pmset_therm": "Note: No thermal warning level has been recorded\nNote: No performance warning level has been recorded\nNote: No CPU power status has been recorded",
     "thermal_warning_recorded": "False",
-    "uptime": "20:42  up 54 days,  9:59, 4 users, load averages: 2.78 2.55 2.31"
+    "uptime": "21:20  up 54 days, 10:37, 4 users, load averages: 2.95 3.03 2.79"
   },
   "rows": [
     {
@@ -47,9 +57,9 @@
       "upper": 2,
       "k_tested": 1,
       "primes_at_chi": 2,
-      "exact_s": 0.06391889601945877,
-      "mod2_64_s": 0.03392975009046495,
-      "exact_over_fast": 1.8838599119956816
+      "exact_s": 0.06327868741936982,
+      "mod2_64_s": 0.033620167057961226,
+      "exact_over_fast": 1.8821645743246085
     },
     {
       "p": 0.1,
@@ -62,9 +72,9 @@
       "upper": 3,
       "k_tested": 2,
       "primes_at_chi": 2,
-      "exact_s": 0.10744300018996,
-      "mod2_64_s": 0.04621316702105105,
-      "exact_over_fast": 2.324943454773777
+      "exact_s": 0.10546414600685239,
+      "mod2_64_s": 0.04568283399567008,
+      "exact_over_fast": 2.3086165367246814
     },
     {
       "p": 0.15,
@@ -77,9 +87,9 @@
       "upper": 3,
       "k_tested": 1,
       "primes_at_chi": 2,
-      "exact_s": 0.0626591460313648,
-      "mod2_64_s": 0.03310241596773267,
-      "exact_over_fast": 1.8928873980812526
+      "exact_s": 0.06748091650661081,
+      "mod2_64_s": 0.03272787504829466,
+      "exact_over_fast": 2.0618789459148528
     },
     {
       "p": 0.2,
@@ -92,9 +102,9 @@
       "upper": 4,
       "k_tested": 2,
       "primes_at_chi": 2,
-      "exact_s": 0.112132583046332,
-      "mod2_64_s": 0.04662354104220867,
-      "exact_over_fast": 2.405063633944437
+      "exact_s": 0.11104233306832612,
+      "mod2_64_s": 0.047111500054597855,
+      "exact_over_fast": 2.357011195560285
     },
     {
       "p": 0.3,
@@ -107,9 +117,9 @@
       "upper": 5,
       "k_tested": 1,
       "primes_at_chi": 3,
-      "exact_s": 0.08661925001069903,
-      "mod2_64_s": 0.03309158398769796,
-      "exact_over_fast": 2.61756131235363
+      "exact_s": 0.08605429180897772,
+      "mod2_64_s": 0.03263241704553366,
+      "exact_over_fast": 2.6370799223637595
     },
     {
       "p": 0.5,
@@ -122,9 +132,9 @@
       "upper": 6,
       "k_tested": 2,
       "primes_at_chi": 2,
-      "exact_s": 0.11741183302365243,
-      "mod2_64_s": 0.04643337498418987,
-      "exact_over_fast": 2.5286086368615264
+      "exact_s": 0.11736816680058837,
+      "mod2_64_s": 0.04639679193496704,
+      "exact_over_fast": 2.529661252551679
     },
     {
       "p": 0.7,
@@ -137,9 +147,9 @@
       "upper": 10,
       "k_tested": 2,
       "primes_at_chi": 3,
-      "exact_s": 0.17019970901310444,
-      "mod2_64_s": 0.04653525003232062,
-      "exact_over_fast": 3.657436220819569
+      "exact_s": 0.16991795902140439,
+      "mod2_64_s": 0.0461652921512723,
+      "exact_over_fast": 3.6806429918091945
     },
     {
       "p": 0.9,
@@ -152,11 +162,103 @@
       "upper": 15,
       "k_tested": 1,
       "primes_at_chi": 3,
-      "exact_s": 0.09590025001671165,
-      "mod2_64_s": 0.033987688017077744,
-      "exact_over_fast": 2.8216173447433315
+      "exact_s": 0.10346827050670981,
+      "mod2_64_s": 0.033450207905843854,
+      "exact_over_fast": 3.093202613208081
     }
   ],
-  "spread": 2.7162787843918093,
-  "finished": "2026-09-27T20:42:38-0300"
+  "clique_plus_independent": [
+    {
+      "a": 2,
+      "b": 24,
+      "n": 26,
+      "i_of_V": 50331648,
+      "log2_i_of_V": 25,
+      "chi": 2,
+      "primes_at_chi": 2,
+      "bound_bits": 41,
+      "exact_s": 0.0715125419665128
+    },
+    {
+      "a": 4,
+      "b": 22,
+      "n": 26,
+      "i_of_V": 20971520,
+      "log2_i_of_V": 24,
+      "chi": 4,
+      "primes_at_chi": 4,
+      "bound_bits": 97,
+      "exact_s": 0.10918845795094967
+    },
+    {
+      "a": 8,
+      "b": 18,
+      "n": 26,
+      "i_of_V": 2359296,
+      "log2_i_of_V": 21,
+      "chi": 8,
+      "primes_at_chi": 6,
+      "bound_bits": 169,
+      "exact_s": 0.15783837484195828
+    },
+    {
+      "a": 12,
+      "b": 14,
+      "n": 26,
+      "i_of_V": 212992,
+      "log2_i_of_V": 17,
+      "chi": 12,
+      "primes_at_chi": 8,
+      "bound_bits": 212,
+      "exact_s": 0.20283214643131942
+    },
+    {
+      "a": 13,
+      "b": 13,
+      "n": 26,
+      "i_of_V": 114688,
+      "log2_i_of_V": 16,
+      "chi": 13,
+      "primes_at_chi": 8,
+      "bound_bits": 218,
+      "exact_s": 0.20508293737657368
+    },
+    {
+      "a": 16,
+      "b": 10,
+      "n": 26,
+      "i_of_V": 17408,
+      "log2_i_of_V": 14,
+      "chi": 16,
+      "primes_at_chi": 8,
+      "bound_bits": 225,
+      "exact_s": 0.22668477101251483
+    },
+    {
+      "a": 20,
+      "b": 6,
+      "n": 26,
+      "i_of_V": 1344,
+      "log2_i_of_V": 10,
+      "chi": 20,
+      "primes_at_chi": 7,
+      "bound_bits": 207,
+      "exact_s": 0.2021519789705053
+    },
+    {
+      "a": 24,
+      "b": 2,
+      "n": 26,
+      "i_of_V": 100,
+      "log2_i_of_V": 6,
+      "chi": 24,
+      "primes_at_chi": 6,
+      "bound_bits": 159,
+      "exact_s": 0.17913291696459055
+    }
+  ],
+  "spread": 2.6852320417978826,
+  "max_primes_gnp": 3,
+  "max_primes_hetero": 8,
+  "finished": "2026-09-27T21:20:01-0300"
 }

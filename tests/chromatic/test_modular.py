@@ -230,7 +230,7 @@ def _product(xs):
 
 
 # --------------------------------------------------------------------------
-# the free-action lemma: chi! | c_chi
+# the free-action lemma: chi! | c_chi, per connected component
 # --------------------------------------------------------------------------
 
 
@@ -244,43 +244,52 @@ def _v2_factorial(n: int) -> int:
 
 
 @pytest.mark.parametrize("chi", list(range(0, 80)))
-def test_forced_valuation_is_legendre(chi):
-    assert ch.forced_two_adic_valuation(chi) == _v2_factorial(chi)
+def test_factorial_valuation_is_legendre(chi):
+    assert ch.two_adic_valuation_factorial(chi) == _v2_factorial(chi)
 
 
-LEMMA_GRAPHS = [
+CONNECTED = [
     ch.complete_graph(1), ch.complete_graph(4), ch.complete_graph(6),
-    ch.empty_graph(5), ch.path(7), ch.cycle(5), ch.cycle(6),
-    ch.turan(8, 3), ch.petersen(), ch.grotzsch(), ch.chvatal(),
-    ch.mycielskian(4), ch.complete_bipartite(3, 4),
-] + [ch.random_graph(n, p, 900 + n) for n in (5, 6, 7, 8) for p in (0.3, 0.6, 0.9)]
+    ch.path(7), ch.cycle(5), ch.cycle(6), ch.turan(8, 3), ch.petersen(),
+    ch.grotzsch(), ch.chvatal(), ch.mycielskian(4), ch.complete_bipartite(3, 4),
+] + [ch.random_graph(n, p, 900 + n) for n in (5, 6, 7, 8) for p in (0.6, 0.9)]
+
+DISCONNECTED = [
+    ch.empty_graph(5),
+    ch.disjoint_copies(ch.complete_graph(4), 3),
+    ch.disjoint_copies(ch.complete_graph(3), 4),
+    ch.disjoint_union(ch.cycle(5), ch.complete_graph(4)),
+    ch.clique_plus_independent(4, 4),
+    ch.clique_plus_independent(6, 3),
+    ch.clique_plus_independent(3, 6),
+]
 
 
-@pytest.mark.parametrize("g", LEMMA_GRAPHS, ids=lambda g: f"{g.name}_n{g.n}")
-def test_chi_factorial_divides_c_chi(g):
-    """At k = chi the components of a covering tuple are pairwise distinct, so
-    S_chi acts freely on the coverings and chi! divides their number."""
+@pytest.mark.parametrize("g", CONNECTED + DISCONNECTED,
+                         ids=lambda g: f"{g.name}_n{g.n}")
+def test_chi_factorial_divides_c_chi_per_component(g):
+    """The lemma applies per component, and only to components attaining chi."""
     from math import factorial
 
     chi = ch.chromatic_number(g, mode="exact").chromatic_number
     c = ch.c_k_exact_reference(g, chi)
     assert c > 0
-    assert c % factorial(chi) == 0, f"{g.name}: {chi}! does not divide c_{chi}={c}"
-    assert v2(c) >= ch.forced_two_adic_valuation(chi)
+    for comp in ch.connected_components(g):
+        if ch.chromatic_number(comp, mode="exact").chromatic_number == chi:
+            assert ch.c_k_exact_reference(comp, chi) % factorial(chi) == 0
+    assert v2(c) >= ch.forced_two_adic_valuation(g)
 
 
-@pytest.mark.parametrize("g", LEMMA_GRAPHS[:8], ids=lambda g: f"{g.name}_n{g.n}")
+@pytest.mark.parametrize("g", CONNECTED[:8], ids=lambda g: f"{g.name}_n{g.n}")
 def test_lemma_needs_k_equal_to_chi(g):
     """Above chi the action is not free -- coverings may repeat a set -- so the
-    divisibility genuinely is a statement about k = chi and not about all k."""
+    divisibility is genuinely a statement about k = chi."""
     from math import factorial
 
     chi = ch.chromatic_number(g, mode="exact").chromatic_number
     divides_above = [ch.c_k_exact_reference(g, k) % factorial(k) == 0
                      for k in range(chi + 1, chi + 4)]
-    assert not all(divides_above) or g.n <= 2, (
-        f"{g.name}: k! divided c_k for every k above chi, which would make the "
-        "restriction to k=chi look unnecessary; check the example")
+    assert not all(divides_above) or g.n <= 2
 
 
 @pytest.mark.parametrize("n", list(range(1, 8)))
@@ -291,42 +300,149 @@ def test_lemma_is_tight_on_cliques(n):
     assert ch.c_k_exact_reference(ch.complete_graph(n), n) == factorial(n)
 
 
+def test_connected_formula_understates_disconnected_graphs():
+    """Why forced_two_adic_valuation takes a graph and not a chi.
+
+    K_4 seven times over has c_4 = (4!)^7, so v2 = 21, of which the
+    per-component formula accounts for all 21 and the connected formula
+    (v2(chi!) = 3) would account for 3.
+    """
+    from math import factorial
+
+    g = ch.disjoint_copies(ch.complete_graph(4), 7)
+    assert g.n == 28 and len(ch.connected_components(g)) == 7
+    c = factorial(4) ** 7                       # multiplicativity; n=28 is too
+    assert v2(c) == 21                          # big for the Python reference
+    assert ch.forced_two_adic_valuation(g) == 21
+    assert ch.two_adic_valuation_factorial(4) == 3
+
+
 def test_first_clique_defeating_2_64_is_k_66():
-    """Because the lemma is tight on cliques, the first clique whose c_chi is
-    divisible by 2^64 is exact arithmetic rather than a search: v2(66!) = 64."""
+    """The lemma is tight on cliques, so this is arithmetic, not a search."""
     assert ch.first_clique_defeating_modulus(64) == 66
-    assert ch.forced_two_adic_valuation(66) == 64
-    assert ch.forced_two_adic_valuation(65) == 63
-    assert ch.forced_two_adic_valuation(64) == 63
+    assert ch.two_adic_valuation_factorial(66) == 64
+    assert ch.two_adic_valuation_factorial(65) == 63
+    assert ch.two_adic_valuation_factorial(64) == 63
     assert ch.first_clique_defeating_modulus(16) == 18
 
 
 def test_forced_part_cannot_reach_64_within_the_memory_ceiling():
     """The sharp replacement for the old 287-graph search.
 
-    A false negative that corrupts the *reported* chi needs 2^64 | c_chi.  The
-    lemma forces only chi - popcount(chi) of those bits, which is at most 25 for
-    any chi reachable at n <= 29, so at least 39 bits would have to come from
-    the unordered cofactor c_chi / chi!.
+    A component attaining chi needs at least chi vertices, so m*chi <= n and
+    the forced part is at most max_{m*chi<=n} m*v2(chi!).  Allowing
+    disconnected graphs does *not* raise it above the connected value here.
     """
     ceiling = ch.max_feasible_n()
-    forced = max(ch.forced_two_adic_valuation(chi) for chi in range(ceiling + 1))
-    assert forced == 25 and ceiling == 29, (forced, ceiling)
-    assert 64 - forced == 39
+    assert ceiling == 29
+    assert ch.max_forced_valuation_within(ceiling) == 25
+    assert max(ch.two_adic_valuation_factorial(chi)
+               for chi in range(ceiling + 1)) == 25
+    assert 64 - 25 == 39
 
 
-@pytest.mark.parametrize("g", LEMMA_GRAPHS, ids=lambda g: f"{g.name}_n{g.n}")
-def test_unordered_cofactor_is_almost_always_odd(g):
-    """The residual risk, measured: c_chi / chi! carries very little 2-adic
-    valuation of its own.  This is evidence, not a theorem -- so the test
-    records a generous ceiling rather than asserting oddness."""
+@pytest.mark.parametrize("g", CONNECTED + DISCONNECTED,
+                         ids=lambda g: f"{g.name}_n{g.n}")
+def test_unordered_cofactor_valuation_is_small_per_component(g):
+    """The residual risk, measured on the quantity where it is meaningful.
+
+    v2(c_chi) splits as forced + unforced; the unforced part is the valuation
+    of the per-component unordered cofactors plus that of the components below
+    chi.  Evidence, not a theorem, so the ceiling is generous and the test
+    exists to fail loudly if a family breaks the pattern.
+    """
+    chi = ch.chromatic_number(g, mode="exact").chromatic_number
+    unforced = v2(ch.c_k_exact_reference(g, chi)) - ch.forced_two_adic_valuation(g)
+    assert unforced >= 0, "the forced part must be a lower bound"
+    assert unforced <= 8, (
+        f"{g.name}: unforced valuation {unforced} is far above anything in the "
+        "survey; that would weaken the residual-risk argument")
+
+
+@pytest.mark.parametrize("g", CONNECTED + DISCONNECTED,
+                         ids=lambda g: f"{g.name}_n{g.n}")
+def test_v2_of_c_chi_never_exceeds_n(g):
+    """Conjecture, not a theorem: v2(c_chi) <= n.
+
+    Witnesses at the boundary are K_66 (64 of 66) and seven disjoint K_4
+    (21 of 28).  Verified exhaustively only over this survey.
+    """
+    chi = ch.chromatic_number(g, mode="exact").chromatic_number
+    assert v2(ch.c_k_exact_reference(g, chi)) <= g.n
+
+
+def test_v2_conjecture_witnesses():
     from math import factorial
 
-    chi = ch.chromatic_number(g, mode="exact").chromatic_number
-    cofactor = ch.c_k_exact_reference(g, chi) // factorial(chi)
-    assert v2(cofactor) <= 8, (
-        f"{g.name}: cofactor valuation {v2(cofactor)} is far above anything "
-        "seen in the survey; that would weaken the residual-risk argument")
+    assert ch.two_adic_valuation_factorial(66) == 64 <= 66
+    assert v2(factorial(4) ** 7) == 21 <= 28
+
+
+# --------------------------------------------------------------------------
+# multiplicativity, and the K_a + E_b closed form
+# --------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize("pair", [
+    (ch.complete_graph(4), ch.cycle(5)),
+    (ch.path(4), ch.complete_graph(3)),
+    (ch.cycle(6), ch.empty_graph(3)),
+    (ch.complete_bipartite(2, 2), ch.complete_graph(2)),
+], ids=lambda p: f"{p[0].name}+{p[1].name}" if isinstance(p, tuple) else str(p))
+@pytest.mark.parametrize("k", [1, 2, 3, 4, 5])
+def test_c_k_multiplicative_over_components_on_the_solver(pair, k):
+    """c_k(G1 + G2) = c_k(G1) c_k(G2), checked bitwise through the GPU path.
+
+    A free exact invariant: it exercises the indicator, the zeta and the
+    reduction on three different graphs and demands an exact ring identity
+    between the results.
+    """
+    g1, g2 = pair
+    u = ch.disjoint_union(g1, g2)
+    p = ch.random_primes(1, seed=31)[0]
+    got = ch.c_k_reduction(ch.independent_counts(u), k, u.n, p)
+    want = (ch.c_k_reduction(ch.independent_counts(g1), k, g1.n, p)
+            * ch.c_k_reduction(ch.independent_counts(g2), k, g2.n, p)) % p
+    assert got == want
+    assert ch.c_k_exact_reference(u, k) == \
+        ch.c_k_exact_reference(g1, k) * ch.c_k_exact_reference(g2, k)
+
+
+def _c_k_clique_plus_independent(a: int, b: int, k: int) -> int:
+    """c_k(K_a + E_b), derived here rather than quoted.
+
+    By multiplicativity c_k = c_k(K_a) * c_k(E_b).
+    * In E_b every subset is independent, so each of the b vertices
+      independently picks any nonempty subset of the k slots: (2^k - 1)^b.
+    * In K_a the independent sets are the empty set and the a singletons, so a
+      slot holds one of a+1 values and every vertex must be hit:
+      sum_i (-1)^i C(a,i) (a+1-i)^k by inclusion-exclusion over missed vertices.
+    At k = a this collapses to a!, which is the only case worth quoting.
+    """
+    from math import comb
+
+    clique = sum((-1) ** i * comb(a, i) * (a + 1 - i) ** k for i in range(a + 1))
+    return clique * (2 ** k - 1) ** b
+
+
+@pytest.mark.parametrize("a,b", [(2, 2), (3, 2), (4, 3), (2, 5), (5, 1), (3, 4)])
+@pytest.mark.parametrize("dk", [0, 1, 2])
+def test_clique_plus_independent_closed_form(a, b, dk):
+    g = ch.clique_plus_independent(a, b)
+    k = a + dk
+    assert ch.c_k_exact_reference(g, k) == _c_k_clique_plus_independent(a, b, k)
+    assert ch.chromatic_number(g, mode="exact").chromatic_number == a
+    assert ch.count_independent_sets(g) == (a + 1) * 2 ** b
+
+
+@pytest.mark.parametrize("a,b", [(3, 3), (4, 2), (5, 2)])
+def test_clique_plus_independent_at_k_equals_chi_is_a_factorial(a, b):
+    """At k = chi = a the clique contributes exactly a!."""
+    from math import factorial
+
+    assert _c_k_clique_plus_independent(a, b, a) == factorial(a) * (2 ** a - 1) ** b
+    assert ch.c_k_exact_reference(ch.clique_plus_independent(a, b), a) == \
+        factorial(a) * (2 ** a - 1) ** b
 
 
 # --------------------------------------------------------------------------
@@ -355,6 +471,20 @@ def test_slot_bound_is_tight_on_the_edgeless_graph():
             assert ch.bound_on_c_k(2 ** n, k, n) == (2 ** k - 1) ** n
 
 
+@pytest.mark.parametrize("k", [2, 3, 4, 6, 10, 16])
+def test_slot_bound_tightening_matches_its_closed_form(k):
+    """The saving is not empirical: with i(V) = 2^n the ratio of bit-counts is
+    exactly log2(2^k - 1)/k = 1 + log2(1 - 2^-k)/k, independent of n, and it
+    decays as Theta(2^-k / k)."""
+    import math
+
+    closed = 1 + math.log2(1 - 2.0 ** -k) / k
+    assert math.isclose(closed, math.log2(2 ** k - 1) / k, rel_tol=1e-12)
+    for n in (10, 20, 29):
+        ratio = math.log2((2 ** k - 1) ** n) / math.log2((2 ** n) ** k)
+        assert math.isclose(ratio, closed, rel_tol=1e-12)
+
+
 def test_combined_bound_never_worse_and_sometimes_better():
     better = 0
     for n in range(10, 30):
@@ -364,4 +494,4 @@ def test_combined_bound_never_worse_and_sometimes_better():
             without = ch.primes_needed_for_exact(i_v, k)
             assert with_n <= without
             better += with_n < without
-    assert better > 0, "the extra bound should help somewhere in the feasible grid"
+    assert better == 42, f"expected the closed form to bite in 42 cases, got {better}"

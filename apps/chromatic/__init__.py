@@ -17,7 +17,8 @@ from .graph import (
     empty_graph, complete_graph, complete_bipartite, cycle, path,
     mycielski_step, mycielskian, grotzsch, petersen, petersen_standard,
     chvatal, kneser, kneser_chromatic_number, random_graph, turan,
-    disjoint_union,
+    disjoint_union, clique_plus_independent, disjoint_copies,
+    connected_components,
 )
 from .independent import (
     indicator_gpu, indicator_numpy_direct, indicator_numpy_dp,
@@ -33,7 +34,8 @@ from .count import (
 from .modular import (
     ModularResult, c_k_multi_modular, crt, is_prime, random_primes,
     bound_on_c_k, primes_needed_for_exact, failure_probability_bound,
-    forced_two_adic_valuation, first_clique_defeating_modulus,
+    forced_two_adic_valuation, two_adic_valuation_factorial,
+    max_forced_valuation_within, first_clique_defeating_modulus,
     PRIME_POOL_LOWER_BOUND,
 )
 from .chromatic import (
@@ -48,7 +50,8 @@ __all__ = [
     "empty_graph", "complete_graph", "complete_bipartite", "cycle", "path",
     "mycielski_step", "mycielskian", "grotzsch", "petersen",
     "petersen_standard", "chvatal", "kneser", "kneser_chromatic_number",
-    "random_graph", "turan", "disjoint_union",
+    "random_graph", "turan", "disjoint_union", "clique_plus_independent",
+    "disjoint_copies", "connected_components",
     "indicator_gpu", "indicator_numpy_direct", "indicator_numpy_dp",
     "independent_sets", "count_independent_sets",
     "independent_counts", "power_terms", "c_k_reduction", "c_k_mobius",
@@ -58,7 +61,8 @@ __all__ = [
     "chromatic_number_brute_force", "PRIME_BITS", "max_prime_bits",
     "ModularResult", "c_k_multi_modular", "crt", "is_prime", "random_primes",
     "bound_on_c_k", "primes_needed_for_exact", "failure_probability_bound",
-    "forced_two_adic_valuation", "first_clique_defeating_modulus",
+    "forced_two_adic_valuation", "two_adic_valuation_factorial",
+    "max_forced_valuation_within", "first_clique_defeating_modulus",
     "PRIME_POOL_LOWER_BOUND",
     "ChromaticResult", "chromatic_number", "bounds", "greedy_clique", "dsatur",
     "verify_colouring", "max_feasible_n", "check_feasible",
