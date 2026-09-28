@@ -419,7 +419,7 @@ prime; and the worst bound (a=12) and worst true value (a=16) do not coincide.
 The family doubles as exact ground truth — `c_k(K_a + E_b)` is closed-form for
 every k, derived in the test rather than quoted.
 
-### 4.6 Honest positioning### 4.6 Honest positioning
+### 4.6 Honest positioning
 
 `O*(2ⁿ)` for every graph cuts both ways.
 
@@ -510,3 +510,122 @@ the JSON) also exists outside the repository as a project artifact.
 [`requirements.txt`](../requirements.txt). Apple M4 GPU (`applegpu_g16g`), SIMD width 32
 measured in-kernel, 32768 B threadgroup memory, 11.84 GiB recommended working
 set. No thermal or performance warning was recorded by macOS during any run.
+
+---
+
+## Appendix A: Full per-n results
+
+The three tables below are the complete sweep summarised in §3.1, one row per
+`(element type, n)`. Regenerate them from the tracked JSON with:
+
+```sh
+.venv/bin/python bench/report.py bench/results/bench.json
+```
+
+**Column legend.**
+
+| column | meaning |
+|---|---|
+| `n` | transform size; the array has `N = 2^n` elements per row |
+| `batch` | rows transformed per launch, chosen to reach the minimum working set |
+| `working set` | `batch × N × sizeof(elem)`, the footprint the copy denominator is measured at |
+| `passes` | device passes the planner dispatched; traffic is `2 × passes × N × sizeof(elem)` |
+| `tile` | threadgroup tile size in **bytes** (`choose_tile_bytes`) |
+| `tiers simd/tg/reg` | how the `n` stages were resolved, summed over all passes: `simd_shuffle_xor` lanes / threadgroup memory / this thread's own registers. The three always sum to `n`. |
+| `copy GB/s` | pure device-to-device copy kernel, re-measured at this working-set size in the same session |
+| `transform ms` | median of the second half of the steady-state window |
+| `transform GB/s` | `2 × passes × N × sizeof(elem)` divided by that time |
+| `% of copy` | transform GB/s over copy GB/s. Above 100% is inter-pass reuse in the system cache. |
+| `drift` | median of the window's second half over its first half. `1.000` means no slowdown while the configuration ran; `> 1` means it got slower. |
+
+Protocol: 2.0 s steady-state window per configuration, 0.5 s warmup, 3.0 s idle
+cooldown between configurations, working set at least 67 108 864 elements.
+MLX 0.32.2 on Apple M4 (`applegpu_g16g`), 16 GB unified memory, macOS 26.3.
+Run 2026-09-27T11:48:55-0300 to 11:57:46-0300; macOS recorded no thermal
+warning at any point.
+
+### A.1 uint32
+
+- Fraction of measured copy bandwidth: 91.3% (n=25) to 100.2% (n=20); median 95.9%
+- Transform bandwidth 89.9–98.9 GB/s
+- Thermal re-check at n=10: 5.73 ms at the start of the sweep, 5.70 ms at the end (0.996x)
+
+| n | batch | working set | passes | tile | tiers simd/tg/reg | copy GB/s | transform ms | transform GB/s | % of copy | drift |
+|--:|------:|------------:|-------:|-----:|:------------------|----------:|-------------:|---------------:|----------:|------:|
+| 10 | 65536 | 256 MiB | 1 | 4096 | 5/5/0 | 97.8 | 5.73 | 93.8 | 95.9% | 1.003 |
+| 11 | 32768 | 256 MiB | 1 | 8192 | 5/5/1 | 98.2 | 5.66 | 94.8 | 96.5% | 1.005 |
+| 12 | 16384 | 256 MiB | 1 | 16384 | 5/5/2 | 96.8 | 5.71 | 94.1 | 97.3% | 1.005 |
+| 13 | 8192 | 256 MiB | 1 | 32768 | 5/5/3 | 97.8 | 5.65 | 95.0 | 97.1% | 1.001 |
+| 14 | 4096 | 256 MiB | 2 | 4096 | 5/9/0 | 98.2 | 11.30 | 95.0 | 96.8% | 1.006 |
+| 15 | 2048 | 256 MiB | 2 | 4096 | 5/10/0 | 98.1 | 11.40 | 94.2 | 96.0% | 1.007 |
+| 16 | 1024 | 256 MiB | 2 | 8192 | 5/9/2 | 97.4 | 11.49 | 93.4 | 95.9% | 0.943 |
+| 17 | 512 | 256 MiB | 2 | 8192 | 5/10/2 | 98.3 | 11.22 | 95.7 | 97.4% | 1.001 |
+| 18 | 256 | 256 MiB | 2 | 16384 | 5/9/4 | 97.9 | 11.63 | 92.3 | 94.2% | 1.035 |
+| 19 | 128 | 256 MiB | 2 | 16384 | 5/10/4 | 95.8 | 11.25 | 95.5 | 99.6% | 0.996 |
+| 20 | 64 | 256 MiB | 2 | 32768 | 5/9/6 | 94.3 | 11.37 | 94.5 | 100.2% | 1.007 |
+| 21 | 32 | 256 MiB | 2 | 32768 | 5/10/6 | 94.3 | 11.88 | 90.4 | 95.9% | 1.008 |
+| 22 | 16 | 256 MiB | 3 | 8192 | 5/14/3 | 98.5 | 17.53 | 91.9 | 93.3% | 1.000 |
+| 23 | 8 | 256 MiB | 3 | 8192 | 5/15/3 | 98.3 | 17.83 | 90.3 | 91.9% | 1.002 |
+| 24 | 4 | 256 MiB | 3 | 16384 | 5/13/6 | 98.2 | 17.50 | 92.0 | 93.7% | 0.999 |
+| 25 | 2 | 256 MiB | 3 | 16384 | 5/14/6 | 98.5 | 17.91 | 89.9 | 91.3% | 1.003 |
+| 26 | 1 | 256 MiB | 3 | 32768 | 5/12/9 | 98.4 | 17.64 | 91.3 | 92.8% | 1.011 |
+| 27 | 1 | 512 MiB | 4 | 16384 | 5/15/7 | 99.7 | 46.02 | 93.3 | 93.6% | 1.007 |
+| 28 | 1 | 1024 MiB | 4 | 16384 | 5/15/8 | 98.1 | 92.21 | 93.2 | 94.9% | 0.998 |
+| 29 | 1 | 2048 MiB | 4 | 32768 | 5/13/11 | 99.6 | 173.77 | 98.9 | 99.3% | 0.971 |
+
+### A.2 uint64
+
+- Fraction of measured copy bandwidth: 92.9% (n=26) to 100.6% (n=28); median 95.8%
+- Transform bandwidth 91.6–99.3 GB/s
+- Thermal re-check at n=10: 11.16 ms at the start of the sweep, 11.13 ms at the end (0.998x)
+
+| n | batch | working set | passes | tile | tiers simd/tg/reg | copy GB/s | transform ms | transform GB/s | % of copy | drift |
+|--:|------:|------------:|-------:|-----:|:------------------|----------:|-------------:|---------------:|----------:|------:|
+| 10 | 65536 | 512 MiB | 1 | 8192 | 5/5/0 | 98.4 | 11.16 | 96.2 | 97.8% | 0.998 |
+| 11 | 32768 | 512 MiB | 1 | 16384 | 5/5/1 | 98.4 | 11.12 | 96.6 | 98.2% | 0.999 |
+| 12 | 16384 | 512 MiB | 1 | 32768 | 5/5/2 | 98.7 | 11.15 | 96.3 | 97.5% | 1.000 |
+| 13 | 8192 | 512 MiB | 2 | 4096 | 5/8/0 | 98.4 | 22.62 | 94.9 | 96.5% | 0.995 |
+| 14 | 4096 | 512 MiB | 2 | 4096 | 6/8/0 | 98.9 | 22.67 | 94.7 | 95.8% | 1.001 |
+| 15 | 2048 | 512 MiB | 2 | 8192 | 5/10/0 | 98.3 | 22.83 | 94.1 | 95.7% | 1.001 |
+| 16 | 1024 | 512 MiB | 2 | 8192 | 6/10/0 | 98.4 | 23.44 | 91.6 | 93.1% | 0.985 |
+| 17 | 512 | 512 MiB | 2 | 16384 | 5/10/2 | 98.9 | 22.79 | 94.2 | 95.3% | 1.002 |
+| 18 | 256 | 512 MiB | 2 | 16384 | 6/10/2 | 98.0 | 22.84 | 94.0 | 96.0% | 1.001 |
+| 19 | 128 | 512 MiB | 2 | 32768 | 5/10/4 | 99.1 | 22.88 | 93.9 | 94.7% | 1.002 |
+| 20 | 64 | 512 MiB | 2 | 32768 | 6/10/4 | 98.5 | 22.92 | 93.7 | 95.1% | 1.001 |
+| 21 | 32 | 512 MiB | 3 | 8192 | 6/15/0 | 98.4 | 34.15 | 94.3 | 95.8% | 1.001 |
+| 22 | 16 | 512 MiB | 3 | 8192 | 7/15/0 | 98.8 | 34.58 | 93.2 | 94.3% | 1.003 |
+| 23 | 8 | 512 MiB | 3 | 16384 | 6/14/3 | 96.8 | 34.00 | 94.8 | 97.9% | 1.005 |
+| 24 | 4 | 512 MiB | 3 | 16384 | 6/15/3 | 99.1 | 34.88 | 92.4 | 93.2% | 1.007 |
+| 25 | 2 | 512 MiB | 3 | 32768 | 6/13/6 | 98.9 | 34.15 | 94.3 | 95.4% | 1.001 |
+| 26 | 1 | 512 MiB | 4 | 16384 | 6/17/3 | 99.7 | 46.38 | 92.6 | 92.9% | 1.008 |
+| 27 | 1 | 1024 MiB | 4 | 16384 | 6/17/4 | 96.2 | 91.61 | 93.8 | 97.4% | 1.003 |
+| 28 | 1 | 2048 MiB | 4 | 32768 | 6/15/7 | 98.7 | 173.01 | 99.3 | 100.6% | 0.999 |
+
+### A.3 float32
+
+- Fraction of measured copy bandwidth: 91.6% (n=25) to 100.0% (n=29); median 96.7%
+- Transform bandwidth 90.6–99.5 GB/s
+- Thermal re-check at n=10: 5.67 ms at the start of the sweep, 5.97 ms at the end (1.054x)
+
+| n | batch | working set | passes | tile | tiers simd/tg/reg | copy GB/s | transform ms | transform GB/s | % of copy | drift |
+|--:|------:|------------:|-------:|-----:|:------------------|----------:|-------------:|---------------:|----------:|------:|
+| 10 | 65536 | 256 MiB | 1 | 4096 | 5/5/0 | 98.8 | 5.67 | 94.7 | 95.9% | 1.000 |
+| 11 | 32768 | 256 MiB | 1 | 8192 | 5/5/1 | 98.3 | 5.64 | 95.1 | 96.8% | 1.002 |
+| 12 | 16384 | 256 MiB | 1 | 16384 | 5/5/2 | 98.8 | 5.64 | 95.2 | 96.3% | 0.997 |
+| 13 | 8192 | 256 MiB | 1 | 32768 | 5/5/3 | 98.4 | 5.65 | 95.0 | 96.6% | 1.003 |
+| 14 | 4096 | 256 MiB | 2 | 4096 | 5/9/0 | 98.7 | 11.24 | 95.5 | 96.7% | 0.996 |
+| 15 | 2048 | 256 MiB | 2 | 4096 | 5/10/0 | 98.6 | 11.22 | 95.7 | 97.1% | 1.002 |
+| 16 | 1024 | 256 MiB | 2 | 8192 | 5/9/2 | 98.7 | 11.16 | 96.2 | 97.5% | 1.003 |
+| 17 | 512 | 256 MiB | 2 | 8192 | 5/10/2 | 97.1 | 11.09 | 96.8 | 99.7% | 0.909 |
+| 18 | 256 | 256 MiB | 2 | 16384 | 5/9/4 | 97.3 | 11.12 | 96.6 | 99.2% | 0.999 |
+| 19 | 128 | 256 MiB | 2 | 16384 | 5/10/4 | 98.9 | 11.18 | 96.1 | 97.1% | 0.998 |
+| 20 | 64 | 256 MiB | 2 | 32768 | 5/9/6 | 98.9 | 11.16 | 96.2 | 97.3% | 0.993 |
+| 21 | 32 | 256 MiB | 2 | 32768 | 5/10/6 | 98.7 | 11.21 | 95.8 | 97.0% | 1.002 |
+| 22 | 16 | 256 MiB | 3 | 8192 | 5/14/3 | 98.8 | 17.50 | 92.0 | 93.1% | 1.032 |
+| 23 | 8 | 256 MiB | 3 | 8192 | 5/15/3 | 98.6 | 17.77 | 90.6 | 91.9% | 1.001 |
+| 24 | 4 | 256 MiB | 3 | 16384 | 5/13/6 | 98.9 | 17.13 | 94.0 | 95.1% | 0.981 |
+| 25 | 2 | 256 MiB | 3 | 16384 | 5/14/6 | 98.9 | 17.78 | 90.6 | 91.6% | 1.010 |
+| 26 | 1 | 256 MiB | 3 | 32768 | 5/12/9 | 98.7 | 17.13 | 94.0 | 95.3% | 0.977 |
+| 27 | 1 | 512 MiB | 4 | 16384 | 5/15/7 | 100.4 | 45.39 | 94.6 | 94.2% | 0.998 |
+| 28 | 1 | 1024 MiB | 4 | 16384 | 5/15/8 | 98.5 | 91.25 | 94.1 | 95.6% | 1.002 |
+| 29 | 1 | 2048 MiB | 4 | 32768 | 5/13/11 | 99.5 | 172.72 | 99.5 | 100.0% | 1.001 |
