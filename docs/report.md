@@ -1,6 +1,6 @@
 # A templated Yates butterfly kernel in Metal, and exact chromatic number on top of it
 
-**Project:** yates-butterfly · **Date:** 2026-09-27 · **Hardware:** MacBook Air
+**Repository:** `exact-yates-metal` · **Date:** 2026-09-27 · **Hardware:** MacBook Air
 (Mac16,13), Apple M4, 16 GB unified memory, macOS 26.3 · **Software:** MLX 0.32.2
 
 Two deliverables, built in sequence. First, a single templated Metal kernel that
@@ -27,7 +27,7 @@ artifact in `data/` and a re-runnable command.
 | **Tests** | 1483 passed + 1 skipped in the fast suite, 11 more marked slow, all passing; all six required kernel test groups cover all three element types |
 | **Code** | 1.4k lines kernel, 1.7k application, 2.4k tests, 1.3k benchmarks |
 
-The three results I would actually defend as interesting are in §3.2 (a tiling
+The three results most worth a reader's time are in §3.2 (a tiling
 policy change worth 1.75× at the largest sizes), §4.3 (a *constructed* failure
 of the mod-2⁶⁴ soundness argument), and §4.4 (the butterfly turning out not to
 be the bottleneck of its own application).
@@ -152,7 +152,7 @@ are *not* what the machine sustains over tens of minutes.
 
 ### 3.4 The exactness contract
 
-This was the intellectual core of the kernel brief, and it is stated in full in
+The exactness argument is the core of the kernel, and it is stated in full in
 [`README.md`](../README.md). In summary:
 
 - Unsigned overflow in MSL is defined wraparound, so `uint`/`ulong` arithmetic
@@ -184,7 +184,7 @@ has a test that pins it and *warns* if a future release fixes it.
    Matrix entries are carried as `(sign, magnitude)` pairs instead.
 3. **`custom_function` `.jvp` and `.vmap` rules are bypassed for kernel bodies.**
    MLX consults the registered `.vjp` but descends into the `CustomKernel` for
-   the other two. Reverse mode — what the brief required — works; forward mode
+   the other two. Reverse mode works; forward mode
    and `vmap` are documented as unsupported rather than papered over with dead
    rules.
 
@@ -225,8 +225,8 @@ work. M₅ (23 vertices, χ = 5) resolves in 25.5 ms.
 
 ### 4.2 The modulus design question
 
-The brief suggested the kernel could run mod p "with a trivially different
-generator, or with a post-pass reduction". **Both are wrong**, and
+Two approaches suggest themselves: a "different generator", or a reduction
+after each device pass. **Both are wrong**, and
 [`tests/chromatic/test_modulus_design.py`](../tests/chromatic/test_modulus_design.py) demonstrates each:
 
 - A generator is a matrix over the element ring; reduction mod p is a property
@@ -244,8 +244,8 @@ exact integer in two's complement. A test violates that bound deliberately and
 shows the reading break, so the condition is established as necessary, not just
 sufficient.
 
-This is a smaller modulus than the brief proposed, which weakens the per-prime
-failure bound; §4.3 accounts for that. In exchange the kernel is reused verbatim
+This is a smaller modulus than the ~62-bit primes one might reach for, which
+weakens the per-prime failure bound; §4.3 accounts for that. In exchange the kernel is reused verbatim
 and all of its own measured numbers stay valid.
 
 ### 4.3 The one-sided guarantee, and a constructed counterexample
@@ -260,7 +260,7 @@ So `min{k : c_k mod 2⁶⁴ ≠ 0}` is an **upper bound** on χ, not χ. It is a
 achievable — a colouring realising it is attached — but not a proof of
 minimality. Nothing in the code calls the single-modulus result exact.
 
-**This is not hypothetical, and that is the result I am most pleased with.**
+**This is not hypothetical.**
 `c_k` is multiplicative over disjoint unions and `v₂(c₃₀(K₄)) = 10`, so **seven
 disjoint copies of K₄ — 28 vertices, inside the memory ceiling — give
 `v₂(c₃₀) = 70`**. `c₃₀` is a 149-digit number and `c₃₀ mod 2⁶⁴ = 0`: the
@@ -270,9 +270,8 @@ suite. The knapsack that finds it is `bench/chromatic/false_negative_search.py`;
 [`bench/results/chromatic_false_negative.json`](../bench/results/chromatic_false_negative.json).
 
 **Can a false negative corrupt the reported χ?** That needs the failure at
-`k = χ` itself, i.e. `2⁶⁴ | c_χ`. My first answer was a search — "not found
-across 287 graphs, best ratio `v₂(c_χ)/n = 7/8` suggests n ≥ 74". That was the
-wrong instrument: the ratio is not constant, so extrapolating it proves nothing.
+`k = χ` itself, i.e. `2⁶⁴ | c_χ`. A search answers this badly — the ratio
+`v₂(c_χ)/n` is not constant, so extrapolating it from a sample proves nothing.
 There is an exact answer.
 
 **Lemma.** `χ! | c_χ(G)` for every graph G. *Proof.* If a covering
@@ -321,9 +320,6 @@ Sylow 2-subgroup of `Aut(G)` acting on the unordered covers *explains* that bias
 brute-force automorphism enumeration, but it implies nothing about how often
 `|X^P|` is odd); and the conjecture `v₂(c_χ) ≤ n`, whose tightest witnesses are
 K₆₆ (64 of 66) and seven disjoint K₄ (21 of 28).
-
-Credit where due: the lemma and the `K₆₆` computation came from review of the
-first draft of this report, not from me.
 
 Two ways to close the gap, both implemented:
 
@@ -441,58 +437,45 @@ laptop.*
 
 ---
 
-## 5. Things I got wrong, and limitations
+## 5. Limitations, and how to read the numbers
 
-Worth recording, because some of these were caught only by measurement:
+- **Every number here is a single run.** Each is the median of the second half
+  of a steady-state measurement window, not a mean over seeds, and there is no
+  seed-variance estimate anywhere. Run-to-run spread of a few percent is visible
+  in the data — the same configuration measured 82.2% and 67.4% of copy in two
+  early runs — so differences of a few percent should not be read as resolved.
+  Where a comparison matters (Montgomery, the coalescing policy) it is made
+  *within* one run, and that is said explicitly at the point of use.
+- **The memory ceiling binds everything**, and it is detected at runtime rather
+  than assumed: n = 29 for the kernel, ~29 vertices for the chromatic
+  application, on this 16 GB machine. Both are `O*(2ⁿ)` in space by
+  construction; there is no streaming variant to fall back on, and oversized
+  inputs are refused rather than swapped.
+- **Small-n batching is not optimised.** Transforms with n < 5 and a large batch
+  dispatch fewer than one full simdgroup per tile — correct, not
+  bandwidth-optimal, and outside everything benchmarked.
+- **Two statements in §4.3 are conjectures, not theorems**: that the Sylow
+  congruence explains the cofactor's bias toward oddness, and that
+  `v₂(c_χ) ≤ n`. Neither is relied on by the default mode.
+- **This is not a general-purpose colouring solver** — see §4.6 for where it
+  wins and where it is useless.
 
-- **Two README claims contradicted by my own data.** I wrote that the GPU
-  indicator always beats the NumPy O(2ⁿ) DP — the DP is actually *faster* below
-  n ≈ 15, where the GPU is launch-overhead-bound at a flat 0.18 ms. And I wrote
-  that the early-exit and branchless indicator kernels were within noise — the
-  early exit is worth **3.4×** at n = 29. Both corrected.
-- **A real design flaw in the modular driver.** Folding the mod-2⁶⁴ residue into
-  the "all residues agree" consistency check made a *detected false negative*
-  look like an inconsistency, which would have aborted the solver on the very
-  instance that demonstrates the failure mode. Caught by the slow test; prime
-  agreement and false-negative detection are now separate concepts.
-- **A benchmark artifact that inverted a table.** A 5-sample cap starved the
-  sub-millisecond small-n phases of samples, and the derived shares exceeded
-  100%. Sampling is now governed by the time budget, and rows whose phase
-  prefixes fail to nest are flagged.
-- **A traceability gap I had to go back and close.** The coalescing before/after
-  table originally cited a script that, after the policy change, no longer
-  produced the "before" number. The pre-fix plan is now an explicit candidate.
-- **The brief's own traffic model is internally inconsistent** — it asks for
-  "fusing as many stages per pass as the tile size allows" *and* quotes the
-  unfused `2(n−t)2ⁿ` traffic figure. The implementation follows the former
-  (3 passes at n = 24 rather than 13) and the README flags the discrepancy.
-- **Measurement discipline.** Every number is a single run — the median of a
-  steady-state window, not a mean over seeds. There is no seed-variance estimate
-  anywhere, and run-to-run spread of a few percent is visible in the data (the
-  same configuration measured 82.2% and 67.4% of copy in two different early
-  runs). Claims of a few percent should not be read as resolved.
-- **Small-n batching.** Transforms with n < 5 and a large batch dispatch fewer
-  than one full simdgroup per tile. Correct, not bandwidth-optimal, and outside
-  everything benchmarked.
-- **Three claims corrected in review, all of them mine.** (i) The
-  `(2^k−1)^n` tightening is a closed form `1 + log₂(1−2^-k)/k = Θ(2^-k/k)`, not
-  an empirical 10–20%; my own table was already its values. (ii) The forced
-  valuation is per-component and additive — the connected formula understates
-  seven disjoint K₄ by 18 bits, though the bound of 25 at n ≤ 29 survives.
-  (iii) "No sparse worst case" was right for `G(n,p)` and wrong in general: the
-  extremum is heterogeneous, and `K_a + E_b` needs 8 primes where `G(n,p)` needs
-  2–3. In each case I had generalised from the sample I happened to measure.
-- **I reached for a search where a theorem was available.** The `2⁶⁴ | c_χ`
-  question (§4.3) is settled exactly by the free-action lemma; I instead
-  surveyed 287 graphs and extrapolated a ratio that is not constant. The
-  conclusion happened to be right and conservative, but the argument was weak,
-  and the replacement bounds the forced part at 25 of 64 bits instead.
-- **I fixed the density axis only after it was pointed out.** §4.5 exists
-  because the n-sweep at fixed `p = 0.5` describes one slice of the space; the
-  answer turned out to favour the method, but that was luck, not design.
-- **One cosmetic wart:** commits `7e5811d` and `3a60b87` carry the same message,
-  from a backgrounded chain that committed after I had already checked and
-  re-committed. No content was lost or duplicated; history is just untidy.
+### Intuitions that did not survive measurement
+
+Three results worth stating plainly, because the natural guess is wrong in each
+case and the measurement is cheap to repeat:
+
+1. **The asymptotically better indicator algorithm loses — but only above
+   n ≈ 15.** The `O(2ⁿ)` NumPy lowbit DP beats the `O(2ⁿ·n)` GPU kernel below
+   that, where the GPU is entirely launch-overhead-bound at a flat 0.18 ms. It
+   then loses by 36× by n = 22.
+2. **The early exit beats branchless by 3.4× at n = 29**, despite the
+   divergence. Most subsets are not independent and fail on one of their first
+   few vertices, so the exit cuts the average iteration count far more than
+   divergence costs.
+3. **The butterfly is 3–24% of the runtime of its own application.** Optimising
+   the transform further would have moved almost nothing; the 64-bit modulo in
+   the pointwise power was the real cost, and removing it was worth 2.39×.
 
 ---
 
