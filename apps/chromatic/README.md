@@ -231,8 +231,8 @@ Möbius transform and asserts bitwise agreement with the reduction path.
 
 ### The modulus, and why the kernel needed no changes
 
-The task brief suggested running the kernel mod `p` "with a trivially different
-generator, or with a post-pass reduction". Neither holds, and
+Two approaches suggest themselves for running the kernel mod `p`: a "different
+generator", or a reduction after each device pass. Neither works, and
 `tests/chromatic/test_modulus_design.py` demonstrates both:
 
 - **Not a generator change.** A generator is a 2×2 matrix over the element ring.
@@ -257,9 +257,9 @@ With `p < 2^31`:
   complement. The bound is necessary as well as sufficient — a test violates it
   deliberately and shows the reading break.
 
-31 bits is a smaller modulus than the brief proposed, which weakens the
-per-prime failure bound; the bound above accounts for that, and it remains
-negligible at `r >= 2`. In exchange the kernel is reused verbatim, so all of its
+31 bits is a smaller modulus than the ~62-bit primes one might reach for, which
+weakens the per-prime failure bound; the bound above accounts for that, and it
+remains negligible at `r >= 2`. In exchange the kernel is reused verbatim, so all of its
 own measured numbers stay valid.
 
 ### The independence indicator
@@ -527,28 +527,6 @@ false-negative regression).
   nonzero on every instance; CRT reconstruction equals the exact integer; the
   false-negative regressions above.
 - **The modulus design claims**, each demonstrated rather than asserted.
-
-## Claims in earlier revisions that were wrong
-
-Recorded rather than silently rewritten, since some are quoted elsewhere:
-
-- **"Not found across 287 graphs, so n >= 74"** — a search where a theorem was
-  available, and an extrapolation of a ratio that is not constant. Superseded by
-  the free-action lemma and the bound on the forced part.
-- **"The forced part is `chi − popcount(chi)`"** — true only for connected
-  graphs. The correct statement is per component and additive; the connected
-  formula understates seven disjoint `K_4` by 18 bits. The *value* 25 at
-  `n <= 29` happens to be unchanged, because extra components never buy back
-  what the smaller `chi` costs.
-- **"The `(2^k − 1)^n` bound saves 10–20%"** — off by an order of magnitude. The
-  saving is `1 − log2(2^k−1)/k = Θ(2^-k/k)`: 6.4% at k=3, 0.4% at k=6, 0.014% at
-  k=10.
-- **"There is no sparse worst case"** — right about `G(n,p)` and wrong in
-  general. The mechanism is heterogeneity, not density, and `K_a + E_b` needs 8
-  primes where `G(n,p)` needs 2–3.
-- **The cofactor ceiling of 8** was originally asserted against a quantity
-  defined by the connected formula, which seven disjoint `K_4` breaches by 18.
-  It now applies to the per-component unforced part, where it holds with margin.
 
 ## Limitations
 

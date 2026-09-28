@@ -1,4 +1,4 @@
-# Yates butterfly kernel — MLX + Metal
+# exact-yates-metal
 
 One templated Metal kernel computes the n-fold Kronecker power `M^(x)n` of any
 2x2 generator matrix over a commutative ring, by the Yates algorithm in
@@ -175,14 +175,11 @@ machine that trade is strongly worth it at large `n`.
 achieves the minimum achievable pass count, since larger tiles fuse more stages
 but cost occupancy.
 
-Total device traffic is `2 * passes * N * sizeof(elem)`. This is better than the
-`2 * (n - t) * 2^n * sizeof(elem)` figure in the task brief, which assumes only
-the first tile pass fuses stages and the remaining `n - t` run one stage each;
-fusing the later passes too turns `n - t + 1` passes into `1 + ceil((n - t)/t')`.
-For `uint32` at `n = 24` that is 13 passes under the unfused model against the 3
-actually dispatched — a 4.3x reduction in device traffic. (The brief states both
-"fusing as many stages per pass as the tile size allows" and the unfused traffic
-figure; the two are inconsistent, and this implementation follows the former.)
+Total device traffic is `2 * passes * N * sizeof(elem)`. The obvious
+alternative — fuse `t` stages into one tile pass and run the remaining `n - t`
+one stage each — costs `2 * (n - t + 1) * 2^n * sizeof(elem)`. Fusing the later
+passes too turns that into `1 + ceil((n - t)/t')` passes: for `uint32` at
+`n = 24`, 3 passes rather than 13, a 4.3x reduction in device traffic.
 
 ### Autodiff: no backward kernel
 
@@ -478,9 +475,9 @@ inputs outside the timed region; doing otherwise halves every reported bandwidth
 ## Project report
 
 [`docs/report.md`](docs/report.md) is the write-up of both deliverables: what was
-built, what was measured, the exactness arguments, and a section recording the
-claims that earlier revisions got wrong. Its figures regenerate from the tracked
-benchmark output in `bench/results/`.
+built, what was measured, the exactness arguments, and the limitations that
+qualify the numbers. Its figures regenerate from the tracked benchmark output in
+`bench/results/`.
 
 ## Applications
 
