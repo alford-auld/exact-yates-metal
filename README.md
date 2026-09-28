@@ -1,21 +1,54 @@
 # exact-yates-metal
 
-One templated Metal kernel computes the n-fold Kronecker power `M^(x)n` of any
-2x2 generator matrix over a commutative ring, by the Yates algorithm in
-`n * 2^(n-1)` butterflies. The Walsh–Hadamard transform, the subset and superset
-zeta and Möbius transforms, and the polar-code kernel are all the same kernel
-with four different butterfly constants.
+**Exact subset-lattice transforms on Apple Silicon, at copy bandwidth.**
 
-| name       | M                | semantics                                            | inverse  |
-|------------|------------------|------------------------------------------------------|----------|
-| `WHT`      | `[[1,1],[1,-1]]` | Fourier on `(Z/2)^n`; diagonalizes XOR-convolution     | itself/N |
-| `ZETA_SUB` | `[[1,0],[1,1]]`  | `f(S) = sum_{T subset S} f(T)`; diagonalizes OR-conv   | `MOB_SUB`|
-| `MOB_SUB`  | `[[1,0],[-1,1]]` | Möbius inversion over subsets                          | `ZETA_SUB`|
-| `ZETA_SUP` | `[[1,1],[0,1]]`  | `f(S) = sum_{T superset S} f(T)`; diagonalizes AND-conv | `MOB_SUP`|
-| `MOB_SUP`  | `[[1,-1],[0,1]]` | Möbius inversion over supersets                        | `ZETA_SUP`|
+Subset-lattice algorithms — inclusion–exclusion, Möbius and Harsanyi
+decompositions, Walsh spectra — spend nearly all of their time in one
+primitive: the `2^n`-point zeta / Möbius / Hadamard transform over the Boolean
+lattice. This is that primitive as a single templated Metal kernel: **exact over
+`Z/2^32` and `Z/2^64`** — no floats, no tolerance, no headroom — and
+**bandwidth-bound**. On a 16 GB MacBook Air it reaches `n = 29` (a 2 GiB array),
+transforms it in **174 ms**, and sustains **~96% of the same machine's measured
+device-to-device copy bandwidth** across `n = 10…29` for `uint32`, `uint64` and
+`float32` alike.
 
-`ZETA_SUB` is the polar-code kernel `F`; `ZETA_SUP` is its transpose. Arbitrary
-integer 2x2 matrices work too — pass one instead of a name.
+**Where this shows up.** The subset zeta transform and its Möbius inverse are
+the workhorse of exact exponential algorithms: set cover, chromatic number,
+Steiner tree and the rest of the Björklund–Husfeldt–Koivisto family reduce to
+`O*(2^n)` inclusion–exclusion over the subset lattice. The same transform is
+the Harsanyi-dividend step behind Shapley values and interaction indices in
+cooperative game theory and in feature attribution. The Walsh–Hadamard case is
+the Fourier transform on `(Z/2)^n` — Boolean function analysis, S-box
+nonlinearity, XOR-convolution. And `ZETA_SUB` is the polar-code kernel `F`.
+One kernel, four butterfly constants.
+
+**Three MLX / Metal platform bugs** were found and pinned in the process,
+including `metal::simd_shuffle_xor` silently corrupting 64-bit operands on
+`applegpu_g16g`. See [*Platform findings*](#platform-findings) — each has a
+test that fails loudly if a future release changes the behaviour.
+
+## The generator matrices
+
+One templated kernel computes the n-fold Kronecker power `M^(x)n` of any 2x2
+generator matrix over a commutative ring, by the Yates algorithm in
+`n * 2^(n-1)` butterflies. The named variants differ only in `M`:
+
+| name       | M                | semantics                                                        | inverse    |
+|------------|------------------|------------------------------------------------------------------|------------|
+| `WHT`      | `[[1,1],[1,-1]]` | `(Hf)(S) = Σ_T (-1)^{\|S ∩ T\|} f(T)`; Fourier on `(Z/2)^n`, diagonalizes XOR-convolution | itself / N |
+| `ZETA_SUB` | `[[1,0],[1,1]]`  | `(ζf)(S) = Σ_{T ⊆ S} f(T)`; diagonalizes OR-convolution           | `MOB_SUB`  |
+| `MOB_SUB`  | `[[1,0],[-1,1]]` | `(μg)(S) = Σ_{T ⊆ S} (-1)^{\|S \ T\|} g(T)`; Möbius inversion over subsets | `ZETA_SUB` |
+| `ZETA_SUP` | `[[1,1],[0,1]]`  | `(ζf)(S) = Σ_{T ⊇ S} f(T)`; diagonalizes AND-convolution          | `MOB_SUP`  |
+| `MOB_SUP`  | `[[1,-1],[0,1]]` | `(μg)(S) = Σ_{T ⊇ S} (-1)^{\|T \ S\|} g(T)`; Möbius inversion over supersets | `ZETA_SUP` |
+
+`ZETA_SUB` is the polar-code kernel `F`; `ZETA_SUP` is its transpose.
+
+Any 2x2 **integer** matrix works too — pass one in place of a name. Entries in
+`{-1, 0, 1}` compile to adds and negations; entries of larger magnitude emit a
+real multiply per butterfly, which is correct and still exact, just not free.
+Non-integer entries are not supported (the matrix is coerced with `int()`).
+`bit_loss` and `guaranteed_bits` additionally require the matrix to be
+primitive (gcd of entries 1) and non-singular, and raise otherwise.
 
 Stage `j` of the algorithm, for every index `i0` whose bit `j` is zero, with
 `i1 = i0 | (1 << j)`:
@@ -25,38 +58,6 @@ Stage `j` of the algorithm, for every index `i0` whose bit `j` is zero, with
 
 Stages act on distinct tensor factors, so they commute and may be grouped freely.
 The implementation exploits this to fuse stages into threadgroup tiles.
-
-## Setup
-
-```sh
-python3 -m venv .venv          # or: uv venv --python 3.12 .venv
-.venv/bin/pip install -r requirements.txt
-.venv/bin/python -m pytest     # fast suite; add -m slow for the large-n tests
-```
-
-`requirements.txt` pins the exact versions every number below was measured with.
-`pyobjc-framework-Metal` is optional: it exposes the threadgroup limits directly,
-and without it `yates/device.py` probes them instead (`DeviceLimits.source`
-records which happened). Metal availability is checked before anything runs.
-
-```python
-import mlx.core as mx, numpy as np, yates
-
-# exact subset-sum transform over Z/2^32, and its exact inverse
-x = mx.array(np.random.default_rng(0).integers(0, 2**32, 1 << 20, dtype=np.uint32))
-y = yates.zeta_sub(x)
-assert bool(mx.all(yates.mobius_sub(y) == x).item())          # bit for bit
-
-# batched orthonormal Hadamard isometry, H/sqrt(N), along the last axis
-h = yates.wht(mx.random.normal((8, 1 << 14)), normalize=True)
-
-# differentiable: the VJP is the same kernel with the transposed generator
-loss = lambda a: mx.sum(yates.yates_transform(a, "ZETA_SUB") ** 2)
-g = mx.grad(loss)(mx.random.normal((1 << 10,)))
-
-# what the dispatcher will do, without running it
-yates.describe_plan(n=24, total_elems=1 << 24, dtype=mx.uint32)
-```
 
 ## The exactness contract
 
@@ -93,8 +94,9 @@ and likewise for the superset pair and for either composition order.
 `SNF(H_2) = diag(1, 2)`. The elementary divisors of `H_(2^n)` are therefore
 `2^j` with multiplicity `binomial(n, j)`, and `det H_(2^n) = ±2^(n·2^(n-1))`.
 Since `WHT ∘ WHT = 2^n · I`, inverting a WHT over `Z/2^k` means dividing by
-`2^n`, which the ring cannot do. A forward-then-inverse WHT therefore recovers
-the input **only modulo `2^(k-n)`**:
+`2^n`, which the ring cannot do, since 2 is not a unit in `Z/2^k`. A
+forward-then-inverse WHT therefore recovers the input **only modulo
+`2^(k-n)`**:
 
 ```python
 yates.bit_loss("WHT", n)                 # == n
@@ -114,6 +116,65 @@ lost). With 64-bit headroom the same composition is the exact integer identity
 `WHT(WHT(x)) == N·x`.
 
 `float32` has no exactness contract at all; `yates.ring_bits(mx.float32) == 0`.
+
+## Quickstart
+
+```sh
+python3 -m venv .venv          # or: uv venv --python 3.12 .venv
+.venv/bin/pip install -r requirements.txt
+.venv/bin/python -m pytest     # fast suite; add -m slow for the large-n tests
+```
+
+`requirements.txt` pins the exact versions every number below was measured with.
+`pyobjc-framework-Metal` is optional: it exposes the threadgroup limits directly,
+and without it `yates/device.py` probes them instead (`DeviceLimits.source`
+records which happened). Metal availability is checked before anything runs.
+
+```python
+import mlx.core as mx, numpy as np, yates
+
+# exact subset-sum transform over Z/2^32, and its exact inverse
+x = mx.array(np.random.default_rng(0).integers(0, 2**32, 1 << 20, dtype=np.uint32))
+y = yates.zeta_sub(x)
+assert bool(mx.all(yates.mobius_sub(y) == x).item())          # bit for bit
+
+# batched orthonormal Hadamard isometry, H/sqrt(N), along the last axis
+h = yates.wht(mx.random.normal((8, 1 << 14)), normalize=True)
+
+# differentiable: the VJP is the same kernel with the transposed generator
+loss = lambda a: mx.sum(yates.yates_transform(a, "ZETA_SUB") ** 2)
+g = mx.grad(loss)(mx.random.normal((1 << 10,)))
+
+# what the dispatcher will do, without running it
+yates.describe_plan(n=24, total_elems=1 << 24, dtype=mx.uint32)
+```
+
+## Platform findings
+
+Three behaviours of MLX 0.32.2 / `applegpu_g16g` shaped the implementation. Each
+has a test that pins it and *warns* if a future release fixes it.
+
+1. **`metal::simd_shuffle_xor` silently corrupts 64-bit operands.** Shuffling a
+   `ulong` returns garbage — it operates per 32-bit register. `kernel.metal`
+   specialises `yates_shuffle<ulong>` to shuffle the two halves separately. This
+   was the cause of a real `uint64` miscompare during development, not a
+   theoretical concern.
+2. **MLX pastes template integers into the generated Metal identifier.** A
+   negative value emits `custom_kernel_..._-1_...`, which is not a valid C++
+   name, and the library fails to build. Matrix entries are therefore carried as
+   `(sign, magnitude)` pairs of non-negative template integers.
+3. **`custom_function` `.jvp` and `.vmap` rules are bypassed for kernel bodies.**
+   When the wrapped function contains a `CustomKernel` primitive, MLX consults
+   the registered `.vjp` rule but descends into the kernel for the other two,
+   raising `[Primitive::jvp] Not implemented for CustomKernel`. Registering
+   those rules would be dead code, so `autodiff.py` omits them and offers
+   `autodiff.jvp()` instead (a linear map is its own directional derivative).
+   Batching needs no `vmap`: the transform already handles every leading axis in
+   one launch.
+
+A fourth, relevant to benchmarking: `mx.contiguous()` on a prefix slice is a
+real device copy in MLX 0.32.2, not a no-op. The benchmark materialises its
+inputs outside the timed region; doing otherwise halves every reported bandwidth.
 
 ## Implementation
 
@@ -175,11 +236,25 @@ machine that trade is strongly worth it at large `n`.
 achieves the minimum achievable pass count, since larger tiles fuse more stages
 but cost occupancy.
 
-Total device traffic is `2 * passes * N * sizeof(elem)`. The obvious
-alternative — fuse `t` stages into one tile pass and run the remaining `n - t`
-one stage each — costs `2 * (n - t + 1) * 2^n * sizeof(elem)`. Fusing the later
-passes too turns that into `1 + ceil((n - t)/t')` passes: for `uint32` at
-`n = 24`, 3 passes rather than 13, a 4.3x reduction in device traffic.
+### Device traffic, and why pass count is the whole game
+
+The kernel moves `2 × passes × N × sizeof(elem)` bytes and runs at copy
+bandwidth, so the pass count is the only free variable. Three ways to organise
+the same `n` stages, with `uint32` at `n = 24`:
+
+| strategy | passes |
+|---|--:|
+| one device pass per stage | `n` = 24 |
+| fuse `t` stages into one tile pass, then one stage per pass for the rest | `1 + (n - t)` = 13 |
+| fuse **every** pass, each taking as many stages as its own tile holds | **3** |
+
+At `n = 24` the planner picks a 16 KiB tile (4096 `uint32`), which at `LOGC = 0`
+fuses `t = 12` stages in the first pass. The naive follow-up — one stage per
+pass for the remaining 12 — costs 13 passes. Instead the remaining 12 stages are
+cleared by two more tile passes. Those fuse fewer stages each, because a
+high-stride pass needs `LOGC > 0` for coalescing and `P = log2(tile_elems) - LOGC`
+shrinks accordingly — but two passes still beat twelve. 3 against 13 is a
+**4.3× reduction in device traffic**.
 
 ### Autodiff: no backward kernel
 
@@ -196,7 +271,7 @@ is this table:
 | `MOB_SUP` | `MOB_SUB` |
 
 Reverse mode (`mx.grad`, `mx.value_and_grad`, `mx.vjp`) works, including through
-compositions. `mx.jvp` and `mx.vmap` do not — see *Platform findings* below.
+compositions. `mx.jvp` and `mx.vmap` do not — see *Platform findings* above.
 
 ## Measured performance
 
@@ -210,7 +285,7 @@ Nothing here is a vendor figure or an estimate.
 - MLX 0.32.2
 - Protocol: 2.0s steady-state window per configuration (reported value is the median of its second half), 0.5s warmup, 3.0s idle cooldown between configurations, working set at least 67108864 elements
 - Run started 2026-09-27T11:48:55-0300, finished 2026-09-27T11:57:46-0300
-- Thermal warnings recorded during the run: False
+- macOS recorded no thermal warning at any point during the run.
 
 The denominator is a pure device-to-device copy kernel (`yates/kernel.metal`,
 section `copy`), re-measured at every working-set size in the same session.
@@ -240,6 +315,13 @@ The transform is bandwidth-bound across the whole range: it moves
 `2 x passes x N x sizeof(elem)` bytes, and moves them at essentially the rate the
 GPU can copy the same volume. The handful of fractions slightly above 100% are
 inter-pass reuse in the system cache, not a violation of anything.
+
+Per-`n` tables for all three element types — pass count, tile size, tier split,
+copy and transform bandwidth, drift — are in
+[`docs/report.md`, Appendix A](docs/report.md#appendix-a-full-per-n-results),
+and the underlying measurements in
+[`bench/results/bench.json`](bench/results/bench.json). Regenerate the tables
+with `bench/report.py bench/results/bench.json`.
 
 ### Thermal behaviour under continuous load
 
@@ -303,94 +385,14 @@ at 2 GiB with six live pass buffers the machine is paging — a harness artifact
 not a property of the kernel. It is left in the JSON rather than deleted, and
 excluded from the table.
 
-### Full results
+## Applications
 
-
-#### uint32
-
-- Fraction of measured copy bandwidth: 91.3% (n=25) to 100.2% (n=20); median 95.9%
-- Transform bandwidth 89.9-98.9 GB/s
-- Thermal re-check at n=10: 5.73 ms at the start of the sweep, 5.70 ms at the end (0.996x)
-
-| n | batch | working set | passes | tile | tiers simd/tg/reg | copy GB/s | transform ms | transform GB/s | % of copy | drift |
-|--:|------:|------------:|-------:|-----:|:------------------|----------:|-------------:|---------------:|----------:|------:|
-| 10 | 65536 | 256 MiB | 1 | 4096 | 5/5/0 | 97.8 | 5.73 | 93.8 | 95.9% | 1.003 |
-| 11 | 32768 | 256 MiB | 1 | 8192 | 5/5/1 | 98.2 | 5.66 | 94.8 | 96.5% | 1.005 |
-| 12 | 16384 | 256 MiB | 1 | 16384 | 5/5/2 | 96.8 | 5.71 | 94.1 | 97.3% | 1.005 |
-| 13 | 8192 | 256 MiB | 1 | 32768 | 5/5/3 | 97.8 | 5.65 | 95.0 | 97.1% | 1.001 |
-| 14 | 4096 | 256 MiB | 2 | 4096 | 5/9/0 | 98.2 | 11.30 | 95.0 | 96.8% | 1.006 |
-| 15 | 2048 | 256 MiB | 2 | 4096 | 5/10/0 | 98.1 | 11.40 | 94.2 | 96.0% | 1.007 |
-| 16 | 1024 | 256 MiB | 2 | 8192 | 5/9/2 | 97.4 | 11.49 | 93.4 | 95.9% | 0.943 |
-| 17 | 512 | 256 MiB | 2 | 8192 | 5/10/2 | 98.3 | 11.22 | 95.7 | 97.4% | 1.001 |
-| 18 | 256 | 256 MiB | 2 | 16384 | 5/9/4 | 97.9 | 11.63 | 92.3 | 94.2% | 1.035 |
-| 19 | 128 | 256 MiB | 2 | 16384 | 5/10/4 | 95.8 | 11.25 | 95.5 | 99.6% | 0.996 |
-| 20 | 64 | 256 MiB | 2 | 32768 | 5/9/6 | 94.3 | 11.37 | 94.5 | 100.2% | 1.007 |
-| 21 | 32 | 256 MiB | 2 | 32768 | 5/10/6 | 94.3 | 11.88 | 90.4 | 95.9% | 1.008 |
-| 22 | 16 | 256 MiB | 3 | 8192 | 5/14/3 | 98.5 | 17.53 | 91.9 | 93.3% | 1.000 |
-| 23 | 8 | 256 MiB | 3 | 8192 | 5/15/3 | 98.3 | 17.83 | 90.3 | 91.9% | 1.002 |
-| 24 | 4 | 256 MiB | 3 | 16384 | 5/13/6 | 98.2 | 17.50 | 92.0 | 93.7% | 0.999 |
-| 25 | 2 | 256 MiB | 3 | 16384 | 5/14/6 | 98.5 | 17.91 | 89.9 | 91.3% | 1.003 |
-| 26 | 1 | 256 MiB | 3 | 32768 | 5/12/9 | 98.4 | 17.64 | 91.3 | 92.8% | 1.011 |
-| 27 | 1 | 512 MiB | 4 | 16384 | 5/15/7 | 99.7 | 46.02 | 93.3 | 93.6% | 1.007 |
-| 28 | 1 | 1024 MiB | 4 | 16384 | 5/15/8 | 98.1 | 92.21 | 93.2 | 94.9% | 0.998 |
-| 29 | 1 | 2048 MiB | 4 | 32768 | 5/13/11 | 99.6 | 173.77 | 98.9 | 99.3% | 0.971 |
-
-#### uint64
-
-- Fraction of measured copy bandwidth: 92.9% (n=26) to 100.6% (n=28); median 95.8%
-- Transform bandwidth 91.6-99.3 GB/s
-- Thermal re-check at n=10: 11.16 ms at the start of the sweep, 11.13 ms at the end (0.998x)
-
-| n | batch | working set | passes | tile | tiers simd/tg/reg | copy GB/s | transform ms | transform GB/s | % of copy | drift |
-|--:|------:|------------:|-------:|-----:|:------------------|----------:|-------------:|---------------:|----------:|------:|
-| 10 | 65536 | 512 MiB | 1 | 8192 | 5/5/0 | 98.4 | 11.16 | 96.2 | 97.8% | 0.998 |
-| 11 | 32768 | 512 MiB | 1 | 16384 | 5/5/1 | 98.4 | 11.12 | 96.6 | 98.2% | 0.999 |
-| 12 | 16384 | 512 MiB | 1 | 32768 | 5/5/2 | 98.7 | 11.15 | 96.3 | 97.5% | 1.000 |
-| 13 | 8192 | 512 MiB | 2 | 4096 | 5/8/0 | 98.4 | 22.62 | 94.9 | 96.5% | 0.995 |
-| 14 | 4096 | 512 MiB | 2 | 4096 | 6/8/0 | 98.9 | 22.67 | 94.7 | 95.8% | 1.001 |
-| 15 | 2048 | 512 MiB | 2 | 8192 | 5/10/0 | 98.3 | 22.83 | 94.1 | 95.7% | 1.001 |
-| 16 | 1024 | 512 MiB | 2 | 8192 | 6/10/0 | 98.4 | 23.44 | 91.6 | 93.1% | 0.985 |
-| 17 | 512 | 512 MiB | 2 | 16384 | 5/10/2 | 98.9 | 22.79 | 94.2 | 95.3% | 1.002 |
-| 18 | 256 | 512 MiB | 2 | 16384 | 6/10/2 | 98.0 | 22.84 | 94.0 | 96.0% | 1.001 |
-| 19 | 128 | 512 MiB | 2 | 32768 | 5/10/4 | 99.1 | 22.88 | 93.9 | 94.7% | 1.002 |
-| 20 | 64 | 512 MiB | 2 | 32768 | 6/10/4 | 98.5 | 22.92 | 93.7 | 95.1% | 1.001 |
-| 21 | 32 | 512 MiB | 3 | 8192 | 6/15/0 | 98.4 | 34.15 | 94.3 | 95.8% | 1.001 |
-| 22 | 16 | 512 MiB | 3 | 8192 | 7/15/0 | 98.8 | 34.58 | 93.2 | 94.3% | 1.003 |
-| 23 | 8 | 512 MiB | 3 | 16384 | 6/14/3 | 96.8 | 34.00 | 94.8 | 97.9% | 1.005 |
-| 24 | 4 | 512 MiB | 3 | 16384 | 6/15/3 | 99.1 | 34.88 | 92.4 | 93.2% | 1.007 |
-| 25 | 2 | 512 MiB | 3 | 32768 | 6/13/6 | 98.9 | 34.15 | 94.3 | 95.4% | 1.001 |
-| 26 | 1 | 512 MiB | 4 | 16384 | 6/17/3 | 99.7 | 46.38 | 92.6 | 92.9% | 1.008 |
-| 27 | 1 | 1024 MiB | 4 | 16384 | 6/17/4 | 96.2 | 91.61 | 93.8 | 97.4% | 1.003 |
-| 28 | 1 | 2048 MiB | 4 | 32768 | 6/15/7 | 98.7 | 173.01 | 99.3 | 100.6% | 0.999 |
-
-#### float32
-
-- Fraction of measured copy bandwidth: 91.6% (n=25) to 100.0% (n=29); median 96.7%
-- Transform bandwidth 90.6-99.5 GB/s
-- Thermal re-check at n=10: 5.67 ms at the start of the sweep, 5.97 ms at the end (1.054x)
-
-| n | batch | working set | passes | tile | tiers simd/tg/reg | copy GB/s | transform ms | transform GB/s | % of copy | drift |
-|--:|------:|------------:|-------:|-----:|:------------------|----------:|-------------:|---------------:|----------:|------:|
-| 10 | 65536 | 256 MiB | 1 | 4096 | 5/5/0 | 98.8 | 5.67 | 94.7 | 95.9% | 1.000 |
-| 11 | 32768 | 256 MiB | 1 | 8192 | 5/5/1 | 98.3 | 5.64 | 95.1 | 96.8% | 1.002 |
-| 12 | 16384 | 256 MiB | 1 | 16384 | 5/5/2 | 98.8 | 5.64 | 95.2 | 96.3% | 0.997 |
-| 13 | 8192 | 256 MiB | 1 | 32768 | 5/5/3 | 98.4 | 5.65 | 95.0 | 96.6% | 1.003 |
-| 14 | 4096 | 256 MiB | 2 | 4096 | 5/9/0 | 98.7 | 11.24 | 95.5 | 96.7% | 0.996 |
-| 15 | 2048 | 256 MiB | 2 | 4096 | 5/10/0 | 98.6 | 11.22 | 95.7 | 97.1% | 1.002 |
-| 16 | 1024 | 256 MiB | 2 | 8192 | 5/9/2 | 98.7 | 11.16 | 96.2 | 97.5% | 1.003 |
-| 17 | 512 | 256 MiB | 2 | 8192 | 5/10/2 | 97.1 | 11.09 | 96.8 | 99.7% | 0.909 |
-| 18 | 256 | 256 MiB | 2 | 16384 | 5/9/4 | 97.3 | 11.12 | 96.6 | 99.2% | 0.999 |
-| 19 | 128 | 256 MiB | 2 | 16384 | 5/10/4 | 98.9 | 11.18 | 96.1 | 97.1% | 0.998 |
-| 20 | 64 | 256 MiB | 2 | 32768 | 5/9/6 | 98.9 | 11.16 | 96.2 | 97.3% | 0.993 |
-| 21 | 32 | 256 MiB | 2 | 32768 | 5/10/6 | 98.7 | 11.21 | 95.8 | 97.0% | 1.002 |
-| 22 | 16 | 256 MiB | 3 | 8192 | 5/14/3 | 98.8 | 17.50 | 92.0 | 93.1% | 1.032 |
-| 23 | 8 | 256 MiB | 3 | 8192 | 5/15/3 | 98.6 | 17.77 | 90.6 | 91.9% | 1.001 |
-| 24 | 4 | 256 MiB | 3 | 16384 | 5/13/6 | 98.9 | 17.13 | 94.0 | 95.1% | 0.981 |
-| 25 | 2 | 256 MiB | 3 | 16384 | 5/14/6 | 98.9 | 17.78 | 90.6 | 91.6% | 1.010 |
-| 26 | 1 | 256 MiB | 3 | 32768 | 5/12/9 | 98.7 | 17.13 | 94.0 | 95.3% | 0.977 |
-| 27 | 1 | 512 MiB | 4 | 16384 | 5/15/7 | 100.4 | 45.39 | 94.6 | 94.2% | 0.998 |
-| 28 | 1 | 1024 MiB | 4 | 16384 | 5/15/8 | 98.5 | 91.25 | 94.1 | 95.6% | 1.002 |
-| 29 | 1 | 2048 MiB | 4 | 32768 | 5/13/11 | 99.5 | 172.72 | 99.5 | 100.0% | 1.001 |
+- **[`apps/chromatic/`](apps/chromatic/README.md)** — exact chromatic number by
+  Björklund–Husfeldt–Koivisto inclusion–exclusion. One subset-zeta over the
+  whole cube, then a pointwise power and a reduction per candidate `k`:
+  `O*(2^n)` for every graph, no search. Reuses this kernel unmodified. Reads its
+  own README first — the single-modulus result carries a **one-sided** guarantee,
+  and the default mode upgrades it to unconditional via CRT.
 
 ## Tests
 
@@ -433,33 +435,6 @@ forced-naive one.
     .venv/bin/python -m pytest             # fast suite
     .venv/bin/python -m pytest -m slow     # multi-GiB large-n tests
 
-## Platform findings
-
-Three behaviours of MLX 0.32.2 / `applegpu_g16g` shaped the implementation. Each
-has a test that pins it and *warns* if a future release fixes it.
-
-1. **`metal::simd_shuffle_xor` silently corrupts 64-bit operands.** Shuffling a
-   `ulong` returns garbage — it operates per 32-bit register. `kernel.metal`
-   specialises `yates_shuffle<ulong>` to shuffle the two halves separately. This
-   was the cause of a real `uint64` miscompare during development, not a
-   theoretical concern.
-2. **MLX pastes template integers into the generated Metal identifier.** A
-   negative value emits `custom_kernel_..._-1_...`, which is not a valid C++
-   name, and the library fails to build. Matrix entries are therefore carried as
-   `(sign, magnitude)` pairs of non-negative template integers.
-3. **`custom_function` `.jvp` and `.vmap` rules are bypassed for kernel bodies.**
-   When the wrapped function contains a `CustomKernel` primitive, MLX consults
-   the registered `.vjp` rule but descends into the kernel for the other two,
-   raising `[Primitive::jvp] Not implemented for CustomKernel`. Registering
-   those rules would be dead code, so `autodiff.py` omits them and offers
-   `autodiff.jvp()` instead (a linear map is its own directional derivative).
-   Batching needs no `vmap`: the transform already handles every leading axis in
-   one launch.
-
-A fourth, relevant to benchmarking: `mx.contiguous()` on a prefix slice is a
-real device copy in MLX 0.32.2, not a no-op. The benchmark materialises its
-inputs outside the timed region; doing otherwise halves every reported bandwidth.
-
 ## Limitations
 
 - Transforms with `n < 5` and a large batch dispatch fewer than one full
@@ -468,25 +443,51 @@ inputs outside the timed region; doing otherwise halves every reported bandwidth
   1024-thread threadgroup.
 - `normalize=True` is float-only by construction: `2^(-n/2)` is not a ring
   element of `Z/2^k`.
-- Only integer generator matrices are supported. General ring constants would
-  need a real multiply per butterfly; entries in `{-1, 0, 1}` compile to adds
-  and negations.
+- Generator entries must be integers. `{-1, 0, 1}` compile to adds and
+  negations; larger magnitudes are supported but cost a real multiply per
+  butterfly, so `WHT` and the zeta/Möbius family are the fast path.
+- Metal only. There is no CPU or CUDA backend.
+
+## Versioning and vendoring
+
+Releases are tagged; `v0.1.0` is the first. If you are vendoring this, pin the
+tag rather than a commit hash — the repository has already been renamed once,
+and tags survive that:
+
+```sh
+git clone --depth 1 --branch v0.1.0 https://github.com/alford-auld/exact-yates-metal.git
+```
+
+**Stable within `0.x`**, and changed only with a version bump and a note:
+
+- the public names in `yates/__init__.py` — `transform`, `yates_transform`,
+  `wht`, `zeta_sub`, `mobius_sub`, `zeta_sup`, `mobius_sup`, `bit_loss`,
+  `guaranteed_bits`, `ring_bits`, `describe_plan`, `VARIANTS` and the five
+  variant names;
+- the exactness contract above: which variants are exact over which rings, and
+  the `bit_loss` values;
+- the accepted dtypes, and rejection with `TypeError` for the rest.
+
+**Not stable**, and expected to change between tags:
+
+- the tiering policy — tile sizes, pass counts, tier assignment. These are
+  performance decisions, re-tuned against measurement; the numerical result is
+  unchanged bit for bit.
+- the contents of `describe_plan()`'s dictionary beyond `passes`;
+- `kernel.metal` internals and the private helpers in `yates/kernel.py`;
+- every measured number in this README, which is re-measured per release.
+
+`0.x` means the API is young. Nothing here is deprecated silently.
 
 ## Project report
 
-[`docs/report.md`](docs/report.md) is the write-up of both deliverables: what was
-built, what was measured, the exactness arguments, and the limitations that
-qualify the numbers. Its figures regenerate from the tracked benchmark output in
-`bench/results/`.
-
-## Applications
-
-- **[`apps/chromatic/`](apps/chromatic/README.md)** — exact chromatic number by
-  Björklund–Husfeldt–Koivisto inclusion–exclusion. One subset-zeta over the
-  whole cube, then a pointwise power and a reduction per candidate `k`:
-  `O*(2^n)` for every graph, no search. Reuses this kernel unmodified. Reads its
-  own README first — the single-modulus result carries a **one-sided** guarantee,
-  and the default mode upgrades it to unconditional via CRT.
+[`docs/report.md`](docs/report.md) is the write-up of both deliverables: what
+was built, what was measured, the exactness arguments, and the limitations that
+qualify the numbers. The section worth reading even if you skip the rest is
+[**Intuitions that did not survive measurement**](docs/report.md#intuitions-that-did-not-survive-measurement)
+— the three places where the obvious guess was wrong, including the one where
+optimising this kernel further would have bought almost nothing. Its figures
+regenerate from the tracked benchmark output in `bench/results/`.
 
 ## Out of scope
 
