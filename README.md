@@ -475,6 +475,13 @@ inputs outside the timed region; doing otherwise halves every reported bandwidth
   need a real multiply per butterfly; entries in `{-1, 0, 1}` compile to adds
   and negations.
 
+## Project report
+
+[`docs/report.md`](docs/report.md) is the write-up of both deliverables: what was
+built, what was measured, the exactness arguments, and a section recording the
+claims that earlier revisions got wrong. Its figures regenerate from the tracked
+benchmark output in `bench/results/`.
+
 ## Applications
 
 - **[`apps/chromatic/`](apps/chromatic/README.md)** — exact chromatic number by
@@ -490,3 +497,8 @@ Number-theoretic transforms and anything needing modular multiplication;
 additive (Cantor / Gao–Mateer) FFT over `GF(2^k)`; ranked subset convolution;
 non-Metal backends. Applications other than the chromatic-number one above
 (Shapley values, S-box search) are separate tasks.
+
+## License
+
+MIT — see [`LICENSE`](LICENSE). MLX, NumPy, pytest and pyobjc are all
+MIT/BSD-licensed, so there is nothing to inherit.
