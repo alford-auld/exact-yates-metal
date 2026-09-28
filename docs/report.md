@@ -22,15 +22,16 @@ artifact in `data/` and a re-runnable command.
 |---|---|
 | **Kernel throughput** | 91.3–100.6% of a device-to-device copy measured on the same machine, across `uint32`/`uint64`/`float32` and n = 10…29. Median ≈ 96%. |
 | **Largest transform** | n = 29 (2 GiB per array), 2 GiB in / 2 GiB out, in 174 ms |
-| **Exactness** | zeta/Möbius round trips bit-exact over Z/2³² and Z/2⁶⁴; Hadamard bit-loss bound proved *tight* with a witness at every n |
+| **Exactness** | zeta/Möbius round trips bit-exact over Z/2³² and Z/2⁶⁴; Hadamard bit-loss bound proved by Smith normal form, and *verified tight at every tested n* by an explicit two-sided witness |
 | **Chromatic number** | exact χ for an arbitrary 29-vertex graph in **1.53 s** (`mode="exact"`, `G(29,0.5)`, 3 CRT primes); 28 vertices in 544 ms; runtime depends only on n |
-| **Tests** | 1483 passed + 1 skipped in the fast suite, 11 more marked slow, all passing; all six required kernel test groups cover all three element types |
-| **Code** | 1.4k lines kernel, 1.7k application, 2.4k tests, 1.3k benchmarks |
+| **Tests** | 1522 passed + 1 skipped in the fast suite, 11 more marked slow, all passing; all six required kernel test groups cover all three element types |
+| **Code** | 1.4k lines kernel, 1.9k application, 3.0k tests, 2.3k benchmarks |
 
 The three results most worth a reader's time are in §3.2 (a tiling
-policy change worth 1.75× at the largest sizes), §4.3 (a *constructed* failure
-of the mod-2⁶⁴ soundness argument), and §4.4 (the butterfly turning out not to
-be the bottleneck of its own application).
+policy change worth 1.75× at the largest sizes), §4.3 (a divisibility lemma
+that settles by arithmetic what a 287-graph search could not, bounding how far a
+mod-2⁶⁴ false negative can reach), and §4.4 (the butterfly turning out not to be
+the bottleneck of its own application).
 
 ---
 
@@ -60,11 +61,18 @@ A pass transforms index bits `[s, s+P)`. Its tile is `2^P` rows (stride `2^s`
 apart) × `C` contiguous columns, with `G` independent tiles per threadgroup. The
 tier of a stage is decided purely by how far apart its butterfly partners are:
 
-| partner lives in | mechanism | cost |
-|---|---|---|
-| this thread's own registers | array indexing | free |
-| another lane of the simdgroup | `simd_shuffle_xor(x, C<<b)` | no memory traffic |
-| another thread | threadgroup memory | two barriers per stage |
+With `R = 2^LOGR` rows resident per thread and `C = 2^LOGC` columns, the local
+bit `b` of a stage selects the tier:
+
+| local bit range | partner lives in | mechanism | cost |
+|---|---|---|---|
+| `[LOGR, P)` | this thread's own registers | array indexing | free, no traffic |
+| `[0, NB_SIMD)` | another lane of the simdgroup | `simd_shuffle_xor(x, C<<b)` | no memory traffic |
+| `[NB_SIMD, LOGR)` | another thread | threadgroup memory | two barriers per stage |
+
+`NB_SIMD = clamp(log2(simd_width) − LOGC, 0, LOGR)`, derived from the *measured*
+SIMD width rather than an assumed 32. The three counts always sum to `n`; they
+are the `tiers simd/tg/reg` column of Appendix A.
 
 Nothing about the GPU is hardcoded. The SIMD width is read out of a live kernel
 (`threads_per_simdgroup`), the threadgroup memory limit and maximum threadgroup
@@ -104,8 +112,11 @@ Data: [`bench/results/bench.json`](../bench/results/bench.json), [`bench/results
 | `float32` | 10–29 | 90.6–99.5 | 91.6%–100.0%, median 96.7% |
 
 The denominator deserves emphasis: it is re-measured at **every** working-set
-size, because achievable copy bandwidth on this machine ranges from ~49 GB/s at
-a 16 MiB footprint to ~104 GB/s at 2 GiB. A single global denominator would
+size, because achievable copy bandwidth on this machine depends strongly on the
+footprint — **48.0–51.9 GB/s at 16 MiB**
+([`bench_small_footprint.json`](../bench/results/bench_small_footprint.json))
+against **94.3–100.4 GB/s across the 256 MiB–2 GiB footprints used here**
+([`bench.json`](../bench/results/bench.json)). A single global denominator would
 have been meaningless, and quoting the 16 MiB figure as "peak" would have made
 the kernel look like it exceeded hardware limits.
 
@@ -144,8 +155,22 @@ not start at zero** — the claim is the shape of the decline, which spans
 warning before or after, so measured throughput is the only usable signal.
 Data: [`bench/results/thermal.json`](../bench/results/thermal.json).
 
-Throughput is flat for roughly three minutes and then declines steadily, ending
-6.8% down and still falling. This is why the sweep in Figure 1 uses cooldowns
+| elapsed | median ms | GB/s | vs. first bucket |
+|--:|--:|--:|--:|
+| 15 s | 17.44 | 92.4 | 1.000× |
+| 30 s | 17.51 | 92.0 | 1.004× |
+| 45 s | 17.54 | 91.8 | 1.006× |
+| 60 s | 17.55 | 91.8 | 1.006× |
+| 120 s | 17.57 | 91.7 | 1.007× |
+| 180 s | 17.66 | 91.2 | 1.013× |
+| 240 s | 18.04 | 89.3 | 1.034× |
+| 300 s | 18.36 | 87.7 | 1.053× |
+| 360 s | 18.36 | 87.7 | 1.053× |
+| 420 s | 18.63 | 86.5 | 1.068× |
+
+Throughput is flat for roughly three minutes — the first movement outside noise
+is 1.013× at 180 s, and the break is 1.034× at 240 s — then declines steadily,
+ending 6.8% down and still falling. This is why the sweep in Figure 1 uses cooldowns
 between configurations and reports the median of a window rather than a
 best-of-N peak: within a configuration those numbers are steady state, but they
 are *not* what the machine sustains over tens of minutes.
@@ -188,9 +213,22 @@ has a test that pins it and *warns* if a future release fixes it.
    and `vmap` are documented as unsupported rather than papered over with dead
    rules.
 
-A fourth, relevant to anyone benchmarking MLX: `mx.contiguous()` on a prefix
-slice is a real device copy, not a no-op. Measuring inside that copy halved
-every bandwidth number until I caught it.
+A fourth thing, relevant to anyone benchmarking MLX, and **not a defect**:
+`mx.contiguous()` on an already-contiguous prefix slice is often a real device
+copy. Measuring inside that copy halved every bandwidth number until I caught
+it — but the behaviour is intended. `Contiguous::eval_gpu`/`eval_cpu` alias the
+input only when the parent buffer is at most 16 KiB larger than the view, so a
+small slice can release a large parent allocation
+([MLX PR #1270](https://github.com/ml-explore/mlx/pull/1270)). Measured, the
+threshold is exact: a slice of a 256 MiB array with 16 KiB of slack aliases in
+~23 µs, and one with 16 KiB + 4 B copies in ~5.4 ms. `base[1:]` aliases, so the
+rule is about buffer size rather than offset. Two consequences: materialise
+benchmark inputs outside the timed region, and use MLX's row-contiguous flag —
+which `mx.fast.metal_kernel(ensure_row_contiguous=True)` applies internally — as
+the defensive check before a kernel, not a blanket `mx.contiguous()`. The
+threshold is now pinned by a test that warns if it moves. I originally recorded
+this as a fourth platform *bug*; it is not one, and the only fair criticism is
+that the docstring says "Copy if necessary" without mentioning the size rule.
 
 ---
 
@@ -248,7 +286,7 @@ This is a smaller modulus than the ~62-bit primes one might reach for, which
 weakens the per-prime failure bound; §4.3 accounts for that. In exchange the kernel is reused verbatim
 and all of its own measured numbers stay valid.
 
-### 4.3 The one-sided guarantee, and a constructed counterexample
+### 4.3 The one-sided guarantee, and the divisibility lemma that bounds its failure
 
 `c_k` is a count, so the two directions are not symmetric:
 
@@ -301,25 +339,105 @@ account for three.
 
 A component attaining χ needs ≥ χ vertices, so `m·χ ≤ n` and the maximum forced
 part over all graphs on ≤ n vertices is `max_{m·χ≤n} m·v₂(χ!)`. **At n = 29 that
-is 25**, attained by one connected component with χ = 28 or 29 — allowing
-disconnected graphs does not raise it. (The value 25 was right; the formula
-behind it was not.)
+is 25**, attained by one connected component with χ = 28 or 29.
 
-So ≥ **39 of the 64 bits** must come from the unforced part. Over a 156-graph
-survey, 57 of them disconnected:
+Allowing disconnected graphs does not raise it — but that step is load-bearing
+for the number 25, and the runners-up are closer than the claim sounds, so it is
+enumerated rather than asserted. The search space is small enough to exhaust:
 
-| `v₂` of the unforced part | 0 | 1 | 2 | 3 | 4 |
-|---|--:|--:|--:|--:|--:|
-| observed | 92.3% | 4.5% | 1.9% | 0.6% | 0.6% |
-| a "random" integer, `2^-(j+1)` | 50% | 25% | 12.5% | 6.25% | 3.13% |
+| m | best χ | forced part `m·v₂(χ!)` |
+|--:|--:|--:|
+| 1 | 28 or 29 | **25** |
+| 2 | 14 | 22 |
+| 7 | 4 | 21 |
+| any m > 1 | — | < 25 |
+
+`test_disconnected_graphs_never_raise_the_forced_bound` checks every `(m, χ)`
+with `m·χ ≤ n` for each n ≤ 29 and confirms the maximum is always attained at
+m = 1; `test_forced_bound_runners_up_at_the_ceiling` pins the table above. The
+extra multiplicity never buys back what the smaller χ gives up. (The value 25
+was right; the formula behind it was not, and would have been wrong on a
+disconnected input.)
+
+So ≥ **39 of the 64 bits** must come from the unforced part. The survey
+measuring it is stratified, because two families have provably odd cofactors —
+`K_a` × m disjoint has `c_χ = (a!)^m` and cofactor 1; `K_a + E_b` has
+`c_χ = a!(2^a − 1)^b` and cofactor `(2^a − 1)^b`, odd for every a and b — so
+every graph from them contributes `v₂ = 0` by theorem, and counting them as
+evidence would be circular. They are measured as a cross-check instead: 55 of
+55 match the closed form exactly.
+
+The evidence is the other stratum, 139 graphs with no closed-form cofactor:
+
+| `v₂` of the unforced part | 0 | 1 | 2 | 3 | 4 | 5 | 8 |
+|---|--:|--:|--:|--:|--:|--:|--:|
+| graphs | 116 | 10 | 5 | 3 | 2 | 2 | 1 |
+| share | 83.5% | 7.2% | 3.6% | 2.2% | 1.4% | 1.4% | 0.7% |
+| a "random" integer, `2^-(j+1)` | 50% | 25% | 12.5% | 6.25% | 3.13% | 1.56% | 0.20% |
+
+**Among graphs with no closed-form cofactor the cofactor is odd 83.5% of the
+time against a 50% baseline, over 139 graphs.** The largest unforced valuation
+seen is 8, on one `G(9,0.3)`, equal to the ceiling the test asserts — and it
+grew from 4 to 8 when the survey grew, so the unforced part is small relative
+to the 39 bits needed rather than bounded by a constant.
+Data: [`bench/results/chromatic_unforced_survey.json`](../bench/results/chromatic_unforced_survey.json)
+(`bench/chromatic/unforced_survey.py`).
 
 The bias toward oddness, not merely the absence of large values, is the
 evidence. Two things are recorded as unproved: that `|X| ≡ |X^P| (mod 2)` for a
 Sylow 2-subgroup of `Aut(G)` acting on the unordered covers *explains* that bias
 (the congruence itself is a standard theorem, verified here on 15 graphs by
 brute-force automorphism enumeration, but it implies nothing about how often
-`|X^P|` is odd); and the conjecture `v₂(c_χ) ≤ n`, whose tightest witnesses are
-K₆₆ (64 of 66) and seven disjoint K₄ (21 of 28).
+`|X^P|` is odd).
+
+**The second conjecture recorded here, `v₂(c_χ) ≤ n`, has since been refuted,
+and replaced by the exact function.**
+Its published witnesses were K₆₆ (64 of 66) and seven disjoint K₄ (21 of 28),
+both closed-form clique families. Extending the survey produced a connected
+8-vertex counterexample with χ = 4 and `c_χ = 1536 = 2⁹·3`, so `v₂ = 9 > 8`.
+The boundary is exact: the bound holds over **every** labeled graph on n ≤ 7
+(all 2 097 152 at n = 7, attained with equality, never exceeded) and fails at
+n = 8. Nothing relied on it, and the residual-risk argument is unaffected — it
+needs 39 unforced bits and this reaches 9 of 64. Data:
+[`bench/results/chromatic_v2_conjecture.json`](../bench/results/chromatic_v2_conjecture.json)
+(`bench/chromatic/v2_conjecture_search.py`).
+
+The conjecture was the only route to an *unconditional* statement here —
+`forced ≤ 25` is a theorem, and `v₂(c_χ) ≤ n ≤ 29` would have capped the total
+at 29 against the 64 needed. What replaces it is the function itself.
+`f(n) = max_{|V|=n} v₂(c_χ(G))` is exactly computable: `v₂(c_χ)` is
+isomorphism-invariant, so the space is *unlabeled* graphs (261 080 connected on
+9 vertices, not 2³⁶ labeled), and `c_k` is multiplicative over disjoint unions,
+so the disconnected case is a knapsack over the connected table — one needing
+`v₂(c_k(Gᵢ))` at every `k ≥ χᵢ`, since a component sits at `k = max χᵢ`.
+
+| n | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|--:|--:|--:|--:|--:|--:|--:|--:|--:|--:|
+| `f(n)` | 0 | 1 | 1 | 3 | 3 | 5 | 7 | 10 | 12 | 17 |
+| `f(n) − n` | −1 | −1 | −2 | −1 | −2 | −1 | **0** | **+2** | **+3** | **+7** |
+
+`f(7) = 7` reproduces the exhaustive labeled result. The published 8-vertex
+counterexample has `v₂ = 9` but is not extremal: `f(8) = 10`.
+
+**The gap has widened at every step since n = 7 — +2, +3, then +7 at n = 10.**
+Least squares gives 2.69 bits per vertex over n = 5…10 and 3.50 over n = 8…10,
+extrapolating to **67–83 at n = 29** against the 64 a corrupted χ requires.
+Every fit window crosses 64 before n = 29, and the slope rises as points are
+added. The conjecture would have promised `v₂(c_χ) ≤ 29`; the measured function
+extrapolates past the threshold instead, so the single-modulus mode's safety at
+n ≤ 29 is not merely unproved — the only exactly computable evidence trends
+against it.
+
+Three things keep that from being alarming. It is an extrapolation across 19
+vertices from five points with no derivation behind the slope. `f` is a worst
+case over *engineered* graphs — `f(10) = 17` is one particular connected
+10-vertex graph with χ = 6 — while the survey's evidence stratum tops out at an
+unforced valuation of 8. And nothing in the solver depends on it:
+`mode="exact"` is the default, is CRT-reconstructed, and carries no probability
+at all. The consequence is a sharpened recommendation rather than a defect —
+`mode="mod2_64"` is a fast upper bound on χ and should be read as one. Data:
+[`bench/results/chromatic_max_v2.json`](../bench/results/chromatic_max_v2.json)
+(`bench/chromatic/max_v2_table.py`, needs `geng` from nauty).
 
 Two ways to close the gap, both implemented:
 
@@ -365,8 +483,20 @@ division entirely:
 | mod p, Montgomery | 12.83 ms | 62.8 |
 | *the subset-zeta at the same n, for scale* | 16.15 ms | 99.7 |
 
-**2.39×** in the controlled comparison; end to end n = 29 went from 2778 ms to
-1531 ms. It remains short of the bandwidth floor, so the power kernel is still
+**2.39×** in the controlled comparison. End to end the effect is nearly as
+large, because the k-search dominates — two runs of `bench/chromatic/bench.py`
+with identical settings, the "before" run kept as
+[`chromatic_pre_montgomery.json`](../bench/results/chromatic_pre_montgomery.json)
+so the comparison is checkable rather than remembered:
+
+| n | before Montgomery | after | speedup |
+|--:|--:|--:|--:|
+| 26 | 169 ms | 115 ms | 1.47× |
+| 27 | 342 ms | 178 ms | 1.92× |
+| 28 | 860 ms | 544 ms | 1.58× |
+| 29 | 2778 ms | 1531 ms | 1.81× |
+
+It remains short of the bandwidth floor, so the power kernel is still
 partly compute-bound — the Montgomery multiply chain itself, not division.
 Data: [`bench/results/chromatic_modmul.json`](../bench/results/chromatic_modmul.json).
 
@@ -375,8 +505,10 @@ Data: [`bench/results/chromatic_modmul.json`](../bench/results/chromatic_modmul.
 The n-sweep holds density at 0.5, which is the wrong axis for the cost of exact
 mode: that scales with the CRT prime count, hence with `k·log₂ i(V)`. The two
 factors pull against each other — sparse graphs have many independent sets but
-small χ, dense graphs the reverse — so which end is worst is empirical. At
-n = 26 (`bench/chromatic/density.py`, [`bench/results/chromatic_density.json`](../bench/results/chromatic_density.json)):
+small χ, dense graphs the reverse — so which end is worst is empirical.
+Measured at n = 26, single run per row, idle cooldown between rows.
+Data: [`bench/results/chromatic_density.json`](../bench/results/chromatic_density.json)
+(`bench/chromatic/density.py`).
 
 | density `p` | edges | i(V) | log₂ i(V) | chi | k tested | CRT primes at chi | `mode="exact"` | `mode="mod2_64"` |
 |--:|--:|--:|--:|--:|--:|--:|--:|--:|
@@ -454,9 +586,11 @@ laptop.*
 - **Small-n batching is not optimised.** Transforms with n < 5 and a large batch
   dispatch fewer than one full simdgroup per tile — correct, not
   bandwidth-optimal, and outside everything benchmarked.
-- **Two statements in §4.3 are conjectures, not theorems**: that the Sylow
-  congruence explains the cofactor's bias toward oddness, and that
-  `v₂(c_χ) ≤ n`. Neither is relied on by the default mode.
+- **One statement in §4.3 is a conjecture, not a theorem**: that the Sylow
+  congruence explains the cofactor's bias toward oddness. It is not relied on
+  by the default mode. A second conjecture, `v₂(c_χ) ≤ n`, was published here
+  and is now **refuted** — see §4.3 for the 8-vertex witness and the exact
+  n ≤ 7 boundary.
 - **This is not a general-purpose colouring solver** — see §4.6 for where it
   wins and where it is useless.
 
@@ -476,6 +610,118 @@ case and the measurement is cheap to repeat:
 3. **The butterfly is 3–24% of the runtime of its own application.** Optimising
    the transform further would have moved almost nothing; the 64-bit modulo in
    the pointwise power was the real cost, and removing it was worth 2.39×.
+4. **The natural bound on `v₂(c_χ)` is not just false, it is badly false.**
+   `v₂(c_χ) ≤ n` holds exhaustively through n = 7, fails at n = 8, and the
+   exact maximum `f(n)` then pulls away fast: f(8) = 10, f(9) = 12, f(10) = 17
+   against n. Extrapolated, it crosses the 64-bit threshold well before n = 29
+   — the opposite of the reassurance the conjecture was published to give.
+   §4.3.
+5. **Sustained copy bandwidth does not decay with working-set size on this
+   machine** — it is flat at 99–103 GB/s from 1 GiB to 10 GiB of live data.
+   The expected explanation for the n = 29 chromatic row being ~40% above its
+   own scaling was that the memory system slows down at large footprints. It
+   does not. What does happen, isolated by holding a ballast array live, is
+   that allocation pressure switches on between 8 and 10 GiB of peak and costs
+   1.16× — on the *same* n = 28 instance, so it has nothing to do with n. That
+   accounts for under half the excess; ~1.20× is still unexplained. §4.4.
+
+### Errors caught, and how
+
+The three above are findings about the hardware; a reader could infer most of
+them from the tables. These are mistakes in this project's own code and
+documents, and they are the half that cannot be inferred from anything here.
+Each is listed with what caught it, because that is the part that transfers.
+
+- **A published number that traced to nothing — in the project whose stated
+  standard is that every value traces to a JSON artifact and a re-runnable
+  command.** §4.3 reported the unforced-valuation distribution over "a
+  156-graph survey, 57 of them disconnected" with shares of 92.3 / 4.5 / 1.9 /
+  0.6 / 0.6%. Both this report and the application README carried it, it was
+  the evidential basis for the residual-risk argument, and it survived review
+  twice. Nothing in the repository produced it: the only survey tracked here
+  was 27 graphs in `tests/chromatic/test_modular.py` with a visibly different
+  distribution, and `chromatic_false_negative.json` records a component search,
+  not a distribution. The number was real once and then outlived its source.
+
+  **What caught it was arithmetic a reader can do in their head:** 92.3% of 156
+  is exactly 144.0, and 4.5% is exactly 7.0 — percentages that clean are
+  computed from integer counts, so the counts existed and were not reported.
+  Publishing counts beside shares would have made the loss obvious immediately.
+
+  That the discipline was stated but not *enforced* is the instructive part,
+  and it is mechanisable, so it is now mechanised:
+  `tests/test_docs_claims.py` walks the tracked Markdown, and (a) every
+  published percentage distribution must carry integer counts that imply those
+  percentages, and (b) the survey figures quoted in prose must match the keys
+  in `chromatic_unforced_survey.json`. The replacement survey is a tracked
+  script with tracked output, and it is stratified — see §4.3 — because the
+  first version of it repeated a subtler form of the same error, inflating the
+  headline with families whose cofactors are odd by theorem.
+
+- **The same mistake twice, and it is worth stating as one lesson:
+  *witnesses from families with closed forms are witnesses about those
+  families.*** Two separate claims in §4.3 were built on evidence drawn from
+  `K_a` repeated and `K_a + E_b`, and both came out too good.
+
+  The unforced-valuation survey was "weighted toward the hard cases", which
+  meant weighted toward those two families — and both have provably odd
+  cofactors, `(a!)^m` giving cofactor 1 and `a!(2^a−1)^b` giving `(2^a−1)^b`.
+  Every such graph contributed a `v₂ = 0` *by theorem*, so the oddness rate was
+  partly a measure of how many cliques were in the survey. Fixed by
+  stratifying, with the two populations named in the script: among graphs with
+  no closed-form cofactor the rate is 83.5%, not 92.3%.
+
+  The conjecture `v₂(c_χ) ≤ n` was published as "verified over the survey and
+  never violated", with K₆₆ (64 of 66) and seven disjoint K₄ (21 of 28) as its
+  tight witnesses — again both closed-form clique families, and again the
+  number was too good. It is false; the smallest counterexample is an ordinary
+  connected 8-vertex graph. A survey whose extremal cases all come from
+  families with closed forms cannot see the extremal cases that do not.
+
+  What caught both: extending the survey to graphs with no closed form. What
+  fixes it going forward: the stratification is a specification in code rather
+  than an adjective in prose, and `f(n)` is now computed exactly rather than
+  conjectured.
+
+- **A correctness bug in the code whose job was to detect correctness failures.**
+  The modular driver folded the mod-2⁶⁴ residue into the "all residues agree"
+  consistency check. A *detected* false negative therefore looked like an
+  inconsistency, and the solver would have aborted on the very instance that
+  demonstrates the failure mode — seven disjoint K₄ at k = 30, where
+  `v₂(c₃₀) = 70`. Caught by the slow test that constructs exactly that instance
+  (`test_false_negative_against_the_real_2_64_modulus`). Prime agreement and
+  false-negative detection are now separate concepts, carried as separate fields
+  — the test asserts `consistent` *and* `mod_2_64_is_false_negative` at once,
+  which the old code could not have represented.
+- **Two claims in the application README contradicted by my own data.** I wrote
+  that the GPU indicator always beats the NumPy `O(2ⁿ)` DP; the DP is faster
+  below n ≈ 15, where the GPU is launch-overhead-bound at a flat 0.18 ms. And I
+  wrote that the early-exit and branchless indicator kernels were within noise;
+  the early exit is worth 3.4× at n = 29. Caught by reading the benchmark JSON
+  against the prose rather than trusting the prose — which is why the numbers
+  now come from the tracked JSON instead of being retyped.
+- **A benchmark artifact that inverted a table.** A 5-sample cap starved the
+  sub-millisecond small-n phases, and the derived phase shares summed to more
+  than 100%. Caught by that impossible total. Sampling is now governed by the
+  time budget, and rows whose phase prefixes fail to nest are flagged rather
+  than silently reported.
+- **A traceability gap I had to go back and close.** The coalescing before/after
+  table in §3.2 originally cited a script that, after the policy change, no
+  longer produced the "before" number — the comparison was real when made but
+  had become unreproducible. Caught by trying to re-run it. The pre-fix plan is
+  now an explicit candidate the script rebuilds, so both rows come from one run.
+- **I reached for a search where a theorem was available.** The `2⁶⁴ | c_χ`
+  question in §4.3 is settled exactly by the free-action lemma. I instead
+  surveyed 287 graphs and extrapolated a ratio that is not constant. The
+  conclusion happened to be right and conservative, but the argument was weak.
+  Caught in review; the search is now a theorem plus a bounded residual.
+- **Three claims corrected in review, all of them mine, all the same error.**
+  The `(2^k−1)ⁿ` tightening is a closed form, not an empirical 10–20%; the
+  forced valuation is per-component and additive, not connected; "no sparse
+  worst case" was true for `G(n,p)` and false in general. In each case I had
+  generalised from the sample I happened to measure. §4.5 exists for the same
+  reason — the density axis was added after it was pointed out that a sweep at
+  fixed `p = 0.5` describes one slice.
 
 ---
 
@@ -483,7 +729,7 @@ case and the measurement is cheap to repeat:
 
 ```sh
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/python -m pytest                    # 1483 fast tests
+.venv/bin/python -m pytest                    # 1523 fast tests
 .venv/bin/python -m pytest -m slow            # 11 multi-GiB tests
 
 # kernel
@@ -495,6 +741,11 @@ python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python bench/chromatic/bench.py                 --out bench/results/chromatic.json
 .venv/bin/python bench/chromatic/modmul.py                --out bench/results/chromatic_modmul.json
 .venv/bin/python bench/chromatic/false_negative_search.py
+.venv/bin/python bench/chromatic/unforced_survey.py      --out bench/results/chromatic_unforced_survey.json
+.venv/bin/python bench/chromatic/v2_conjecture_search.py --out bench/results/chromatic_v2_conjecture.json
+.venv/bin/python bench/chromatic/memory_pressure.py      --out bench/results/chromatic_memory_pressure.json
+brew install nauty   # geng, for the f(n) table only
+.venv/bin/python bench/chromatic/max_v2_table.py --max-n 10 --out bench/results/chromatic_max_v2.json  # ~45 min at n=10
 .venv/bin/python bench/chromatic/density.py --out bench/results/chromatic_density.json
 
 # figures in this report (isolated env; they read only the JSON in data/)
@@ -503,10 +754,14 @@ cd docs/figures && uv run --no-project --with matplotlib --with numpy python ker
 
 The figure scripts read the tracked benchmark output in `bench/results/`
 directly, so there is one copy of each result in the repository rather than two
-that can drift. A self-contained snapshot (report, figures and a frozen copy of
-the JSON) also exists outside the repository as a project artifact.
+that can drift. Everything this report cites — the JSON, the figure scripts and
+the figures themselves — is tracked here; there is nothing to request.
 
-**Provenance.** Repository `main` at `c1d4437`. MLX 0.32.2, pinned in
+**Provenance.** All measurements in this report were taken at `c1d4437`.
+No executable code has changed since: `git diff c1d4437..HEAD -- yates/ apps/
+bench/` touches documentation only, so the numbers describe the current tree.
+The test count above is current and therefore higher than it was at `c1d4437`.
+MLX 0.32.2, pinned in
 [`requirements.txt`](../requirements.txt). Apple M4 GPU (`applegpu_g16g`), SIMD width 32
 measured in-kernel, 32768 B threadgroup memory, 11.84 GiB recommended working
 set. No thermal or performance warning was recorded by macOS during any run.

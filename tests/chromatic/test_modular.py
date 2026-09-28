@@ -326,19 +326,60 @@ def test_first_clique_defeating_2_64_is_k_66():
     assert ch.first_clique_defeating_modulus(16) == 18
 
 
+def _forced_leaderboard(n: int):
+    """Every (m, chi) with m*chi <= n, ranked by the forced part m*v2(chi!)."""
+    return sorted(((m * ch.two_adic_valuation_factorial(chi), m, chi)
+                   for chi in range(1, n + 1)
+                   for m in range(1, n // chi + 1)),
+                  reverse=True)
+
+
 def test_forced_part_cannot_reach_64_within_the_memory_ceiling():
     """The sharp replacement for the old 287-graph search.
 
     A component attaining chi needs at least chi vertices, so m*chi <= n and
-    the forced part is at most max_{m*chi<=n} m*v2(chi!).  Allowing
-    disconnected graphs does *not* raise it above the connected value here.
+    the forced part is at most max_{m*chi<=n} m*v2(chi!).
     """
     ceiling = ch.max_feasible_n()
     assert ceiling == 29
     assert ch.max_forced_valuation_within(ceiling) == 25
-    assert max(ch.two_adic_valuation_factorial(chi)
-               for chi in range(ceiling + 1)) == 25
     assert 64 - 25 == 39
+
+
+@pytest.mark.parametrize("n", range(1, 30))
+def test_disconnected_graphs_never_raise_the_forced_bound(n):
+    """"Allowing disconnected graphs does not raise it" is load-bearing for 25.
+
+    The search space is tiny, so enumerate it rather than assert it: for every
+    n <= 29 the maximum of m*v2(chi!) over m*chi <= n is attained at m = 1,
+    i.e. by a connected graph.  Multiplicity never buys back what the smaller
+    chi gives up.
+    """
+    best = _forced_leaderboard(n)[0][0]
+    connected_best = max(ch.two_adic_valuation_factorial(chi)
+                         for chi in range(1, n + 1))
+    assert best == connected_best
+    assert best == ch.max_forced_valuation_within(n)
+    assert any(m == 1 for score, m, _ in _forced_leaderboard(n) if score == best)
+
+
+def test_forced_bound_runners_up_at_the_ceiling():
+    """The margin at n = 29, because "does not raise it" is true but not obvious.
+
+    The disconnected runners-up come within 3 of the connected optimum, so the
+    claim is not a comfortable one and the numbers belong in a test.
+    """
+    board = _forced_leaderboard(29)
+    assert board[0][0] == 25
+    assert {(m, chi) for score, m, chi in board if score == 25} == {(1, 29), (1, 28)}
+
+    best_by_m = {}
+    for score, m, chi in board:
+        best_by_m.setdefault(m, (score, chi))
+    assert best_by_m[1][0] == 25          # connected
+    assert best_by_m[2] == (22, 14)       # two components, chi = 14
+    assert best_by_m[7] == (21, 4)        # seven disjoint K_4
+    assert all(score < 25 for m, (score, _) in best_by_m.items() if m > 1)
 
 
 @pytest.mark.parametrize("g", CONNECTED + DISCONNECTED,
@@ -359,16 +400,51 @@ def test_unordered_cofactor_valuation_is_small_per_component(g):
         "survey; that would weaken the residual-risk argument")
 
 
+#: The smallest graph with v2(c_chi) > n, as an explicit edge list.  Found by
+#: bench/chromatic/unforced_survey.py and located exactly by
+#: bench/chromatic/v2_conjecture_search.py.
+V2_COUNTEREXAMPLE_EDGES = [(0, 4), (0, 5), (1, 2), (1, 5), (1, 7), (2, 3),
+                           (2, 5), (2, 6), (2, 7), (3, 5), (3, 6), (4, 6),
+                           (5, 7), (6, 7)]
+
+
+def test_v2_of_c_chi_can_exceed_n():
+    """`v2(c_chi) <= n` was published as a conjecture here.  It is FALSE.
+
+    This connected 8-vertex graph has chi = 4 and c_chi = 1536 = 2^9 * 3, so
+    v2 = 9 > 8 = n.  Small enough to check by hand.
+
+    The bound does hold exhaustively for every labeled graph on n <= 7 -- all
+    2097152 of them at n = 7, where it is attained with equality but never
+    exceeded -- so 8 is the smallest n at which it fails.  That boundary is
+    established by bench/chromatic/v2_conjecture_search.py.
+
+    Nothing in the solver relies on the conjecture: the default mode is CRT and
+    unconditional.  The test exists so the refutation cannot be quietly lost
+    again, the way the claim itself was quietly published.
+    """
+    g = ch.from_edges(8, V2_COUNTEREXAMPLE_EDGES)
+    chi = ch.chromatic_number(g, mode="exact").chromatic_number
+    c = ch.c_k_exact_reference(g, chi)
+
+    assert chi == 4
+    assert c == 1536 == 2 ** 9 * 3
+    assert v2(c) == 9
+    assert v2(c) > g.n, "the counterexample no longer refutes v2(c_chi) <= n"
+    assert len(ch.connected_components(g)) == 1, "and it is connected"
+
+
 @pytest.mark.parametrize("g", CONNECTED + DISCONNECTED,
                          ids=lambda g: f"{g.name}_n{g.n}")
-def test_v2_of_c_chi_never_exceeds_n(g):
-    """Conjecture, not a theorem: v2(c_chi) <= n.
+def test_v2_of_c_chi_stays_far_below_the_64_bit_threshold(g):
+    """What actually matters, now that v2(c_chi) <= n is refuted.
 
-    Witnesses at the boundary are K_66 (64 of 66) and seven disjoint K_4
-    (21 of 28).  Verified exhaustively only over this survey.
+    The residual-risk argument needs 39 unforced bits, not a bound of n.  The
+    survey's largest observed v2(c_chi) is nowhere near that, and this test
+    fails loudly if some family changes that.
     """
     chi = ch.chromatic_number(g, mode="exact").chromatic_number
-    assert v2(ch.c_k_exact_reference(g, chi)) <= g.n
+    assert v2(ch.c_k_exact_reference(g, chi)) <= 2 * g.n + 8
 
 
 def test_v2_conjecture_witnesses():

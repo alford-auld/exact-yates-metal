@@ -24,8 +24,9 @@ One kernel, four butterfly constants.
 
 **Three MLX / Metal platform bugs** were found and pinned in the process,
 including `metal::simd_shuffle_xor` silently corrupting 64-bit operands on
-`applegpu_g16g`. See [*Platform findings*](#platform-findings) — each has a
-test that fails loudly if a future release changes the behaviour.
+`applegpu_g16g`. See [*Platform findings*](#platform-findings) — each is
+pinned by a test that warns if a future release fixes it, so the workaround can
+be deleted when it stops being needed.
 
 ## The generator matrices
 
@@ -172,9 +173,29 @@ has a test that pins it and *warns* if a future release fixes it.
    Batching needs no `vmap`: the transform already handles every leading axis in
    one launch.
 
-A fourth, relevant to benchmarking: `mx.contiguous()` on a prefix slice is a
-real device copy in MLX 0.32.2, not a no-op. The benchmark materialises its
-inputs outside the timed region; doing otherwise halves every reported bandwidth.
+A fourth thing worth knowing, **not a bug**: `mx.contiguous()` on an
+already-contiguous prefix slice is often a real device copy. That is deliberate.
+`Contiguous::eval_gpu`/`eval_cpu` let the output alias the input only when the
+parent buffer is at most **16 KiB** larger than the view, so that a small slice
+can release a large parent allocation ([MLX PR #1270][pr1270]). The rule is
+about buffer *size*, not offset:
+
+| view of a 256 MiB array | parent slack | result |
+|---|--:|---|
+| `base[:N-4096]` | 16 KiB | aliased, ~23 µs |
+| `base[:N-4097]` | 16 KiB + 4 B | full copy, ~5.4 ms |
+| `base[1:]` | 4 B | aliased |
+
+The practical consequences: the benchmark materialises its inputs outside the
+timed region, because charging that copy to the kernel under test halves every
+reported bandwidth; and the right defensive check before a kernel is MLX's
+row-contiguous flag — which `mx.fast.metal_kernel(ensure_row_contiguous=True)`
+already applies — rather than a blanket `mx.contiguous()`. The threshold is
+pinned by `tests/test_platform_contracts.py::test_contiguous_copies_a_contiguous_slice_past_16_kib_of_slack`,
+which warns if it moves. The only fair criticism here is of the docstring,
+which says "Copy if necessary" and never mentions the buffer-size rule.
+
+[pr1270]: https://github.com/ml-explore/mlx/pull/1270
 
 ## Implementation
 
