@@ -167,6 +167,14 @@ def main() -> int:
             "n": n, "num_edges": g.num_edges, "chi": r.chromatic_number,
             "i_of_V": i_v, "lower": lo, "upper": hi, "k_tested": num_k,
             "primes_per_k_at_chi": primes_per_k,
+            # the chi-only prime count above is NOT the work done: the search
+            # also evaluates other k, each with its own prime count.  The sum
+            # over tested k is the number of pointwise-power evaluations, which
+            # is what the runtime is actually proportional to.
+            "power_units": sum(ch.primes_needed_for_exact(i_v, k)
+                               for k in sorted(r.tested)),
+            "primes_by_k": {str(k): ch.primes_needed_for_exact(i_v, k)
+                            for k in sorted(r.tested)},
             "bytes": (1 << n) * ch.BYTES_PER_SUBSET,
             "indicator_direct_s": indicator_s,
             "indicator_branchless_s": t_ind_bl.sustained_s,

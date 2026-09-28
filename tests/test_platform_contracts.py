@@ -166,3 +166,72 @@ def test_negative_template_integers_still_break_mlx_codegen():
     warnings.warn(
         "MLX now accepts negative template integers; yates.kernel.encode_matrix "
         "could pass matrix entries directly.", stacklevel=1)
+
+
+# --------------------------------------------------------------------------
+# NOT A BUG: mx.contiguous copies an already-contiguous slice by design
+# --------------------------------------------------------------------------
+
+#: ``Contiguous::eval_gpu``/``eval_cpu`` let the output share the input buffer
+#: only when the parent is at most this many bytes larger than the slice, so a
+#: small view can release a large parent allocation (MLX PR #1270).  A
+#: contiguous slice with more slack than this is copied on purpose.
+CONTIGUOUS_SLACK_BYTES = 16384
+
+
+def _contiguous_allocates(make_view):
+    """True if mx.contiguous(view) allocated a new buffer rather than aliasing.
+
+    Measured by active-memory delta rather than by timing: an alias costs
+    nothing, a copy costs the view's full size.  ``nbytes`` cannot be used --
+    it reports the logical view size either way.
+    """
+    n = (16 << 20) // 4                      # 16 MiB of uint32
+    base = mx.zeros((n,), dtype=mx.uint32)
+    mx.eval(base)
+    view = make_view(base, n)
+    mx.eval(view)
+    before = mx.get_active_memory()
+    out = mx.contiguous(view)
+    mx.eval(out)
+    return (mx.get_active_memory() - before) > view.nbytes // 2
+
+
+@pytest.mark.parametrize("slack_elems, expect_copy", [(4096, False), (4097, True)])
+def test_contiguous_copies_a_contiguous_slice_past_16_kib_of_slack(
+        slack_elems, expect_copy):
+    """The benchmark's materialisation step depends on this exact threshold.
+
+    `bench/bench.py` materialises its inputs *outside* the timed region because
+    `mx.contiguous()` on a prefix slice is a real device copy whenever the
+    parent buffer has more than 16 KiB of slack.  That is intended MLX
+    behaviour, not a defect: it lets a small slice release a large parent
+    buffer.  But it means a view that looks free is not, so if the threshold
+    ever moves, the benchmark would silently start charging a copy to the
+    kernel under test and halve every reported bandwidth.
+    """
+    slack_bytes = slack_elems * 4
+    assert (slack_bytes > CONTIGUOUS_SLACK_BYTES) == expect_copy, \
+        "test parametrisation disagrees with the documented threshold"
+
+    copied = _contiguous_allocates(lambda b, n: b[: n - slack_elems])
+    if copied != expect_copy:
+        warnings.warn(
+            f"mx.contiguous slack threshold moved: a slice with {slack_bytes} B "
+            f"of slack {'copied' if copied else 'aliased'}, expected "
+            f"{'copy' if expect_copy else 'alias'}. Re-check "
+            f"CONTIGUOUS_SLACK_BYTES and bench/bench.py's materialisation.",
+            stacklevel=2,
+        )
+
+
+def test_contiguous_is_free_for_an_offset_slice_with_little_slack():
+    """The rule is about buffer *size*, not about the offset being zero.
+
+    `base[1:]` is offset by one element and still aliases, because the parent
+    is only 4 bytes larger than the view.  This is why the right defensive
+    check before a kernel is MLX's own row-contiguous flag — which
+    `mx.fast.metal_kernel(ensure_row_contiguous=True)` applies internally — and
+    not a blanket `mx.contiguous()` call.
+    """
+    assert not _contiguous_allocates(lambda b, n: b[1:])

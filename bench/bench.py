@@ -68,9 +68,12 @@ class InputPool:
         """A standalone, materialised, row-contiguous (batch, 2^n) array.
 
         The materialisation must happen here rather than inside the timed
-        region: mx.contiguous() on a prefix slice is a real device copy in MLX
-        0.32.2 (measured), which would otherwise be charged to the kernel under
-        test and halve every reported bandwidth.
+        region.  mx.contiguous() on an already-contiguous prefix slice is a real
+        device copy whenever the parent buffer has more than 16 KiB of slack --
+        intended MLX behaviour (PR #1270), so that a small slice can release a
+        large parent allocation, not a bug.  Charging that copy to the kernel
+        under test would halve every reported bandwidth.  The threshold is
+        pinned by tests/test_platform_contracts.py.
         """
         total = min(max(1 << n, min_elems), self.base.size)
         total = (total >> n) << n              # whole rows only

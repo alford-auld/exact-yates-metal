@@ -1,0 +1,125 @@
+{
+ "schema": 1,
+ "command": "python bench/chromatic/v2_conjecture_search.py",
+ "conjecture": "v2(c_chi) <= n",
+ "refuted": true,
+ "holds_exhaustively_through_n": 7,
+ "smallest_counterexample_n": 8,
+ "counterexample": {
+  "n": 8,
+  "edges": [
+   [
+    0,
+    4
+   ],
+   [
+    0,
+    5
+   ],
+   [
+    1,
+    2
+   ],
+   [
+    1,
+    5
+   ],
+   [
+    1,
+    7
+   ],
+   [
+    2,
+    3
+   ],
+   [
+    2,
+    5
+   ],
+   [
+    2,
+    6
+   ],
+   [
+    2,
+    7
+   ],
+   [
+    3,
+    5
+   ],
+   [
+    3,
+    6
+   ],
+   [
+    4,
+    6
+   ],
+   [
+    5,
+    7
+   ],
+   [
+    6,
+    7
+   ]
+  ],
+  "chi": 4,
+  "c_chi": 1536,
+  "v2": 9,
+  "exceeds_n_by": 1
+ },
+ "exhaustive": {
+  "3": {
+   "graphs": 8,
+   "max_v2_minus_n": -2,
+   "witness": {
+    "bits": 1,
+    "chi": 2,
+    "c_chi": 6,
+    "v2": 1
+   }
+  },
+  "4": {
+   "graphs": 64,
+   "max_v2_minus_n": -1,
+   "witness": {
+    "bits": 63,
+    "chi": 4,
+    "c_chi": 24,
+    "v2": 3
+   }
+  },
+  "5": {
+   "graphs": 1024,
+   "max_v2_minus_n": -2,
+   "witness": {
+    "bits": 183,
+    "chi": 4,
+    "c_chi": 360,
+    "v2": 3
+   }
+  },
+  "6": {
+   "graphs": 32768,
+   "max_v2_minus_n": -1,
+   "witness": {
+    "bits": 956,
+    "chi": 3,
+    "c_chi": 96,
+    "v2": 5
+   }
+  },
+  "7": {
+   "graphs": 2097152,
+   "max_v2_minus_n": 0,
+   "witness": {
+    "bits": 61247,
+    "chi": 4,
+    "c_chi": 384,
+    "v2": 7
+   }
+  }
+ }
+}

@@ -1,0 +1,1829 @@
+{
+ "schema": 2,
+ "command": "python bench/chromatic/unforced_survey.py",
+ "closed_form": {
+  "graphs": 55,
+  "distribution": {
+   "0": 55
+  },
+  "all_cofactors_odd": true,
+  "closed_form_mismatches": []
+ },
+ "evidence": {
+  "graphs": 139,
+  "distribution": {
+   "0": 116,
+   "1": 10,
+   "2": 5,
+   "3": 3,
+   "4": 2,
+   "5": 2,
+   "8": 1
+  },
+  "odd_rate": 0.8345323741007195,
+  "max_unforced": 8
+ },
+ "rows": [
+  {
+   "stratum": "closed_form",
+   "family": "K_1 x 2",
+   "n": 2,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_1 x 3",
+   "n": 3,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_1 x 4",
+   "n": 4,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 x 1",
+   "n": 2,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 x 2",
+   "n": 4,
+   "chi": 2,
+   "v2_c_chi": 2,
+   "forced": 2,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 x 3",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 x 4",
+   "n": 8,
+   "chi": 2,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 x 1",
+   "n": 3,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 x 2",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 2,
+   "forced": 2,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 x 3",
+   "n": 9,
+   "chi": 3,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_4 x 1",
+   "n": 4,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_4 x 2",
+   "n": 8,
+   "chi": 4,
+   "v2_c_chi": 6,
+   "forced": 6,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_5 x 1",
+   "n": 5,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_5 x 2",
+   "n": 10,
+   "chi": 5,
+   "v2_c_chi": 6,
+   "forced": 6,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_6 x 1",
+   "n": 6,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_7 x 1",
+   "n": 7,
+   "chi": 7,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_1 + E_1",
+   "n": 2,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_1 + E_2",
+   "n": 3,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_1 + E_3",
+   "n": 4,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_1 + E_4",
+   "n": 5,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_1 + E_5",
+   "n": 6,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_1 + E_6",
+   "n": 7,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_1 + E_7",
+   "n": 8,
+   "chi": 1,
+   "v2_c_chi": 0,
+   "forced": 0,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 + E_1",
+   "n": 3,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 + E_2",
+   "n": 4,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 + E_3",
+   "n": 5,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 + E_4",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 + E_5",
+   "n": 7,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 + E_6",
+   "n": 8,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_2 + E_7",
+   "n": 9,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 + E_1",
+   "n": 4,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 + E_2",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 + E_3",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 + E_4",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 + E_5",
+   "n": 8,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 + E_6",
+   "n": 9,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_3 + E_7",
+   "n": 10,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_4 + E_1",
+   "n": 5,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_4 + E_2",
+   "n": 6,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_4 + E_3",
+   "n": 7,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_4 + E_4",
+   "n": 8,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_4 + E_5",
+   "n": 9,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_4 + E_6",
+   "n": 10,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_5 + E_1",
+   "n": 6,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_5 + E_2",
+   "n": 7,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_5 + E_3",
+   "n": 8,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_5 + E_4",
+   "n": 9,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_5 + E_5",
+   "n": 10,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_6 + E_1",
+   "n": 7,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_6 + E_2",
+   "n": 8,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_6 + E_3",
+   "n": 9,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_6 + E_4",
+   "n": 10,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_7 + E_1",
+   "n": 8,
+   "chi": 7,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_7 + E_2",
+   "n": 9,
+   "chi": 7,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "closed_form",
+   "family": "K_7 + E_3",
+   "n": 10,
+   "chi": 7,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0,
+   "closed_form_matches": true
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_3",
+   "n": 3,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_4",
+   "n": 4,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_5",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 2,
+   "forced": 1,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_6",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_7",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 2,
+   "forced": 1,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_8",
+   "n": 8,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_9",
+   "n": 9,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_2",
+   "n": 2,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_3",
+   "n": 3,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_4",
+   "n": 4,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_5",
+   "n": 5,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_6",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_7",
+   "n": 7,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_8",
+   "n": 8,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_9",
+   "n": 9,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "Turan(6,2)",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "Turan(6,3)",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "Turan(7,3)",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "Turan(8,3)",
+   "n": 8,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "Turan(8,4)",
+   "n": 8,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "Turan(9,3)",
+   "n": 9,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "Turan(9,4)",
+   "n": 9,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "Turan(10,4)",
+   "n": 10,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_1,1",
+   "n": 2,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_1,2",
+   "n": 3,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_1,3",
+   "n": 4,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_1,4",
+   "n": 5,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_1,5",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_1,6",
+   "n": 7,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_2,2",
+   "n": 4,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_2,3",
+   "n": 5,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_2,4",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_2,5",
+   "n": 7,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_2,6",
+   "n": 8,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_3,3",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_3,4",
+   "n": 7,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_3,5",
+   "n": 8,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_3,6",
+   "n": 9,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_4,4",
+   "n": 8,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_4,5",
+   "n": 9,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_4,6",
+   "n": 10,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "K_5,5",
+   "n": 10,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "Petersen",
+   "n": 10,
+   "chi": 3,
+   "v2_c_chi": 2,
+   "forced": 1,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "Grotzsch",
+   "n": 11,
+   "chi": 4,
+   "v2_c_chi": 5,
+   "forced": 3,
+   "unforced": 2
+  },
+  {
+   "stratum": "evidence",
+   "family": "Chvatal",
+   "n": 12,
+   "chi": 4,
+   "v2_c_chi": 6,
+   "forced": 3,
+   "unforced": 3
+  },
+  {
+   "stratum": "evidence",
+   "family": "M_3",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 2,
+   "forced": 1,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "M_4",
+   "n": 11,
+   "chi": 4,
+   "v2_c_chi": 5,
+   "forced": 3,
+   "unforced": 2
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_5+K_2",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 4,
+   "forced": 1,
+   "unforced": 3
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_4+K_2",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 2,
+   "forced": 2,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_4+C_4",
+   "n": 8,
+   "chi": 2,
+   "v2_c_chi": 2,
+   "forced": 2,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_5+K_3",
+   "n": 8,
+   "chi": 3,
+   "v2_c_chi": 3,
+   "forced": 2,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_4+K_3",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 4,
+   "forced": 1,
+   "unforced": 3
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_4+C_5",
+   "n": 9,
+   "chi": 3,
+   "v2_c_chi": 6,
+   "forced": 1,
+   "unforced": 5
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_5+K_4",
+   "n": 9,
+   "chi": 4,
+   "v2_c_chi": 7,
+   "forced": 3,
+   "unforced": 4
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_4+K_4",
+   "n": 8,
+   "chi": 4,
+   "v2_c_chi": 4,
+   "forced": 3,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_4+C_6",
+   "n": 10,
+   "chi": 2,
+   "v2_c_chi": 2,
+   "forced": 2,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_5+K_5",
+   "n": 10,
+   "chi": 5,
+   "v2_c_chi": 5,
+   "forced": 3,
+   "unforced": 2
+  },
+  {
+   "stratum": "evidence",
+   "family": "P_4+K_5",
+   "n": 9,
+   "chi": 5,
+   "v2_c_chi": 7,
+   "forced": 3,
+   "unforced": 4
+  },
+  {
+   "stratum": "evidence",
+   "family": "C_4+C_7",
+   "n": 11,
+   "chi": 3,
+   "v2_c_chi": 6,
+   "forced": 1,
+   "unforced": 5
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.2)#905",
+   "n": 5,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.2)#1705",
+   "n": 5,
+   "chi": 2,
+   "v2_c_chi": 2,
+   "forced": 2,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.3)#905",
+   "n": 5,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.3)#1705",
+   "n": 5,
+   "chi": 2,
+   "v2_c_chi": 2,
+   "forced": 2,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.4)#905",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.4)#1705",
+   "n": 5,
+   "chi": 2,
+   "v2_c_chi": 2,
+   "forced": 2,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.5)#905",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.5)#1705",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.6)#905",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.6)#1705",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.7)#905",
+   "n": 5,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.7)#1705",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.8)#905",
+   "n": 5,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.8)#1705",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.9)#905",
+   "n": 5,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(5,0.9)#1705",
+   "n": 5,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.2)#906",
+   "n": 6,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.2)#1706",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.3)#906",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.3)#1706",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.4)#906",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 2,
+   "forced": 1,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.4)#1706",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.5)#906",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.5)#1706",
+   "n": 6,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.6)#906",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.6)#1706",
+   "n": 6,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.7)#906",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.7)#1706",
+   "n": 6,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.8)#906",
+   "n": 6,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.8)#1706",
+   "n": 6,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.9)#906",
+   "n": 6,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(6,0.9)#1706",
+   "n": 6,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.2)#907",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.2)#1707",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.3)#907",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.3)#1707",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.4)#907",
+   "n": 7,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.4)#1707",
+   "n": 7,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.5)#907",
+   "n": 7,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.5)#1707",
+   "n": 7,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.6)#907",
+   "n": 7,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.6)#1707",
+   "n": 7,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.7)#907",
+   "n": 7,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.7)#1707",
+   "n": 7,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.8)#907",
+   "n": 7,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.8)#1707",
+   "n": 7,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.9)#907",
+   "n": 7,
+   "chi": 7,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(7,0.9)#1707",
+   "n": 7,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.2)#908",
+   "n": 8,
+   "chi": 2,
+   "v2_c_chi": 2,
+   "forced": 2,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.2)#1708",
+   "n": 8,
+   "chi": 3,
+   "v2_c_chi": 2,
+   "forced": 1,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.3)#908",
+   "n": 8,
+   "chi": 3,
+   "v2_c_chi": 2,
+   "forced": 1,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.3)#1708",
+   "n": 8,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.4)#908",
+   "n": 8,
+   "chi": 3,
+   "v2_c_chi": 3,
+   "forced": 1,
+   "unforced": 2
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.4)#1708",
+   "n": 8,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.5)#908",
+   "n": 8,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.5)#1708",
+   "n": 8,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.6)#908",
+   "n": 8,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.6)#1708",
+   "n": 8,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.7)#908",
+   "n": 8,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.7)#1708",
+   "n": 8,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.8)#908",
+   "n": 8,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.8)#1708",
+   "n": 8,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.9)#908",
+   "n": 8,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(8,0.9)#1708",
+   "n": 8,
+   "chi": 7,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.2)#909",
+   "n": 9,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.2)#1709",
+   "n": 9,
+   "chi": 3,
+   "v2_c_chi": 3,
+   "forced": 1,
+   "unforced": 2
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.3)#909",
+   "n": 9,
+   "chi": 2,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.3)#1709",
+   "n": 9,
+   "chi": 4,
+   "v2_c_chi": 11,
+   "forced": 3,
+   "unforced": 8
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.4)#909",
+   "n": 9,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.4)#1709",
+   "n": 9,
+   "chi": 4,
+   "v2_c_chi": 4,
+   "forced": 3,
+   "unforced": 1
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.5)#909",
+   "n": 9,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.5)#1709",
+   "n": 9,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.6)#909",
+   "n": 9,
+   "chi": 3,
+   "v2_c_chi": 1,
+   "forced": 1,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.6)#1709",
+   "n": 9,
+   "chi": 5,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.7)#909",
+   "n": 9,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.7)#1709",
+   "n": 9,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.8)#909",
+   "n": 9,
+   "chi": 4,
+   "v2_c_chi": 3,
+   "forced": 3,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.8)#1709",
+   "n": 9,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.9)#909",
+   "n": 9,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  },
+  {
+   "stratum": "evidence",
+   "family": "G(9,0.9)#1709",
+   "n": 9,
+   "chi": 6,
+   "v2_c_chi": 4,
+   "forced": 4,
+   "unforced": 0
+  }
+ ]
+}
