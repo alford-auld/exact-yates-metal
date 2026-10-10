@@ -163,7 +163,11 @@ has a test that pins it and *warns* if a future release fixes it.
 2. **MLX pastes template integers into the generated Metal identifier.** A
    negative value emits `custom_kernel_..._-1_...`, which is not a valid C++
    name, and the library fails to build. Matrix entries are therefore carried as
-   `(sign, magnitude)` pairs of non-negative template integers.
+   `(sign, magnitude)` pairs of non-negative template integers. Reported as
+   [ml-explore/mlx#4579](https://github.com/ml-explore/mlx/issues/4579) and
+   fixed upstream by [#4584](https://github.com/ml-explore/mlx/pull/4584)
+   (merged 2026-10-02, after 0.32.3); the encoding stays until a release that
+   includes the fix is pinned.
 3. **`custom_function` `.jvp` and `.vmap` rules are bypassed for kernel bodies.**
    When the wrapped function contains a `CustomKernel` primitive, MLX consults
    the registered `.vjp` rule but descends into the kernel for the other two,
