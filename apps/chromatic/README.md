@@ -19,9 +19,10 @@ does a single reduction.
 
 **One subset-zeta over the whole cube, for the entire computation.** It does not
 depend on `k` or on the modulus, so it is computed once and shared. Each
-candidate `k` then costs one pointwise power and one reduction. `O*(2^n)` time
-and `O(2^n)` space for every graph, with no search and no dependence on instance
-hardness.
+candidate `k` then costs a pointwise power and a reduction per modulus.
+The algorithm uses `O*(2^n)` time and `O(2^n)` space for every graph, without
+backtracking over colourings. Actual time varies with the candidate `k` values,
+CRT moduli and graph-dependent early exits.
 
 ## The exactness contract
 
@@ -342,18 +343,19 @@ primes for CRT reports an unconditional answer, and says so.
 
 This is `O*(2^n)` for **every** graph. That cuts both ways:
 
-- **Where it wins:** small, dense, hard instances — the ones where
-  branch-and-bound blows up. Runtime depends only on `n`, never on how hard the
-  instance is. Triangle-free graphs with large chromatic number (the
-  Mycielskians) are trivial for it and adversarial for every clique-based bound.
+- **Where it may help:** small instances where backtracking over colourings is
+  expensive. The subset-lattice work has an `O*(2^n)` bound for every graph.
+  Actual runtime also depends on the indicator's early exits, the colour
+  bounds, candidate `k` values, and CRT prime counts. No comparative benchmark
+  against specialised colouring solvers is provided.
 - **Where it is useless:** the large sparse DIMACS benchmarks. Specialised
   branch-and-bound colouring solvers handle hundreds of vertices there; this
-  cannot handle 40, ever, on any machine. `2^40` uint32 words is 4 TiB.
+  cannot handle 40 on this laptop. `2^40` uint32 words alone is 4 TiB.
 
 **This is not competitive with colouring solvers in general and is not offered
-as such.** The claim made and supported here is narrower: *exact chromatic
-number for arbitrary graphs up to roughly 28 vertices, in time that depends only
-on `n`, on a passively cooled laptop.*
+as such.** It implements an exact algorithm for arbitrary graphs that fit in
+memory. The recorded benchmarks include instances up to 29 vertices on a
+passively cooled laptop, with timing specific to each instance.
 
 The memory ceiling is detected at runtime, not hardcoded, and oversized inputs
 are refused with a message rather than thrashing.
@@ -440,9 +442,11 @@ structural and one measured:
 ## Measured performance
 
 Every number here was measured on this machine and is reproducible with a command
-in `bench/chromatic/`. The headline: **an arbitrary 29-vertex graph
-(6 GiB of subset state, the detected memory ceiling) takes 1531 ms end to end**,
-and a 28-vertex one takes 544 ms — regardless of how hard the instance is.
+in `bench/chromatic/`. The measured **`G(29, 0.5)` instance, seed 7, takes
+1531 ms end to end** (6 GiB of subset state, the detected memory ceiling).
+It has 193 edges and χ = 7; the search tests `k = 6, 7` with three CRT primes
+each. The measured 28-vertex instance takes 544 ms. These are instance-specific
+timings, not a runtime guarantee for every graph of that size.
 
 Both figures are `mode="exact"` — unconditional, CRT-reconstructed — on a
 `G(n, 0.5)` instance, which at n = 29 needs **3 CRT primes** per candidate `k`.
@@ -455,10 +459,9 @@ dense. At n = 26 a `G(26, 0.5)` takes 117 ms with 2 primes, while
 **Two measured results that went against expectation**, both detailed below and
 worth stating up front because the natural guess is wrong in each case:
 
-- **The worst case for exact mode is not the densest graph, and is not reachable
-  by `G(n,p)` at all.** Cost scales with `chi · log2 i(V)`, and within `G(n,p)`
-  that product is self-limiting — the whole density sweep stays at 2–3 primes
-  and spans only 2.7× in wall clock. The extremum is *heterogeneous*:
+- **Dense graphs alone do not expose the cost of exact mode.** The CRT bound
+  scales with `k · log2 i(V)`. The measured random-graph density sweep stays at 2–3 primes
+  and spans 2.7× in wall clock. A family with larger bounds is *heterogeneous*:
   `K_a + E_b` drives the product to `Θ(n²)` near `a ≈ n/2` and needs 8 primes
   where `G(n,0.5)` needs 2. [Cost against density](#cost-against-density-at-fixed-n)
 - **The early exit beats the branchless kernel by 3.4× at n = 29**, despite the
@@ -635,18 +638,19 @@ case is sparse, dense or in between is empirical, so here it is, at n = 26
 | 0.70 | 222 | 236 | 7 | 9 | 2 | 3 | 170 ms | 47 ms |
 | 0.90 | 295 | 61 | 5 | 15 | 1 | 3 | 96 ms | 34 ms |
 
-**Within `G(n, p)` the prime count never leaves 2–3, and the whole density range
+**In the measured `G(n, p)` sweep the prime count stays at 2–3, and the density range
 spans only 2.7x in wall clock.** The product `chi · log2 i(V)` stays between 40
 and 75 bits, and it is self-limiting *for random graphs*: `alpha ~ 2 log_b n`
 gives `chi ~ n / (2 log_b n)` and `log2 i(V) = Theta(log^2 n)`, so the product is
 `Theta(n log n)` rather than the naive `Theta(n^2)`.
 
-**That reasoning does not extend to all graphs, and the extremum is outside
-`G(n,p)`.** What drives the product up is *heterogeneity*, not density. For a
+**That typical-case reasoning does not extend to all graphs.** A family that
+drives the product up is *heterogeneous*: for a
 clique beside an independent set, `G = K_a + E_b` with `n = a + b`, we have
 `chi = a` and `i(V) = (a+1)·2^b`, so `chi · log2 i(V) ≈ a(log2(a+1) + b)` is
-`Theta(n^2)` near `a ≈ n/2`. `G(26, 0.5)` produces such a graph with probability
-zero for practical purposes, so the sweep above cannot reach it:
+`Theta(n^2)` near `a ≈ n/2`. Such graphs have positive probability under
+`G(26, 0.5)`, but are not represented by the small sample above. We measure the
+family separately:
 
 | `a` (so `b = 26 − a`) | i(V) | log₂ i(V) | chi | bound bits | CRT primes | `mode="exact"` |
 |--:|--:|--:|--:|--:|--:|--:|
@@ -659,7 +663,7 @@ zero for practical purposes, so the sweep above cannot reach it:
 | 20 | 1,344 | 10 | 20 | 207 | 7 | 202 ms |
 | 24 | 100 | 6 | 24 | 159 | 6 | 179 ms |
 
-**Eight primes, against two or three for every `G(n,p)`** — and the slot bound
+**Eight primes, against two or three in the random-graph sample** — and the slot bound
 does not rescue it (338 bits at `a = 13`, worse than the 218 it replaces). The
 cost is still only 227 ms, so there is no practical harm, but the headline has
 to name the family and not just the density.

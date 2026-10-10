@@ -10,9 +10,10 @@ superset zeta and Möbius transforms, and the polar-code kernel. Second, an
 application that uses it to compute **exact chromatic numbers** by
 Björklund–Husfeldt–Koivisto inclusion–exclusion.
 
-Everything below was measured on the machine named above. Nothing is a vendor
-figure, an estimate, or a remembered number; every value traces to a JSON
-artifact in `data/` and a re-runnable command.
+Benchmark results below were measured on the machine named above and cite JSON
+artifacts in `bench/results/` with re-runnable commands. Extrapolations are
+identified separately from measurements; mathematical claims are supported by
+the derivations and tests described below.
 
 ---
 
@@ -20,15 +21,15 @@ artifact in `data/` and a re-runnable command.
 
 | | Result |
 |---|---|
-| **Kernel throughput** | 91.3–100.6% of a device-to-device copy measured on the same machine, across `uint32`/`uint64`/`float32` and n = 10…29. Median ≈ 96%. |
-| **Largest transform** | n = 29 (2 GiB per array), 2 GiB in / 2 GiB out, in 174 ms |
+| **Kernel throughput** | `WHT` sweep: effective bandwidth 91.3–100.6% of a device-to-device copy measured on the same machine. `uint32`/`float32`: n = 10…29; `uint64`: n = 10…28. Median ≈ 96%; traffic counts every pass. |
+| **Largest transform** | `WHT`, `uint32`, n = 29 (2 GiB per array), four memory passes in 174 ms; one device copy takes 43 ms |
 | **Exactness** | zeta/Möbius round trips bit-exact over Z/2³² and Z/2⁶⁴; Hadamard bit-loss bound proved by Smith normal form, and *verified tight at every tested n* by an explicit two-sided witness |
-| **Chromatic number** | exact χ for an arbitrary 29-vertex graph in **1.53 s** (`mode="exact"`, `G(29,0.5)`, 3 CRT primes); 28 vertices in 544 ms; runtime depends only on n |
+| **Chromatic number** | exact χ = 7 for the measured `G(29,0.5)`, seed 7, in **1.53 s** (`mode="exact"`, two candidate k values, 3 CRT primes each); the measured 28-vertex instance takes 544 ms. Runtime also depends on the graph and CRT work. |
 | **Tests** | 1522 passed + 1 skipped in the fast suite, 11 more marked slow, all passing; all six required kernel test groups cover all three element types |
 | **Code** | 1.4k lines kernel, 1.9k application, 3.0k tests, 2.3k benchmarks |
 
 The three results most worth a reader's time are in §3.2 (a tiling
-policy change worth 1.75× at the largest sizes), §4.3 (a divisibility lemma
+policy change giving a 1.31× latency speedup at n = 29), §4.3 (a divisibility lemma
 that settles by arithmetic what a 287-graph search could not, bounding how far a
 mod-2⁶⁴ false negative can reach), and §4.4 (the butterfly turning out not to be
 the bottleneck of its own application).
@@ -89,7 +90,7 @@ the same kernel with a transposed generator. [`yates/autodiff.py`](../yates/auto
 
 ![Kernel bandwidth](figures/kernel-bandwidth.svg)
 
-**Figure 1. The kernel is bandwidth-bound across the whole range, once
+**Figure 1. The measured WHT is bandwidth-bound across the whole range, once
 high-stride passes use long enough contiguous runs.** (a) Achieved bandwidth as
 a fraction of a pure device-to-device copy kernel measured on the same machine
 at the same working-set size, for n = 10…29. Traffic is
@@ -136,9 +137,11 @@ short runs stop amortising the page activation. Measured in one controlled run:
 
 Spending an extra full pass over 2 GiB to lengthen the runs is a large net win,
 and the optimum run length *grows* with n — 512 B at n=28, 2 KiB at n=29. The
-shipped policy tracks that automatically and lands within a percent of the best
-hand-tuned plan at both sizes. This was the single largest performance change in
-the project and it came from measuring, not from reasoning about the kernel.
+shipped policy is within 0.4% of the fastest measured non-paging candidate at
+n=28 and 3.1% at n=29. Latency improves from 117.0 to 93.2 ms at n=28 (1.25×)
+and from 235.7 to 179.9 ms at n=29 (1.31×). The effective-bandwidth improvements
+are larger, 1.67× and 1.75×, because the traffic calculation also increases
+from three passes to four. Those bandwidth ratios are not latency speedups.
 
 ### 3.3 Thermal behaviour
 
@@ -521,7 +524,7 @@ Data: [`bench/results/chromatic_density.json`](../bench/results/chromatic_densit
 | 0.70 | 222 | 236 | 7 | 9 | 2 | 3 | 170 ms | 47 ms |
 | 0.90 | 295 | 61 | 5 | 15 | 1 | 3 | 96 ms | 34 ms |
 
-**Within `G(n,p)` the prime count never leaves 2–3 and the range spans 2.7× in
+**In the measured `G(n,p)` sweep the prime count stays at 2–3 and the range spans 2.7× in
 wall clock.** `χ·log₂ i(V)` stays in 40–75 bits, self-limiting *for random
 graphs*: `α ~ 2 log_b n` gives `χ ~ n/(2 log_b n)` and `log₂ i(V) = Θ(log² n)`,
 so the product is `Θ(n log n)` rather than `Θ(n²)`.
@@ -529,7 +532,8 @@ so the product is `Θ(n log n)` rather than `Θ(n²)`.
 **That does not extend to all graphs.** The driver is heterogeneity, not
 density. For `K_a + E_b` (clique beside an independent set, `n = a+b`), `χ = a`
 and `i(V) = (a+1)2^b`, so the product is `Θ(n²)` near `a ≈ n/2` — and `G(26,0.5)`
-reaches such a graph with probability zero:
+can generate such a graph, but these structured instances are not represented
+by the small random sample above:
 
 | `a` (so `b = 26 − a`) | i(V) | log₂ i(V) | chi | bound bits | CRT primes | `mode="exact"` |
 |--:|--:|--:|--:|--:|--:|--:|
@@ -555,17 +559,19 @@ every k, derived in the test rather than quoted.
 
 `O*(2ⁿ)` for every graph cuts both ways.
 
-- **Where it wins:** small, dense, hard instances, and any instance where
-  branch-and-bound blows up. Runtime depends only on n, never on instance
-  hardness. Triangle-free graphs with large χ are trivial for it.
+- **Where it may help:** small instances where backtracking over colourings is
+  expensive. The subset-lattice work has an `O*(2ⁿ)` bound for every graph;
+  actual runtime also depends on the indicator's early exits, the colour
+  bounds, the candidate k values tested, and their CRT prime counts. No
+  comparative benchmark against specialised colouring solvers is provided.
 - **Where it is useless:** the large sparse DIMACS benchmarks. Specialised
   branch-and-bound colouring solvers handle hundreds of vertices there; this
-  cannot handle 40 on any machine — `2⁴⁰` uint32 words is 4 TiB.
+  cannot handle 40 on this laptop — `2⁴⁰` uint32 words alone is 4 TiB.
 
 **It is not competitive with colouring solvers in general and is not offered as
-such.** The supportable claim is narrower: *exact chromatic number for arbitrary
-graphs up to ~28 vertices, in time depending only on n, on a passively cooled
-laptop.*
+such.** It implements an exact algorithm for arbitrary graphs that fit in
+memory, and the recorded benchmarks include instances up to 29 vertices on a
+passively cooled laptop. The 1.53 s result describes one specified instance.
 
 ---
 
@@ -748,7 +754,7 @@ brew install nauty   # geng, for the f(n) table only
 .venv/bin/python bench/chromatic/max_v2_table.py --max-n 10 --out bench/results/chromatic_max_v2.json  # ~45 min at n=10
 .venv/bin/python bench/chromatic/density.py --out bench/results/chromatic_density.json
 
-# figures in this report (isolated env; they read only the JSON in data/)
+# figures in this report (isolated env; they read only the JSON in bench/results/)
 cd docs/figures && uv run --no-project --with matplotlib --with numpy python kernel-bandwidth.py
 ```
 
@@ -757,11 +763,16 @@ directly, so there is one copy of each result in the repository rather than two
 that can drift. Everything this report cites — the JSON, the figure scripts and
 the figures themselves — is tracked here; there is nothing to request.
 
-**Provenance.** All measurements in this report were taken at `c1d4437`.
-No executable code has changed since: `git diff c1d4437..HEAD -- yates/ apps/
-bench/` touches documentation only, so the numbers describe the current tree.
-The test count above is current and therefore higher than it was at `c1d4437`.
-MLX 0.32.2, pinned in
+**Provenance.** The cited JSON files are snapshots from several runs, with
+commands and environment metadata recorded in the artifacts where available.
+They do not record one common source commit. Kernel and chromatic application
+implementation files are unchanged between `c1d4437` and `28ad3d7`; benchmark
+scripts and artifacts did change, including additions in `745e104`. A commit
+that adds an artifact is not necessarily the commit at which it was measured.
+In particular, `chromatic.json` records that `power_units` and `primes_by_k`
+were added afterwards by re-solving the deterministic instances; the timings
+were not re-measured. The test count is the fast-suite count at review time.
+Measurements used MLX 0.32.2, pinned in
 [`requirements.txt`](../requirements.txt). Apple M4 GPU (`applegpu_g16g`), SIMD width 32
 measured in-kernel, 32768 B threadgroup memory, 11.84 GiB recommended working
 set. No thermal or performance warning was recorded by macOS during any run.

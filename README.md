@@ -8,9 +8,11 @@ primitive: the `2^n`-point zeta / Möbius / Hadamard transform over the Boolean
 lattice. This is that primitive as a single templated Metal kernel: **exact over
 `Z/2^32` and `Z/2^64`** — no floats, no tolerance, no headroom — and
 **bandwidth-bound**. On a 16 GB MacBook Air it reaches `n = 29` (a 2 GiB array),
-transforms it in **174 ms**, and sustains **~96% of the same machine's measured
-device-to-device copy bandwidth** across `n = 10…29` for `uint32`, `uint64` and
-`float32` alike.
+transforms it in **174 ms** with `WHT` on `uint32`, and sustains a median
+**~96% of the same machine's measured device-to-device copy bandwidth** in the
+`WHT` sweep (`uint32`/`float32`: `n = 10…29`; `uint64`: `n = 10…28`). This is
+effective bandwidth, counting all memory passes, not the time of one copy:
+the 174 ms transform makes four passes, versus 43 ms for a single copy.
 
 **Where this shows up.** The subset zeta transform and its Möbius inverse are
 the workhorse of exact exponential algorithms: set cover, chromatic number,
@@ -399,9 +401,12 @@ comparable. The pre-fix policy is rebuilt explicitly by the script (as
 
 Paying an extra full pass over 2 GiB in exchange for longer contiguous runs is a
 large net win — and the required run length grows with the stride, which is why
-512 B is best at n=28 and 2 KiB at n=29. The shipped policy tracks that
-automatically and lands within a percent of the best hand-tuned plan at both
-sizes.
+512 B is best among the fixed-run candidates shown at n=28 and 2 KiB at n=29.
+The shipped policy is within 0.4% of the fastest measured non-paging candidate
+at n=28 and 3.1% at n=29. Against the pre-fix policy, latency falls from
+117.0 to 93.2 ms (**1.25× faster**) and from 235.7 to 179.9 ms (**1.31× faster**),
+respectively. The larger effective-bandwidth gains (1.67× and 1.75×) also count
+the increase from three memory passes to four.
 
 One caveat on that table: the script's smallest-tile candidate at n=29
 (`tile8k`, 6 passes) recorded 161.8 s, ~600x more than its traffic can account
@@ -414,10 +419,15 @@ excluded from the table.
 
 - **[`apps/chromatic/`](apps/chromatic/README.md)** — exact chromatic number by
   Björklund–Husfeldt–Koivisto inclusion–exclusion. One subset-zeta over the
-  whole cube, then a pointwise power and a reduction per candidate `k`:
-  `O*(2^n)` for every graph, no search. Reuses this kernel unmodified. Reads its
-  own README first — the single-modulus result carries a **one-sided** guarantee,
+  whole cube, then a pointwise power and a reduction per candidate `k` and modulus:
+  `O*(2^n)` for every graph, without backtracking over colourings. Reuses this
+  kernel unmodified. Read its README first — the single-modulus result carries
+  a **one-sided** guarantee,
   and the default mode upgrades it to unconditional via CRT.
+
+- **[Next applications](docs/roadmap.md)** — five proposed polynomial-system
+  applications in the companion `exact-padic-metal` project, with the kernel's
+  role and validation requirements made explicit. These are plans, not results.
 
 ## Tests
 
